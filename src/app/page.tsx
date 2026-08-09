@@ -104,7 +104,7 @@ export default function Home() {
             href={done === 0 ? "/alphabet" : "/practice"}
             prefetch={LINK_PREFETCH}
             onClick={tap}
-            className="press mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold"
+            className="press mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-5 py-3 text-[13px] font-semibold"
             style={{
               background:
                 "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",

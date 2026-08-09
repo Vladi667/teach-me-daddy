@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Noto_Sans_Hebrew } from "next/font/google";
 import TabBar from "@/components/TabBar";
-import { asset } from "@/lib/base-path";
+import { asset, SITE_ORIGIN, SITE_URL } from "@/lib/base-path";
 import "./globals.css";
 
 const notoHebrew = Noto_Sans_Hebrew({
@@ -21,18 +21,56 @@ const ktav = localFont({
   display: "swap",
 });
 
+const TITLE = "Teach me Daddy";
+const DESCRIPTION = "Hebrew, one letter at a time.";
+
 export const metadata: Metadata = {
-  title: "Teach me Daddy",
-  description: "Hebrew, one letter at a time.",
-  applicationName: "Teach me Daddy",
+  metadataBase: new URL(SITE_ORIGIN),
+  title: TITLE,
+  description: DESCRIPTION,
+  applicationName: TITLE,
+  alternates: { canonical: SITE_URL },
   appleWebApp: {
     capable: true,
-    title: "Teach me Daddy",
+    title: TITLE,
     statusBarStyle: "black-translucent",
   },
+  // Next emits only the modern `mobile-web-app-capable`; iOS before 17 reads
+  // the prefixed one, and it's what makes "Add to Home Screen" open without
+  // Safari chrome.
+  other: { "apple-mobile-web-app-capable": "yes" },
+  // iOS ignores SVG for apple-touch-icon, and Android's installer wants
+  // raster sizes — hence the PNGs rather than the single vector.
   icons: {
-    icon: asset("/icon.svg"),
-    apple: asset("/icon.svg"),
+    icon: [
+      { url: asset("/favicon-64.png"), sizes: "64x64", type: "image/png" },
+      { url: asset("/icon-192.png"), sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: asset("/apple-touch-icon.png"), sizes: "180x180", type: "image/png" },
+    ],
+  },
+  openGraph: {
+    type: "website",
+    siteName: TITLE,
+    title: TITLE,
+    description: DESCRIPTION,
+    url: SITE_URL,
+    locale: "en",
+    images: [
+      {
+        url: asset("/og.png"),
+        width: 1200,
+        height: 630,
+        alt: "Teach me Daddy — Hebrew, one letter at a time.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [asset("/og.png")],
   },
 };
 

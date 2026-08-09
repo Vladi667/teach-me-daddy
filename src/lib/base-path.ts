@@ -8,6 +8,17 @@ export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 export const asset = (path: string) => `${BASE_PATH}${path}`;
 
 /**
+ * Origin only — no basePath. `metadataBase` resolves the already-prefixed
+ * paths that `asset()` returns, so including it here would double it up.
+ */
+export const SITE_ORIGIN = BASE_PATH
+  ? "https://vladi667.github.io"
+  : "https://teach-me-daddy.vercel.app";
+
+/** Canonical address of the app on whichever host built it. */
+export const SITE_URL = `${SITE_ORIGIN}${BASE_PATH}/`;
+
+/**
  * Pass to every `<Link prefetch={...}>`. `next export` doesn't emit the
  * per-segment prefetch payloads (`__next.<route>.__PAGE__.txt`) that Next 16's
  * client segment cache requests, so on GitHub Pages each prefetch 404s.
