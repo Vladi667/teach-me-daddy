@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tap } from "@/lib/feedback";
+import { LINK_PREFETCH } from "@/lib/base-path";
 
 const TABS = [
   { href: "/", label: "Home", icon: HomeIcon },
@@ -30,6 +31,7 @@ export default function TabBar() {
             <Link
               key={href}
               href={href}
+              prefetch={LINK_PREFETCH}
               onClick={tap}
               aria-current={active ? "page" : undefined}
               className="press relative flex flex-1 flex-col items-center justify-center gap-1 rounded-[20px]"

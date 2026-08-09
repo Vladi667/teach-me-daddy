@@ -19,6 +19,7 @@ import {
   type Question,
 } from "@/lib/quiz";
 import { error, success, tap } from "@/lib/feedback";
+import { LINK_PREFETCH } from "@/lib/base-path";
 
 interface Round {
   question: Question;
@@ -334,6 +335,7 @@ function Results({
 
       <Link
         href="/alphabet"
+        prefetch={LINK_PREFETCH}
         onClick={tap}
         className="press mt-2.5 block w-full rounded-full py-3 text-[13px] font-medium text-(--color-ink-dim)"
       >

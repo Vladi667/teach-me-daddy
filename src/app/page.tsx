@@ -5,6 +5,7 @@ import Ring from "@/components/Ring";
 import { LETTERS } from "@/lib/letters";
 import { masteredCount, useProgress } from "@/lib/progress";
 import { tap } from "@/lib/feedback";
+import { LINK_PREFETCH } from "@/lib/base-path";
 
 const MODULES = [
   {
@@ -101,6 +102,7 @@ export default function Home() {
           </p>
           <Link
             href={done === 0 ? "/alphabet" : "/practice"}
+            prefetch={LINK_PREFETCH}
             onClick={tap}
             className="press mt-3 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-semibold"
             style={{
@@ -192,6 +194,7 @@ export default function Home() {
             <Link
               key={m.title}
               href={m.href}
+              prefetch={LINK_PREFETCH}
               onClick={tap}
               className={`press ${cls}`}
               style={style}

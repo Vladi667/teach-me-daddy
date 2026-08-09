@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Noto_Sans_Hebrew } from "next/font/google";
 import TabBar from "@/components/TabBar";
+import { asset } from "@/lib/base-path";
 import "./globals.css";
 
 const notoHebrew = Noto_Sans_Hebrew({
@@ -24,15 +25,14 @@ export const metadata: Metadata = {
   title: "Teach me Daddy",
   description: "Hebrew, one letter at a time.",
   applicationName: "Teach me Daddy",
-  manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     title: "Teach me Daddy",
     statusBarStyle: "black-translucent",
   },
   icons: {
-    icon: "/icon.svg",
-    apple: "/icon.svg",
+    icon: asset("/icon.svg"),
+    apple: asset("/icon.svg"),
   },
 };
 
