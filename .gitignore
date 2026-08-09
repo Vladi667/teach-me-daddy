@@ -42,3 +42,9 @@ next-env.d.ts
 
 .vercel
 out/
+
+.env*.local
+.api-stash/
+
+# throwaway screenshots
+_preview-*.png

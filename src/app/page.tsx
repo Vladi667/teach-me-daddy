@@ -3,55 +3,48 @@
 import Link from "next/link";
 import Ring from "@/components/Ring";
 import { LETTERS } from "@/lib/letters";
-import { masteredCount, useProgress } from "@/lib/progress";
+import { CARDS } from "@/lib/deck";
+import { buildQueue } from "@/lib/srs";
+import { masteredCount } from "@/lib/progress";
+import {
+  BLOCKS,
+  DAILY_MINUTES,
+  dayKey,
+  dayMinutes,
+  streak,
+  WEEK_FOCUS,
+  weekdayIndex,
+} from "@/lib/plan";
+import { useStore } from "@/lib/store";
 import { tap } from "@/lib/feedback";
 import { LINK_PREFETCH } from "@/lib/base-path";
-
-const MODULES = [
-  {
-    href: "/alphabet",
-    title: "The Alphabet",
-    detail: "22 letters · print, cursive, final forms",
-    glyph: "א",
-    tint: "rgba(111,139,255,0.16)",
-    ready: true,
-  },
-  {
-    href: "/practice",
-    title: "Drill",
-    detail: "Spaced repetition · look-alike traps",
-    glyph: "ב",
-    tint: "rgba(180,137,255,0.16)",
-    ready: true,
-  },
-  {
-    href: "#",
-    title: "Vowels · Nikud",
-    detail: "Coming next",
-    glyph: "אָ",
-    tint: "rgba(74,222,156,0.12)",
-    ready: false,
-  },
-  {
-    href: "#",
-    title: "First Words",
-    detail: "Coming next",
-    glyph: "מ",
-    tint: "rgba(255,183,77,0.12)",
-    ready: false,
-  },
-];
+import { useNow } from "@/lib/clock";
 
 export default function Home() {
-  const { progress, ready } = useProgress();
-  const done = ready ? masteredCount(progress) : 0;
-  const pct = done / LETTERS.length;
+  const { data, ready, isGuest, username } = useStore();
+  const now = useNow();
+
+  const today = dayKey();
+  const mastered = ready ? masteredCount(data.alphabet) : 0;
+  const run = ready ? streak(data.plan) : 0;
+
+  const allowance = Math.max(
+    0,
+    data.settings.newPerDay - (data.newLog[today] ?? 0),
+  );
+  const due = ready
+    ? buildQueue(CARDS, data.srs, now, allowance).counts.total
+    : 0;
+
+  const log = data.plan.days[today];
+  const doneMin = dayMinutes(log);
+  const blocksDone = BLOCKS.filter((b) => log?.blocks[b.id]).length;
 
   return (
     <>
-      <header className="anim-rise mb-6">
+      <header className="anim-rise mb-5">
         <p className="text-[13px] font-medium text-(--color-ink-faint)">
-          Shalom
+          {isGuest ? "Shalom" : `Shalom, ${username}`}
         </p>
         <h1 className="mt-0.5 text-[32px] leading-[1.1] font-bold tracking-[-0.03em]">
           Teach me
@@ -69,150 +62,188 @@ export default function Home() {
         </h1>
       </header>
 
-      {/* Progress hero ------------------------------------------------- */}
+      {/* today ------------------------------------------------------------ */}
       <section
-        className="glass anim-rise mb-5 flex items-center gap-5 rounded-[28px] p-5"
-        style={{ animationDelay: "60ms" }}
+        className="glass anim-rise mb-3 rounded-[28px] p-5"
+        style={{ animationDelay: "50ms" }}
       >
-        <Ring value={pct}>
-          <div className="text-center leading-none">
-            <div className="text-[22px] font-bold tracking-[-0.04em]">
-              {done}
+        <div className="flex items-center gap-5">
+          <Ring value={doneMin / DAILY_MINUTES}>
+            <div className="text-center leading-none">
+              <div className="text-[20px] font-bold tracking-[-0.04em] tabular-nums">
+                {blocksDone}
+              </div>
+              <div className="mt-0.5 text-[10px] text-(--color-ink-faint)">
+                / {BLOCKS.length}
+              </div>
             </div>
-            <div className="mt-0.5 text-[10px] text-(--color-ink-faint)">
-              / {LETTERS.length}
-            </div>
-          </div>
-        </Ring>
+          </Ring>
 
-        <div className="min-w-0">
-          <h2 className="text-[17px] font-semibold tracking-[-0.02em]">
-            {done === 0
-              ? "Start here"
-              : done === LETTERS.length
-                ? "Alphabet complete"
-                : "Letters mastered"}
-          </h2>
-          <p className="mt-1 text-[13px] leading-snug text-(--color-ink-dim)">
-            {done === 0
-              ? "Learn the shapes first, then drill them until they're automatic."
-              : done === LETTERS.length
-                ? "Every letter answered right three times running. Keep it warm."
-                : `${LETTERS.length - done} to go. Three correct in a row locks a letter in.`}
-          </p>
+          <div className="min-w-0">
+            <h2 className="text-[17px] font-semibold tracking-[-0.02em]">
+              {blocksDone === BLOCKS.length
+                ? "Day complete"
+                : blocksDone === 0
+                  ? "Nothing logged yet"
+                  : "In progress"}
+            </h2>
+            <p className="mt-1 text-[12.5px] leading-snug text-(--color-ink-dim)">
+              {WEEK_FOCUS[weekdayIndex(today)].focus}
+            </p>
+            <p className="mt-1.5 text-[11px] text-(--color-ink-faint)">
+              {run > 0 ? `${run}-day streak · ` : ""}
+              {due > 0 ? `${due} cards due` : "no cards due"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex gap-2.5">
           <Link
-            href={done === 0 ? "/alphabet" : "/practice"}
+            href="/study"
             prefetch={LINK_PREFETCH}
             onClick={tap}
-            className="press mt-3 inline-flex min-h-[44px] items-center gap-1.5 rounded-full px-5 py-3 text-[13px] font-semibold"
+            className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
             style={{
               background:
                 "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
               boxShadow: "0 6px 20px -8px rgba(111,139,255,0.8)",
             }}
           >
-            {done === 0 ? "Learn the letters" : "Continue drilling"}
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="m9 6 6 6-6 6" />
-            </svg>
+            {due > 0 ? `Study ${due}` : "Study"}
+          </Link>
+          <Link
+            href="/plan"
+            prefetch={LINK_PREFETCH}
+            onClick={tap}
+            className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-white/8 text-[13px] font-semibold"
+          >
+            Log today
           </Link>
         </div>
       </section>
 
-      {/* Modules -------------------------------------------------------- */}
-      <h3 className="anim-rise mb-3 px-1 text-[13px] font-semibold tracking-[-0.01em] text-(--color-ink-faint)">
+      {isGuest && (
+        <Link
+          href="/me"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="glass press anim-rise mb-5 flex items-center gap-3 rounded-[22px] px-4 py-3.5"
+          style={{
+            animationDelay: "90ms",
+            borderColor: "rgba(111,139,255,0.3)",
+          }}
+        >
+          <span className="text-[18px]">👤</span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[13px] font-semibold">
+              Claim a username
+            </span>
+            <span className="block text-[11.5px] text-(--color-ink-dim)">
+              So your progress follows you to any device
+            </span>
+          </span>
+          <Chevron />
+        </Link>
+      )}
+
+      <h3 className="anim-rise mb-3 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
         Modules
       </h3>
 
       <div className="flex flex-col gap-3">
-        {MODULES.map((m, i) => {
-          const inner = (
-            <>
-              <div
-                className="grid size-[52px] shrink-0 place-items-center rounded-[17px]"
-                style={{
-                  background: m.tint,
-                  boxShadow: "0 1px 0 0 rgba(255,255,255,0.12) inset",
-                }}
-              >
-                <span
-                  className="heb text-[26px] leading-none"
-                  style={{ fontFamily: "var(--font-hebrew)" }}
-                >
-                  {m.glyph}
-                </span>
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[16px] font-semibold tracking-[-0.02em]">
-                    {m.title}
-                  </span>
-                  {!m.ready && (
-                    <span className="rounded-full bg-white/8 px-2 py-0.5 text-[9.5px] font-semibold tracking-wide text-(--color-ink-faint) uppercase">
-                      Soon
-                    </span>
-                  )}
-                </div>
-                <p className="mt-0.5 truncate text-[12.5px] text-(--color-ink-dim)">
-                  {m.detail}
-                </p>
-              </div>
-
-              {m.ready && (
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="shrink-0 text-(--color-ink-faint)"
-                >
-                  <path d="m9 6 6 6-6 6" />
-                </svg>
-              )}
-            </>
-          );
-
-          const cls =
-            "glass anim-rise flex items-center gap-3.5 rounded-[24px] p-3.5";
-          const style = { animationDelay: `${120 + i * 55}ms` };
-
-          return m.ready ? (
-            <Link
-              key={m.title}
-              href={m.href}
-              prefetch={LINK_PREFETCH}
-              onClick={tap}
-              className={`press ${cls}`}
-              style={style}
-            >
-              {inner}
-            </Link>
-          ) : (
-            <div
-              key={m.title}
-              className={cls}
-              style={{ ...style, opacity: 0.45 }}
-              aria-disabled
-            >
-              {inner}
-            </div>
-          );
-        })}
+        <Module
+          href="/alphabet"
+          title="The Alphabet"
+          detail={`${mastered}/${LETTERS.length} mastered · print, cursive, traps`}
+          glyph="א"
+          tint="rgba(111,139,255,0.16)"
+          delay={120}
+        />
+        <Module
+          href="/study"
+          title="Vocabulary"
+          detail={`${CARDS.length} cards · patterns first, then the pieces`}
+          glyph="מ"
+          tint="rgba(180,137,255,0.16)"
+          delay={175}
+        />
+        <Module
+          href="/plan"
+          title="The 5-Month Plan"
+          detail="Daily blocks, metrics, coverage curve"
+          glyph="ה"
+          tint="rgba(74,222,156,0.14)"
+          delay={230}
+        />
       </div>
     </>
+  );
+}
+
+function Module({
+  href,
+  title,
+  detail,
+  glyph,
+  tint,
+  delay,
+}: {
+  href: string;
+  title: string;
+  detail: string;
+  glyph: string;
+  tint: string;
+  delay: number;
+}) {
+  return (
+    <Link
+      href={href}
+      prefetch={LINK_PREFETCH}
+      onClick={tap}
+      className="glass press anim-rise flex items-center gap-3.5 rounded-[24px] p-3.5"
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div
+        className="grid size-[52px] shrink-0 place-items-center rounded-[17px]"
+        style={{
+          background: tint,
+          boxShadow: "0 1px 0 0 rgba(255,255,255,0.12) inset",
+        }}
+      >
+        <span
+          className="heb text-[26px] leading-none"
+          style={{ fontFamily: "var(--font-hebrew)" }}
+        >
+          {glyph}
+        </span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[16px] font-semibold tracking-[-0.02em]">
+          {title}
+        </div>
+        <p className="mt-0.5 truncate text-[12.5px] text-(--color-ink-dim)">
+          {detail}
+        </p>
+      </div>
+      <Chevron />
+    </Link>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0 text-(--color-ink-faint)"
+    >
+      <path d="m9 6 6 6-6 6" />
+    </svg>
   );
 }

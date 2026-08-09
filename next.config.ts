@@ -22,8 +22,12 @@ const nextConfig: NextConfig = {
       }
     : {}),
 
-  // Read by src/lib/base-path.ts so asset URLs in metadata resolve on both hosts.
-  env: { NEXT_PUBLIC_BASE_PATH: basePath },
+  env: {
+    // Read by src/lib/base-path.ts so asset URLs resolve on both hosts.
+    NEXT_PUBLIC_BASE_PATH: basePath,
+    // The static export has no API routes, so profiles stay device-local there.
+    NEXT_PUBLIC_SYNC_ENABLED: isPagesBuild ? "0" : "1",
+  },
 };
 
 export default nextConfig;

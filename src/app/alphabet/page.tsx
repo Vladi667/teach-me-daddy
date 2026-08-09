@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import Segmented from "@/components/Segmented";
+import { LINK_PREFETCH } from "@/lib/base-path";
 import LetterSheet from "@/components/LetterSheet";
 import { LETTERS, type Letter } from "@/lib/letters";
 import { isMastered, useProgress } from "@/lib/progress";
@@ -96,6 +98,29 @@ export default function AlphabetPage() {
           ך ם ן ף ץ
         </span>
       </p>
+
+      <div className="mt-4 flex gap-2.5">
+        <Link
+          href="/practice"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
+          style={{
+            background:
+              "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
+          }}
+        >
+          Drill the letters
+        </Link>
+        <Link
+          href="/progress"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-white/8 text-[13px] font-semibold"
+        >
+          Letter stats
+        </Link>
+      </div>
 
       {open && (
         <LetterSheet

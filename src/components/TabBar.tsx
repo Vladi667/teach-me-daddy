@@ -8,25 +8,38 @@ import { LINK_PREFETCH } from "@/lib/base-path";
 const TABS = [
   { href: "/", label: "Home", icon: HomeIcon },
   { href: "/alphabet", label: "Letters", icon: LettersIcon },
-  { href: "/practice", label: "Practice", icon: PracticeIcon },
-  { href: "/progress", label: "Progress", icon: ProgressIcon },
+  { href: "/study", label: "Study", icon: StudyIcon },
+  { href: "/plan", label: "Plan", icon: PlanIcon },
+  { href: "/me", label: "Me", icon: MeIcon },
 ] as const;
+
+/** Routes that belong under a tab but aren't the tab's own href. */
+const OWNED: Record<string, string[]> = {
+  "/alphabet": ["/practice", "/progress"],
+};
 
 export default function TabBar() {
   const pathname = usePathname();
 
+  const activeHref =
+    TABS.map((t) => t.href).find(
+      (href) =>
+        href !== "/" &&
+        (pathname.startsWith(href) ||
+          (OWNED[href] ?? []).some((p) => pathname.startsWith(p))),
+    ) ?? "/";
+
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-5"
+      className="fixed inset-x-0 bottom-0 z-50 flex justify-center px-4"
       style={{ paddingBottom: "calc(var(--safe-b) + 10px)" }}
     >
       <div
-        className="glass glass-strong flex w-full max-w-[420px] items-stretch gap-1 rounded-[26px] p-1.5"
+        className="glass glass-strong flex w-full max-w-[440px] items-stretch gap-0.5 rounded-[26px] p-1.5"
         style={{ height: "var(--tabbar-h)" }}
       >
         {TABS.map(({ href, label, icon: Icon }) => {
-          const active =
-            href === "/" ? pathname === "/" : pathname.startsWith(href);
+          const active = href === activeHref;
           return (
             <Link
               key={href}
@@ -44,7 +57,7 @@ export default function TabBar() {
               }}
             >
               <Icon active={active} />
-              <span className="text-[10px] font-medium tracking-tight">
+              <span className="text-[9.5px] font-medium tracking-tight">
                 {label}
               </span>
             </Link>
@@ -58,8 +71,8 @@ export default function TabBar() {
 type IconProps = { active: boolean };
 
 const S = {
-  width: 19,
-  height: 19,
+  width: 18,
+  height: 18,
   viewBox: "0 0 24 24",
   fill: "none",
   stroke: "currentColor",
@@ -67,9 +80,11 @@ const S = {
   strokeLinejoin: "round" as const,
 };
 
+const w = (active: boolean) => (active ? 2.2 : 1.8);
+
 function HomeIcon({ active }: IconProps) {
   return (
-    <svg {...S} strokeWidth={active ? 2.2 : 1.8}>
+    <svg {...S} strokeWidth={w(active)}>
       <path d="M3 10.5 12 3l9 7.5" />
       <path d="M5.5 9.5V20h13V9.5" />
     </svg>
@@ -78,7 +93,7 @@ function HomeIcon({ active }: IconProps) {
 
 function LettersIcon({ active }: IconProps) {
   return (
-    <svg {...S} strokeWidth={active ? 2.2 : 1.8}>
+    <svg {...S} strokeWidth={w(active)}>
       <rect x="3" y="3" width="7.5" height="7.5" rx="2.2" />
       <rect x="13.5" y="3" width="7.5" height="7.5" rx="2.2" />
       <rect x="3" y="13.5" width="7.5" height="7.5" rx="2.2" />
@@ -87,21 +102,30 @@ function LettersIcon({ active }: IconProps) {
   );
 }
 
-function PracticeIcon({ active }: IconProps) {
+function StudyIcon({ active }: IconProps) {
   return (
-    <svg {...S} strokeWidth={active ? 2.2 : 1.8}>
-      <path d="M12 3.2 14.6 8.6l5.9.85-4.25 4.15 1 5.9L12 16.66 6.75 19.5l1-5.9L3.5 9.45l5.9-.85Z" />
+    <svg {...S} strokeWidth={w(active)}>
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H10a2 2 0 0 1 2 2v13a1.6 1.6 0 0 0-1.6-1.6H4Z" />
+      <path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H14a2 2 0 0 0-2 2v13a1.6 1.6 0 0 1 1.6-1.6H20Z" />
     </svg>
   );
 }
 
-function ProgressIcon({ active }: IconProps) {
+function PlanIcon({ active }: IconProps) {
   return (
-    <svg {...S} strokeWidth={active ? 2.2 : 1.8}>
-      <path d="M4 20V11" />
-      <path d="M10 20V5" />
-      <path d="M16 20v-6" />
-      <path d="M22 20H2" />
+    <svg {...S} strokeWidth={w(active)}>
+      <rect x="3.5" y="5" width="17" height="15.5" rx="3" />
+      <path d="M3.5 9.5h17M8 3.5V6m8-2.5V6" />
+      <path d="m8.5 14 2.2 2.2 4.3-4.3" />
+    </svg>
+  );
+}
+
+function MeIcon({ active }: IconProps) {
+  return (
+    <svg {...S} strokeWidth={w(active)}>
+      <circle cx="12" cy="8.2" r="3.7" />
+      <path d="M4.8 20a7.2 7.2 0 0 1 14.4 0" />
     </svg>
   );
 }
