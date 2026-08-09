@@ -43,9 +43,14 @@ build; `npm run lint` runs ESLint.
 
 ## Deploying
 
+Live at **[teach-me-daddy.vercel.app](https://teach-me-daddy.vercel.app)**.
+
 The app is a static Next.js build with no server-side data, environment
-variables, or external services — it deploys to Vercel as-is. Push the repo and
-import it at [vercel.com/new](https://vercel.com/new), or:
+variables, or external services, so it deploys to Vercel as-is.
+
+The Vercel project is connected to this GitHub repository, so pushing to `main`
+publishes to production and any other branch gets a preview deployment. To
+deploy from the command line instead:
 
 ```bash
 npx vercel --prod
