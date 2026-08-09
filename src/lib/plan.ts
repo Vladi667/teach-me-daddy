@@ -3,6 +3,18 @@
  * Section numbers below refer to that document.
  */
 
+/**
+ * Group digits deterministically.
+ *
+ * `toLocaleString()` without an explicit locale follows the runtime's default,
+ * so the prerender (Node, en-US → "1,200") and the browser (a French locale →
+ * "1 200") disagree and React reports a hydration mismatch. Formatting by hand
+ * keeps both sides identical whatever the viewer's locale.
+ */
+export function fmtNum(n: number): string {
+  return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+}
+
 /** §1 — coverage of everyday Hebrew by cumulative words known. */
 export const COVERAGE: { words: number; pct: number }[] = [
   { words: 100, pct: 50 },

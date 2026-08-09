@@ -16,6 +16,7 @@ import {
   coverageFor,
   dayMinutes,
   emptyDay,
+  fmtNum,
   minutesInMonth,
   monthFor,
   shiftDay,
@@ -210,16 +211,16 @@ export default function PlanPage() {
           </Ring>
           <div className="min-w-0">
             <div className="text-[15px] font-semibold">
-              {words.toLocaleString()} words
+              {fmtNum(words)} words
             </div>
             <p className="mt-1 text-[12px] leading-snug text-(--color-ink-dim)">
               Month {month.n} — {month.title}. Target{" "}
-              {month.to.toLocaleString()} by the end.
+              {fmtNum(month.to)} by the end.
             </p>
             <p className="mt-1.5 text-[11px] text-(--color-ink-faint)">
               {matureInApp} mature here
               {plan.wordsElsewhere > 0 &&
-                ` + ${plan.wordsElsewhere.toLocaleString()} elsewhere`}
+                ` + ${fmtNum(plan.wordsElsewhere)} elsewhere`}
             </p>
           </div>
         </div>
@@ -332,7 +333,7 @@ export default function PlanPage() {
                     {m.title}
                   </span>
                   <span className="text-[10.5px] tabular-nums text-(--color-ink-faint)">
-                    {m.from.toLocaleString()}–{m.to.toLocaleString()} ·{" "}
+                    {fmtNum(m.from)}–{fmtNum(m.to)} ·{" "}
                     {m.coverage}
                   </span>
                 </div>
