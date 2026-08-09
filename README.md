@@ -43,7 +43,16 @@ build; `npm run lint` runs ESLint.
 
 ## Deploying
 
-Live at **[teach-me-daddy.vercel.app](https://teach-me-daddy.vercel.app)**.
+The app is live at two addresses, both built from `main`:
+
+| | |
+| --- | --- |
+| **[teach-me-daddy.vercel.app](https://teach-me-daddy.vercel.app)** | Vercel, served from the root |
+| **[vladi667.github.io/teach-me-daddy](https://vladi667.github.io/teach-me-daddy/)** | GitHub Pages, static export under a subpath |
+
+The GitHub Pages copy exists because some networks block `*.vercel.app` as a
+category and answer with their own certificate, which shows up on a phone as
+`ERR_CERT_AUTHORITY_INVALID`. The `github.io` address usually isn't filtered.
 
 The app is a static Next.js build with no server-side data, environment
 variables, or external services, so it deploys to Vercel as-is.
@@ -87,6 +96,18 @@ and are never blocked this way.
   background covers the mesh and the glass has nothing to refract.
 - **Progress is read through `useSyncExternalStore`,** which keeps the
   localStorage read out of an effect and gives cross-tab sync for free.
+- **One codebase, two hosts.** `PAGES_BUILD=1` (set only by
+  `.github/workflows/pages.yml`) switches `next.config.ts` to
+  `output: "export"` with a `/teach-me-daddy` basePath. Next prefixes `<Link>`
+  hrefs and imported assets on its own; hand-written absolute URLs go through
+  `src/lib/base-path.ts`. The web manifest is a generated route rather than a
+  static file so `start_url` and `scope` follow the basePath.
+- **Link prefetch is disabled on the Pages build.** `next export` doesn't emit
+  the per-segment prefetch payloads (`__next.<route>.__PAGE__.txt`) that
+  Next 16's client segment cache asks for, so every page load 404'd three
+  times. Clicking navigates identically either way; Vercel keeps prefetch.
+
+Progress is stored per-origin, so the two URLs keep separate mastery records.
 
 `HebrewAlphabetDrill.jsx` and `plan-hebreu-5-mois.md` are the earlier prototype
 and study plan. They're kept for reference and excluded from the build and lint.
