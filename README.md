@@ -56,6 +56,20 @@ deploy from the command line instead:
 npx vercel --prod
 ```
 
+**Commit author matters.** Vercel refuses a Git-triggered build when the commit
+author isn't a contributor on the Vercel project — it reports
+`TEAM_ACCESS_REQUIRED` and the deployment sits in `BLOCKED` without ever
+building. The Hobby plan has no way to add contributors, so commits must be
+authored by the address that owns the Vercel account:
+
+```bash
+git config user.email "tero.contact@gmail.com"
+```
+
+A blocked deployment can't be released after the fact; push a new commit with
+the right author. CLI deploys are attributed to whoever `vercel whoami` reports
+and are never blocked this way.
+
 ## Notes on the build
 
 - **Next.js 16** (App Router) with **React 19** and **Tailwind CSS v4**. Every
