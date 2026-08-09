@@ -47,3 +47,21 @@ export function useNow(): number {
 export function nowMs(): number {
   return Date.now();
 }
+
+/**
+ * Today's local date key, or null before the client takes over.
+ *
+ * Every page here is statically prerendered, so anything derived from the date
+ * at render time is frozen at *build* time — and the build runs in UTC. Render
+ * that and the markup disagrees with the browser for any viewer on a different
+ * calendar day, which React reports as a hydration mismatch. Callers must treat
+ * null as "not known yet" rather than substituting the date themselves.
+ */
+export function useToday(): string | null {
+  const now = useNow();
+  if (!now) return null;
+  const d = new Date(now);
+  const m = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${d.getFullYear()}-${m}-${day}`;
+}

@@ -9,7 +9,6 @@ import { masteredCount } from "@/lib/progress";
 import {
   BLOCKS,
   DAILY_MINUTES,
-  dayKey,
   dayMinutes,
   streak,
   WEEK_FOCUS,
@@ -18,25 +17,25 @@ import {
 import { useStore } from "@/lib/store";
 import { tap } from "@/lib/feedback";
 import { LINK_PREFETCH } from "@/lib/base-path";
-import { useNow } from "@/lib/clock";
+import { useNow, useToday } from "@/lib/clock";
 
 export default function Home() {
   const { data, ready, isGuest, username } = useStore();
   const now = useNow();
-
-  const today = dayKey();
+  // null until hydration — see useToday.
+  const today = useToday();
   const mastered = ready ? masteredCount(data.alphabet) : 0;
   const run = ready ? streak(data.plan) : 0;
 
   const allowance = Math.max(
     0,
-    data.settings.newPerDay - (data.newLog[today] ?? 0),
+    data.settings.newPerDay - (today ? (data.newLog[today] ?? 0) : 0),
   );
   const due = ready
     ? buildQueue(CARDS, data.srs, now, allowance).counts.total
     : 0;
 
-  const log = data.plan.days[today];
+  const log = today ? data.plan.days[today] : undefined;
   const doneMin = dayMinutes(log);
   const blocksDone = BLOCKS.filter((b) => log?.blocks[b.id]).length;
 
@@ -88,7 +87,7 @@ export default function Home() {
                   : "In progress"}
             </h2>
             <p className="mt-1 text-[12.5px] leading-snug text-(--color-ink-dim)">
-              {WEEK_FOCUS[weekdayIndex(today)].focus}
+              {today ? WEEK_FOCUS[weekdayIndex(today)].focus : " "}
             </p>
             <p className="mt-1.5 text-[11px] text-(--color-ink-faint)">
               {run > 0 ? `${run}-day streak · ` : ""}

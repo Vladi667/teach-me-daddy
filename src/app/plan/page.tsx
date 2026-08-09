@@ -14,7 +14,6 @@ import {
   TARGET_SPEAKING_MIN,
   WEEK_FOCUS,
   coverageFor,
-  dayKey,
   dayMinutes,
   emptyDay,
   minutesInMonth,
@@ -27,18 +26,21 @@ import {
 import { isMature } from "@/lib/srs";
 import { useStore } from "@/lib/store";
 import { tap } from "@/lib/feedback";
-import { useNow } from "@/lib/clock";
+import { useNow, useToday } from "@/lib/clock";
 
 export default function PlanPage() {
   const { data, ready, update } = useStore();
   const clock = useNow();
-  const [day, setDay] = useState(() => dayKey());
+  const today = useToday();
+  // Null until hydration, so nothing date-derived reaches the prerendered HTML.
+  const [picked, setPicked] = useState<string | null>(null);
+  const day = picked ?? today;
   const [showRules, setShowRules] = useState(false);
 
   const plan = data.plan;
-  const log: DayLog = plan.days[day] ?? emptyDay();
+  const log: DayLog = (day ? plan.days[day] : undefined) ?? emptyDay();
   const done = dayMinutes(log);
-  const run = ready ? streak(plan) : 0;
+  const run = ready && today ? streak(plan, today) : 0;
 
   const matureInApp = Object.values(data.srs).filter(isMature).length;
   const words = matureInApp + (plan.wordsElsewhere ?? 0);
@@ -49,14 +51,15 @@ export default function PlanPage() {
   const monthMinutes = minutesInMonth(plan, ref.getFullYear(), ref.getMonth());
   const monthHours = monthMinutes / 60;
 
-  const isToday = day === dayKey();
+  const isToday = !!day && day === today;
 
   function patchDay(fn: (d: DayLog) => DayLog) {
+    if (!day) return;
     update((d) => ({
       ...d,
       plan: {
         ...d.plan,
-        startedOn: d.plan.startedOn ?? dayKey(),
+        startedOn: d.plan.startedOn ?? today ?? undefined,
         days: { ...d.plan.days, [day]: fn(d.plan.days[day] ?? emptyDay()) },
       },
     }));
@@ -90,7 +93,7 @@ export default function PlanPage() {
           <button
             onClick={() => {
               tap();
-              setDay((d) => shiftDay(d, -1));
+              setPicked((d) => shiftDay(d ?? today!, -1));
             }}
             aria-label="Previous day"
             className="press grid size-9 place-items-center rounded-full bg-white/6"
@@ -99,10 +102,10 @@ export default function PlanPage() {
           </button>
           <div className="text-center">
             <div className="text-[14px] font-semibold">
-              {isToday ? "Today" : day}
+              {day ? (isToday ? "Today" : day) : " "}
             </div>
             <div className="text-[11px] text-(--color-ink-faint)">
-              {WEEK_FOCUS[weekdayIndex(day)].day} ·{" "}
+              {day ? WEEK_FOCUS[weekdayIndex(day)].day : " "} ·{" "}
               {Math.round(done / 60)}h{done % 60 ? ` ${done % 60}m` : ""} of{" "}
               {Math.round(DAILY_MINUTES / 60)}h
             </div>
@@ -110,7 +113,10 @@ export default function PlanPage() {
           <button
             onClick={() => {
               tap();
-              setDay((d) => (d === dayKey() ? d : shiftDay(d, 1)));
+              setPicked((d) => {
+                const cur = d ?? today!;
+                return cur === today ? cur : shiftDay(cur, 1);
+              });
             }}
             disabled={isToday}
             aria-label="Next day"
@@ -122,7 +128,7 @@ export default function PlanPage() {
         </div>
 
         <p className="mb-3 rounded-[14px] bg-white/5 px-3.5 py-2.5 text-[12px] leading-snug text-(--color-ink-dim)">
-          {WEEK_FOCUS[weekdayIndex(day)].focus}
+          {day ? WEEK_FOCUS[weekdayIndex(day)].focus : " "}
         </p>
 
         <div className="flex flex-col gap-2">

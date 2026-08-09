@@ -19,8 +19,7 @@ import {
   type Grade,
   type SrsCard,
 } from "@/lib/srs";
-import { dayKey } from "@/lib/plan";
-import { nowMs, useNow } from "@/lib/clock";
+import { nowMs, useNow, useToday } from "@/lib/clock";
 import { useStore } from "@/lib/store";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { canSpeak, error as buzz, speak, success, tap } from "@/lib/feedback";
@@ -39,10 +38,10 @@ export default function StudyPage() {
   const [shown, setShown] = useState(false);
   const [voice, setVoice] = useState(false);
 
-  const today = dayKey();
+  const today = useToday();
   const allowance = Math.max(
     0,
-    data.settings.newPerDay - (data.newLog[today] ?? 0),
+    data.settings.newPerDay - (today ? (data.newLog[today] ?? 0) : 0),
   );
 
   useEffect(() => {
@@ -90,9 +89,10 @@ export default function StudyPage() {
     update((d) => ({
       ...d,
       srs: { ...d.srs, [card.id]: review(d.srs[card.id] ?? newCard(at), g, at) },
-      newLog: wasNew
-        ? { ...d.newLog, [today]: (d.newLog[today] ?? 0) + 1 }
-        : d.newLog,
+      newLog:
+        wasNew && today
+          ? { ...d.newLog, [today]: (d.newLog[today] ?? 0) + 1 }
+          : d.newLog,
     }));
 
     setSession((s) => {
