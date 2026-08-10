@@ -240,14 +240,37 @@ Humour stays on the account gate, where a newcomer meets it, and nowhere past it
 6. **Retire what contradicts the model**: the Words screen, mode pickers, deck
    browsing. Field notes survives, demoted.
 
-## 13. Open
+## 13. Corpus pipeline — settled
 
-- **Audio source.** A native speaker recording ~1,700 lines twice is the best
-  outcome and needs a person. Cloud TTS is the fallback and needs a key. This
-  is the one requirement that cannot be met from inside the repository.
-- **Corpus source.** Hand-authoring 1,700 vocalised lines is not reliable at
-  quality. Tatoeba carries CC-licensed Hebrew pairs, but most Hebrew in the
-  wild is unvocalised, and Months 1–2 need the vowels. Nikud coverage has to be
-  measured before this route is trusted.
-- **Nikud review.** Everything authored so far, and everything authored next,
-  needs a native speaker's pass. A wrong vowel teaches a wrong word.
+Measured, not assumed. Tatoeba's Hebrew export holds **212,657 sentences, of
+which 189 are vocalised — 0.09%**. As a direct source it is unusable, and
+hand-authoring 1,700 vocalised lines is not reliable at quality.
+
+The route that works, verified end to end:
+
+1. **Source** — Tatoeba per-language export, CC-BY. 197,089 sentences of eight
+   words or fewer, with French and English pairs available through the
+   per-language link files.
+2. **Filter** — length, vocabulary against the day's theme, and the
+   3–4-new-words selection rule from §1.
+3. **Vocalise** — Dicta Nakdan (`nakdan-2-0.loadbalancer.dicta.org.il/api`,
+   `task: "nakdan"`, `genre: "modern"`). Output tokens carry the vocalised form
+   in `options[0]`; strip the `|` morpheme separators it inserts on prefixes.
+4. **Review** — the API returns `fconfident: false` on uncertain words, roughly
+   a third of them. A native speaker reviews only those, not all 1,700 lines.
+
+Sample output, unedited: `אֲנִי צָרִיךְ עֶזְרָה.` · `יֵשׁ לִי שְׁנֵי יְלָדִים.` ·
+`אֵיפֹה הַתַּחֲנָה?`
+
+Attribution for Tatoeba (CC-BY) ships with the corpus.
+
+## 14. Open
+
+- **Audio.** Still the one thing that cannot come from the repository. Two
+  recordings per line, slow and natural. A native speaker is the best outcome;
+  a cloud TTS key is the fallback. **Robotic synthesis is not an acceptable
+  substitute for the shadowing block** — wrong prosody drilled 45 minutes a day
+  is worse than no audio, so Block 2 stays absent rather than wrong until a
+  real voice exists.
+- **Nikud review pass.** The 73 items authored before this pipeline existed
+  were written by hand and still want the same review.
