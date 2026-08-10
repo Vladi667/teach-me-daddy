@@ -20,7 +20,7 @@ import { LINK_PREFETCH } from "@/lib/base-path";
 import { useNow, useToday } from "@/lib/clock";
 
 export default function Home() {
-  const { data, ready, isGuest, username } = useStore();
+  const { data, ready, username } = useStore();
   const { cards: CARDS, items } = useDeck();
   const now = useNow();
   // null until hydration — see useToday.
@@ -44,7 +44,7 @@ export default function Home() {
     <>
       <header className="anim-rise mb-5">
         <p className="text-[13px] font-medium text-(--color-ink-faint)">
-          {isGuest ? "Shalom" : `Shalom, ${username}`}
+          Shalom, {username}
         </p>
         <h1 className="mt-0.5 text-[32px] leading-[1.1] font-bold tracking-[-0.03em]">
           Teach me
@@ -121,30 +121,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
-      {isGuest && (
-        <Link
-          href="/me"
-          prefetch={LINK_PREFETCH}
-          onClick={tap}
-          className="glass press anim-rise mb-5 flex items-center gap-3 rounded-[22px] px-4 py-3.5"
-          style={{
-            animationDelay: "90ms",
-            borderColor: "rgba(111,139,255,0.3)",
-          }}
-        >
-          <span className="text-[18px]">👤</span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[13px] font-semibold">
-              Claim a username
-            </span>
-            <span className="block text-[11.5px] text-(--color-ink-dim)">
-              So your progress follows you to any device
-            </span>
-          </span>
-          <Chevron />
-        </Link>
-      )}
 
       <h3 className="anim-rise mb-3 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
         Modules

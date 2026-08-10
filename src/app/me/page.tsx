@@ -25,7 +25,7 @@ import { tap } from "@/lib/feedback";
 type Mode = "menu" | "create" | "signin";
 
 export default function MePage() {
-  const { username, data, profiles, sync, isGuest, ready } = useStore();
+  const { username, data, profiles, sync, ready } = useStore();
   const { cards: CARDS } = useDeck();
   const [mode, setMode] = useState<Mode>("menu");
   const [name, setName] = useState("");
@@ -64,18 +64,10 @@ export default function MePage() {
   return (
     <>
       <header className="anim-rise mb-4">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">
-          {isGuest ? "You" : username}
-        </h1>
+        <h1 className="text-[27px] font-bold tracking-[-0.03em]">{username}</h1>
         <p className="mt-1 flex items-center gap-2 text-[13px] text-(--color-ink-dim)">
-          {isGuest ? (
-            "Progress is saved on this device only."
-          ) : (
-            <>
-              <SyncDot state={sync} />
-              {label(sync)}
-            </>
-          )}
+          <SyncDot state={sync} />
+          {label(sync)}
         </p>
       </header>
 
@@ -85,62 +77,29 @@ export default function MePage() {
           className="glass anim-rise mb-4 rounded-[26px] p-4"
           style={{ animationDelay: "40ms" }}
         >
-          {isGuest ? (
-            <>
-              <p className="mb-3.5 text-[12.5px] leading-relaxed text-(--color-ink-dim)">
-                {SYNC_ENABLED
-                  ? "Pick a username and your progress follows you to any device. Whatever you've done so far comes with you."
-                  : "This copy of the app has no server, so usernames are per-device here. Use the Vercel address for progress that follows you."}
-              </p>
-              <div className="flex gap-2.5">
-                <button
-                  onClick={() => {
-                    tap();
-                    setMode("create");
-                  }}
-                  className="press flex-1 rounded-full py-3 text-[13px] font-semibold"
-                  style={{
-                    background:
-                      "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-                  }}
-                >
-                  Create a username
-                </button>
-                <button
-                  onClick={() => {
-                    tap();
-                    setMode("signin");
-                  }}
-                  className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
-                >
-                  Load one
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="flex gap-2.5">
-              <button
-                onClick={() => {
-                  tap();
-                  void push();
-                }}
-                disabled={!SYNC_ENABLED}
-                className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
-                style={{ opacity: SYNC_ENABLED ? 1 : 0.4 }}
-              >
-                Sync now
-              </button>
-              <button
-                onClick={() => {
-                  tap();
-                  signOut();
-                }}
-                className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
-              >
-                Switch user
-              </button>
-            </div>
-          )}
+          <div className="flex gap-2.5">
+            <button
+              onClick={() => {
+                tap();
+                void push();
+              }}
+              disabled={!SYNC_ENABLED}
+              className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
+              style={{ opacity: SYNC_ENABLED ? 1 : 0.4 }}
+            >
+              Sync now
+            </button>
+            <button
+              onClick={() => {
+                tap();
+                // Drops back to the gate, where another account can be chosen.
+                signOut();
+              }}
+              className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
+            >
+              Switch account
+            </button>
+          </div>
         </section>
       )}
 
@@ -453,7 +412,7 @@ export default function MePage() {
             <div className="glass rounded-[18px] p-4 text-center">
               <p className="text-[12.5px] text-(--color-ink-dim)">
                 Erase all progress for{" "}
-                <strong>{isGuest ? "this device" : username}</strong>?
+                <strong>{username}</strong>?
               </p>
               <div className="mt-3 flex gap-2.5">
                 <button

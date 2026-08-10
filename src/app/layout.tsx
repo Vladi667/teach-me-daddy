@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Noto_Sans_Hebrew } from "next/font/google";
 import TabBar from "@/components/TabBar";
+import AccountGate from "@/components/AccountGate";
 import { asset, SITE_ORIGIN, SITE_URL } from "@/lib/base-path";
 import "./globals.css";
 
@@ -95,18 +96,21 @@ export default function RootLayout({
           <span />
         </div>
 
-        <main
-          className="stage mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-5"
-          style={{
-            paddingTop: "calc(var(--safe-t) + 18px)",
-            paddingBottom:
-              "calc(var(--safe-b) + var(--tabbar-h) + 34px)",
-          }}
-        >
-          {children}
-        </main>
+        {/* Nothing below here renders until an account is active. */}
+        <AccountGate>
+          <main
+            className="stage mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-5"
+            style={{
+              paddingTop: "calc(var(--safe-t) + 18px)",
+              paddingBottom:
+                "calc(var(--safe-b) + var(--tabbar-h) + 34px)",
+            }}
+          >
+            {children}
+          </main>
 
-        <TabBar />
+          <TabBar />
+        </AccountGate>
       </body>
     </html>
   );
