@@ -17,10 +17,11 @@ import {
   BLOCKS,
   coverageFor,
   dayMinutes,
+  emptyDay,
   weekdayIndex,
 } from "@/lib/plan";
 import { isDue, isMature } from "@/lib/srs";
-import { useStore } from "@/lib/store";
+import { update, useStore } from "@/lib/store";
 import { useNow, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { tap } from "@/lib/feedback";
@@ -83,6 +84,30 @@ export default function TodayPage() {
   // The first block that isn't finished is the one being ordered.
   const currentIdx = BLOCKS.findIndex((b) => !log?.blocks[b.id]);
 
+  /** Blocks 3 and 4 happen away from the phone, so logging is part of the
+      assignment, not an admin screen you go and find. */
+  function toggleBlock(id: string) {
+    if (!today) return;
+    tap();
+    update((d) => {
+      const prev = d.plan.days[today] ?? emptyDay();
+      return {
+        ...d,
+        plan: {
+          ...d.plan,
+          startedOn: d.plan.startedOn ?? today,
+          days: {
+            ...d.plan.days,
+            [today]: {
+              ...prev,
+              blocks: { ...prev.blocks, [id]: !prev.blocks[id] },
+            },
+          },
+        },
+      };
+    });
+  }
+
   return (
     <>
       <header className="mb-6 flex items-start justify-between gap-4">
@@ -128,57 +153,81 @@ export default function TodayPage() {
           const done = !!log?.blocks[b.id];
           const current = i === currentIdx;
           const href = RUNNABLE[b.id];
-          const inner = (
-            <>
-              <span
-                className="grid size-[22px] shrink-0 place-items-center rounded-md text-xs font-semibold tnum"
+          return (
+            <li
+              key={b.id}
+              className="flex items-center gap-3 py-3"
+              style={{
+                borderBottom:
+                  i === BLOCKS.length - 1
+                    ? "none"
+                    : "1px solid var(--color-line)",
+                opacity: current || done ? 1 : 0.55,
+              }}
+            >
+              <button
+                onClick={() => toggleBlock(b.id)}
+                aria-pressed={done}
+                aria-label={`${b.label}: mark ${done ? "not done" : "done"}`}
+                className="tap grid size-[26px] shrink-0 place-items-center rounded-md text-xs font-semibold tnum"
                 style={{
                   background: done ? "var(--color-accent)" : "transparent",
                   border: done
                     ? "none"
                     : `1.5px solid ${current ? "var(--color-accent)" : "var(--color-line-strong)"}`,
-                  color: done ? "var(--color-accent-ink)" : "var(--color-ink-3)",
+                  color: done
+                    ? "var(--color-accent-ink)"
+                    : current
+                      ? "var(--color-accent)"
+                      : "var(--color-ink-3)",
                 }}
               >
-                {done ? "✓" : i + 1}
-              </span>
+                {done ? (
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="m5 13 4.5 4.5L19 7" />
+                  </svg>
+                ) : (
+                  i + 1
+                )}
+              </button>
+
               <span className="min-w-0 flex-1">
                 <span
                   className="block text-base"
-                  style={{ color: done ? "var(--color-ink-3)" : "var(--color-ink)" }}
+                  style={{
+                    color: done ? "var(--color-ink-3)" : "var(--color-ink)",
+                  }}
                 >
                   {b.label}
                 </span>
                 <span className="block truncate text-sm text-ink-3">
-                  {href === null && !done ? "Log it when you've done it" : b.goal}
+                  {href === null && !done ? "Do it, then tick it" : b.goal}
                 </span>
               </span>
-              <span className="shrink-0 text-sm text-ink-3 tnum">
-                {b.minutes}m
-              </span>
-            </>
-          );
-          const rowStyle = {
-            borderBottom:
-              i === BLOCKS.length - 1 ? "none" : "1px solid var(--color-line)",
-            opacity: current || done ? 1 : 0.55,
-          };
-          return (
-            <li key={b.id}>
-              {href && current ? (
+
+              {href && current && !done ? (
                 <Link
                   href={href}
                   prefetch={LINK_PREFETCH}
                   onClick={tap}
-                  className="tap flex items-center gap-3 py-3"
-                  style={rowStyle}
+                  className="btn btn-primary shrink-0 text-sm"
+                  style={{ minHeight: 34, paddingInline: "0.875rem" }}
                 >
-                  {inner}
+                  Start
                 </Link>
               ) : (
-                <div className="flex items-center gap-3 py-3" style={rowStyle}>
-                  {inner}
-                </div>
+                <span className="shrink-0 text-sm text-ink-3 tnum">
+                  {b.minutes}m
+                </span>
               )}
             </li>
           );
