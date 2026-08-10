@@ -156,7 +156,7 @@ export default function StudyPage() {
           </h2>
           {session.answered > 0 && (
             <p className="mt-1.5 text-sm text-ink-2">
-              {session.answered} answered ·{""}
+              {session.answered} answered ·{" "}
               {Math.round((session.correct / session.answered) * 100)}% first
               try
             </p>

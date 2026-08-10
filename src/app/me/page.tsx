@@ -36,7 +36,9 @@ export default function MePage() {
   return (
     <>
       <header className="mb-4">
-        <h1 className="text-lg font-bold tracking-[-0.03em]">{username}</h1>
+        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+          {username}
+        </h1>
         <p className="mt-1 flex items-center gap-2 text-sm text-ink-2">
           <SyncDot state={sync} />
           {label(sync)}
@@ -45,16 +47,15 @@ export default function MePage() {
 
       {/* identity --------------------------------------------------------- */}
       {
-        <section className="panel  mb-4 rounded-2xl p-4">
-          <div className="flex gap-2.5">
+        <section className="mb-6">
+          <div className="flex gap-2">
             <button
               onClick={() => {
                 tap();
                 void push();
               }}
               disabled={!SYNC_ENABLED}
-              className="tap flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold"
-              style={{ opacity: SYNC_ENABLED ? 1 : 0.4 }}
+              className="btn btn-secondary flex-1 text-sm"
             >
               Sync now
             </button>
@@ -64,7 +65,7 @@ export default function MePage() {
                 // Back to the gate; the local copy is kept for offline safety.
                 logOut();
               }}
-              className="tap flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold"
+              className="btn btn-secondary flex-1 text-sm"
             >
               Log out
             </button>
@@ -98,15 +99,15 @@ export default function MePage() {
         </p>
       )}
 
-      {/* stats ------------------------------------------------------------ */}
-      <section className="mb-4 grid grid-cols-2 gap-3">
-        <Stat
-          value={`${mastered}/${LETTERS.length}`}
-          label="letters mastered"
-        />
-        <Stat value={`${mature}`} label="mature cards" />
-        <Stat value={`${inReview}/${CARDS.length}`} label="cards in review" />
-        <Stat value={`${hours}h`} label="logged study time" />
+      {/* Facts, so a list rather than four boxes. */}
+      <section className="mb-5">
+        <h2 className="eyebrow mb-1">Progress</h2>
+        <dl className="flex flex-col">
+          <Fact k="Letters mastered" v={`${mastered} of ${LETTERS.length}`} />
+          <Fact k="Mature cards" v={String(mature)} />
+          <Fact k="Cards in review" v={`${inReview} of ${CARDS.length}`} />
+          <Fact k="Logged study time" v={`${hours}h`} last />
+        </dl>
       </section>
 
       <p className="mb-4 px-1 text-xs leading-relaxed text-ink-3">
@@ -117,9 +118,7 @@ export default function MePage() {
 
       {/* settings ---------------------------------------------------------- */}
       <section className="mb-4">
-        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
-          Settings
-        </h2>
+        <h2 className="eyebrow mb-2">Settings</h2>
 
         <div className="panel mb-2 flex items-center justify-between rounded-xl px-4 py-3">
           <span className="text-sm text-ink-2">Show meanings in</span>
@@ -196,9 +195,7 @@ export default function MePage() {
 
       {/* data ------------------------------------------------------------- */}
       <section className="mb-4">
-        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
-          Your data
-        </h2>
+        <h2 className="eyebrow mb-2">Your data</h2>
         <div className="flex flex-col gap-2">
           <button
             onClick={() => {
@@ -212,12 +209,12 @@ export default function MePage() {
               a.click();
               URL.revokeObjectURL(a.href);
             }}
-            className="panel tap rounded-xl px-4 py-3 text-left text-sm font-semibold"
+            className="btn btn-secondary w-full justify-start text-sm"
           >
             Export a backup
           </button>
 
-          <label className="panel tap cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold">
+          <label className="btn btn-secondary w-full cursor-pointer justify-start text-sm">
             Import a backup
             <input
               type="file"
@@ -241,8 +238,7 @@ export default function MePage() {
           {confirmReset ? (
             <div className="panel rounded-xl p-4 text-center">
               <p className="text-sm text-ink-2">
-                Erase all progress for{""}
-                <strong>{username}</strong>?
+                Erase all progress for <strong>{username}</strong>?
               </p>
               <div className="mt-3 flex gap-2.5">
                 <button
@@ -325,11 +321,14 @@ function SyncDot({ state }: { state: string }) {
   );
 }
 
-function Stat({ value, label }: { value: string; label: string }) {
+function Fact({ k, v, last }: { k: string; v: string; last?: boolean }) {
   return (
-    <div className="panel rounded-xl px-4 py-3.5">
-      <div className="text-lg font-bold tracking-[-0.03em] tnum">{value}</div>
-      <div className="mt-0.5 text-xs text-ink-3">{label}</div>
+    <div
+      className="flex items-baseline justify-between py-2.5"
+      style={{ borderBottom: last ? "none" : "1px solid var(--color-line)" }}
+    >
+      <dt className="text-base text-ink-2">{k}</dt>
+      <dd className="text-base font-semibold tnum">{v}</dd>
     </div>
   );
 }

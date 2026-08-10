@@ -48,7 +48,6 @@ export default function Ring({
           strokeDashoffset={c * (1 - clamped)}
           style={{
             transition: "stroke-dashoffset 260ms var(--ease-out-quart)",
-            filter: "drop-shadow(0 0 8px rgba(10,186,181,0.55))",
           }}
         />
       </svg>

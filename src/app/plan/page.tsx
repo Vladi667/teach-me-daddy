@@ -79,14 +79,16 @@ export default function PlanPage() {
   return (
     <>
       <header className="mb-4 flex items-baseline justify-between">
-        <h1 className="text-lg font-bold tracking-[-0.03em]">Plan</h1>
+        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+          Plan
+        </h1>
         <span className="text-sm text-ink-3">
           {run} day{run === 1 ? "" : "s"} unbroken
         </span>
       </header>
 
       {/* today ------------------------------------------------------------ */}
-      <section className="panel  mb-3 rounded-2xl p-4">
+      <section className="mb-7">
         <div className="mb-3 flex items-center justify-between">
           <button
             onClick={() => {
@@ -103,8 +105,8 @@ export default function PlanPage() {
               {day ? (isToday ? "Today" : day) : ""}
             </div>
             <div className="text-xs text-ink-3">
-              {day ? WEEK_FOCUS[weekdayIndex(day)].day : ""} ·{""}
-              {Math.round(done / 60)}h{done % 60 ? ` ${done % 60}m` : ""} of{""}
+              {day ? WEEK_FOCUS[weekdayIndex(day)].day : ""} ·{" "}
+              {Math.round(done / 60)}h{done % 60 ? ` ${done % 60}m` : ""} of{" "}
               {Math.round(DAILY_MINUTES / 60)}h
             </div>
           </div>
@@ -136,19 +138,16 @@ export default function PlanPage() {
               <button
                 key={b.id}
                 onClick={() => toggleBlock(b.id)}
-                className="tap flex items-center gap-3 rounded-xl px-3 py-2.5 text-left"
-                style={{
-                  background: on
-                    ? "color-mix(in oklch, var(--color-good) 12%, transparent)"
-                    : "var(--color-surface)",
-                  border: `1px solid ${on ? "color-mix(in oklch, var(--color-good) 35%, transparent)" : "var(--color-surface)"}`,
-                }}
+                className="tap flex w-full items-center gap-3 py-3 text-left"
+                style={{ borderBottom: "1px solid var(--color-line)" }}
               >
                 <span
-                  className="grid size-5 shrink-0 place-items-center rounded-full"
+                  className="grid size-[22px] shrink-0 place-items-center rounded-md"
                   style={{
-                    background: on ? "var(--color-good)" : "transparent",
-                    border: on ? "none" : "1.5px solid rgba(255,255,255,0.25)",
+                    background: on ? "var(--color-accent)" : "transparent",
+                    border: on
+                      ? "none"
+                      : "1.5px solid var(--color-line-strong)",
                   }}
                 >
                   {on && (
@@ -157,7 +156,7 @@ export default function PlanPage() {
                       height="11"
                       viewBox="0 0 24 24"
                       fill="none"
-                      stroke="#04140c"
+                      stroke="var(--color-accent-ink)"
                       strokeWidth="4"
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -197,7 +196,7 @@ export default function PlanPage() {
       </section>
 
       {/* coverage --------------------------------------------------------- */}
-      <section className="panel  mb-3 rounded-2xl p-5">
+      <section className="mb-7">
         <div className="flex items-center gap-5">
           <Ring value={coverage / 100} size={92} stroke={8}>
             <div className="text-center leading-none">
@@ -211,8 +210,8 @@ export default function PlanPage() {
           <div className="min-w-0">
             <div className="text-base font-semibold">{fmtNum(words)} words</div>
             <p className="mt-1 text-sm leading-snug text-ink-2">
-              Month {month.n} — {month.title}. Target{""}
-              {fmtNum(month.to)} by the end.
+              Month {month.n} — {month.title}. Target {fmtNum(month.to)} by the
+              end.
             </p>
             <p className="mt-1.5 text-xs text-ink-3">
               {matureInApp} mature here
@@ -302,7 +301,7 @@ export default function PlanPage() {
             return (
               <div
                 key={m.n}
-                className="panel rounded-xl p-3.5"
+                className="panel rounded-xl p-3"
                 style={{
                   borderColor: current
                     ? "color-mix(in oklch, var(--color-accent) 45%, transparent)"
@@ -328,8 +327,7 @@ export default function PlanPage() {
                     {m.title}
                   </span>
                   <span className="text-xs tnum text-ink-3">
-                    {fmtNum(m.from)}–{fmtNum(m.to)} ·{""}
-                    {m.coverage}
+                    {fmtNum(m.from)}–{fmtNum(m.to)} · {m.coverage}
                   </span>
                 </div>
                 {current && (
@@ -353,7 +351,11 @@ export default function PlanPage() {
           tap();
           setShowRules((s) => !s);
         }}
-        className="panel tap mb-3 flex w-full items-center justify-between rounded-xl px-4 py-3.5"
+        className="tap mb-3 flex w-full items-center justify-between py-3"
+        style={{
+          borderTop: "1px solid var(--color-line)",
+          borderBottom: "1px solid var(--color-line)",
+        }}
       >
         <span className="text-sm font-semibold">The golden rules</span>
         <span
@@ -369,7 +371,7 @@ export default function PlanPage() {
           {RULES.map((r, i) => (
             <li
               key={r}
-              className="panel flex gap-3 rounded-xl px-4 py-3 text-sm leading-relaxed text-ink-2"
+              className="flex gap-3 py-2 text-sm leading-relaxed text-ink-2"
             >
               <span className="shrink-0 font-bold text-accent">{i + 1}</span>
               {r}
@@ -435,7 +437,7 @@ function Stat({
   ratio: number;
 }) {
   return (
-    <div className="panel rounded-xl px-4 py-3.5">
+    <div className="panel rounded-xl px-4 py-3">
       <div className="text-lg font-bold tracking-[-0.03em] tnum">{value}</div>
       <div className="mt-0.5 text-xs leading-snug text-ink-3">{label}</div>
       <div className="mt-2 h-1 overflow-hidden rounded-full bg-surface-2">

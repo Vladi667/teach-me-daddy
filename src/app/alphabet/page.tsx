@@ -21,6 +21,10 @@ export default function AlphabetPage() {
   const [open, setOpen] = useState<Letter | null>(null);
   const { progress, ready } = useProgress();
 
+  const mastered = ready
+    ? LETTERS.filter((l) => isMastered(progress, l.char)).length
+    : 0;
+
   // Lock the page behind the sheet so only the sheet scrolls.
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
@@ -30,21 +34,25 @@ export default function AlphabetPage() {
   }, [open]);
 
   return (
-    <>
-      <header className="mb-4">
-        <h1 className="text-lg font-bold tracking-[-0.03em]">The Alphabet</h1>
-        <p className="mt-1 text-sm text-ink-2">
-          22 letters, read right to left. Tap any one.
-        </p>
+    // The whole board has to sit in one viewport: no scrolling to find a letter.
+    <div className="flex min-h-0 flex-1 flex-col">
+      <header className="mb-3 flex items-baseline justify-between gap-4">
+        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+          Alphabet
+        </h1>
+        <span className="text-sm text-ink-3 tnum">
+          {mastered}/{LETTERS.length} mastered
+        </span>
       </header>
 
-      <div className="mb-4">
-        <Segmented options={SCRIPTS} value={script} onChange={setScript} />
-      </div>
+      <Segmented options={SCRIPTS} value={script} onChange={setScript} />
 
-      <div className="grid grid-cols-3 gap-2.5">
-        {LETTERS.map((l, i) => {
-          const mastered = ready && isMastered(progress, l.char);
+      {/* 4 across, 6 down. Rows share the leftover height rather than being
+          sized by aspect ratio, so a short screen compresses the tiles
+          instead of pushing the drill button off the bottom. */}
+      <div className="mt-3 grid min-h-0 flex-1 grid-cols-4 grid-rows-6 gap-2">
+        {LETTERS.map((l) => {
+          const done = ready && isMastered(progress, l.char);
           return (
             <button
               key={l.char}
@@ -52,34 +60,31 @@ export default function AlphabetPage() {
                 tap();
                 setOpen(l);
               }}
-              className="panel tap  relative flex aspect-4/5 flex-col items-center justify-center rounded-xl"
-              style={{ animationDelay: `${Math.min(i, 12) * 28}ms` }}
+              aria-label={`${l.name}${done ? ", mastered" : ""}`}
+              className="panel tap relative flex min-h-0 flex-col items-center justify-center gap-0.5 rounded-xl"
+              style={
+                done
+                  ? {
+                      borderColor:
+                        "color-mix(in oklch, var(--color-good) 42%, transparent)",
+                    }
+                  : undefined
+              }
             >
-              {mastered && (
-                <span
-                  className="absolute top-2.5 right-2.5 size-1.5 rounded-full"
-                  style={{
-                    background: "var(--color-good)",
-                    boxShadow: "0 0 8px var(--color-good)",
-                  }}
-                  aria-label="mastered"
-                />
-              )}
-
               <span
-                className={`heb text-[40px] leading-none ${
-                  script === "cursive" ? "heb-cursive" : ""
+                className={`leading-none ${
+                  script === "cursive" ? "heb-cursive" : "heb"
                 }`}
-                style={
-                  script === "print"
-                    ? { fontFamily: "var(--font-hebrew)" }
-                    : undefined
-                }
+                style={{ fontSize: "clamp(20px, 4.4vh, 32px)" }}
               >
                 {l.char}
               </span>
-
-              <span className="mt-2.5 text-xs font-semibold tracking-[0.06em] text-ink-3">
+              <span
+                className="text-[9.5px] font-semibold tracking-[0.05em]"
+                style={{
+                  color: done ? "var(--color-good)" : "var(--color-ink-3)",
+                }}
+              >
                 {l.name}
               </span>
             </button>
@@ -87,32 +92,35 @@ export default function AlphabetPage() {
         })}
       </div>
 
-      <p className="mt-5 px-1 text-center text-xs leading-relaxed text-ink-3">
-        Five letters change shape at the end of a word:
-        <span
-          className="heb mx-1.5 text-base"
-          style={{ fontFamily: "var(--font-hebrew)" }}
-        >
-          ך ם ן ף ץ
-        </span>
-      </p>
-
-      <div className="mt-4 flex gap-2.5">
+      {/* The point of the screen, so it reads as the point of the screen. */}
+      <div className="mt-3 flex gap-2">
         <Link
           href="/practice"
           prefetch={LINK_PREFETCH}
           onClick={tap}
-          className="btn btn-primary flex-1 text-sm"
+          className="btn btn-primary flex-[3]"
         >
           Drill the letters
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="m9 6 6 6-6 6" />
+          </svg>
         </Link>
         <Link
           href="/progress"
           prefetch={LINK_PREFETCH}
           onClick={tap}
-          className="tap flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-surface-2 text-sm font-semibold"
+          className="btn btn-secondary flex-1 text-sm"
         >
-          Letter stats
+          Stats
         </Link>
       </div>
 
@@ -123,6 +131,6 @@ export default function AlphabetPage() {
           onClose={() => setOpen(null)}
         />
       )}
-    </>
+    </div>
   );
 }

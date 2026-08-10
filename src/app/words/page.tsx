@@ -62,26 +62,32 @@ export default function WordsPage() {
   return (
     <>
       <header className="mb-4 flex items-baseline justify-between">
-        <h1 className="text-lg font-bold tracking-[-0.03em]">Words</h1>
+        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+          Words
+        </h1>
         <span className="text-sm text-ink-3 tnum">
           {ready ? counts.total : 0} total
         </span>
       </header>
 
-      {/* counts ----------------------------------------------------------- */}
-      <div className="mb-4 grid grid-cols-3 gap-2">
-        <Tile n={ready ? counts.seen : 0} label="seen" />
-        <Tile
-          n={ready ? counts.mature : 0}
-          label="mature"
-          tint="var(--color-good)"
-        />
-        <Tile
-          n={ready ? counts.captured : 0}
-          label="yours"
-          tint="var(--color-accent)"
-        />
-      </div>
+      {/* One line beats three boxes: these are facts, not objects to act on. */}
+      <p className="mb-5 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-sm text-ink-3">
+        <span>
+          <span className="text-ink tnum">{ready ? counts.seen : 0}</span> seen
+        </span>
+        <span>
+          <span className="tnum" style={{ color: "var(--color-good)" }}>
+            {ready ? counts.mature : 0}
+          </span>{" "}
+          mature
+        </span>
+        <span>
+          <span className="tnum" style={{ color: "var(--color-accent)" }}>
+            {ready ? counts.captured : 0}
+          </span>{" "}
+          yours
+        </span>
+      </p>
 
       {/* add / import ----------------------------------------------------- */}
       {!adding ? (
@@ -97,7 +103,7 @@ export default function WordsPage() {
           >
             Add a word
           </button>
-          <label className="tap panel flex min-h-[44px] flex-1 cursor-pointer items-center justify-center rounded-full text-sm font-semibold">
+          <label className="btn btn-secondary flex-1 cursor-pointer text-sm">
             Import
             <input
               type="file"
@@ -175,8 +181,7 @@ export default function WordsPage() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search Hebrew, transliteration or meaning"
-        className="mb-3 w-full rounded-xl bg-surface px-4 py-3 text-base outline-none placeholder:text-ink-3"
-        style={{ border: "1px solid var(--color-surface-2)" }}
+        className="field mb-3"
       />
 
       <div className="no-bar mb-4 -mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
@@ -215,7 +220,8 @@ export default function WordsPage() {
           return (
             <div
               key={item.id}
-              className="panel flex items-center gap-3 rounded-xl px-4 py-3"
+              className="flex items-center gap-3 py-3"
+              style={{ borderBottom: "1px solid var(--color-line)" }}
             >
               <span
                 className="heb shrink-0 text-lg leading-none"
@@ -278,7 +284,7 @@ export default function WordsPage() {
             }
             download("my-hebrew-words.csv", toCSV(data.custom));
           }}
-          className="panel tap min-h-[44px] flex-1 rounded-full text-sm font-semibold"
+          className="btn btn-secondary flex-1 text-sm"
         >
           Export your words
         </button>
@@ -287,7 +293,7 @@ export default function WordsPage() {
             tap();
             download("import-template.csv", CSV_TEMPLATE);
           }}
-          className="panel tap min-h-[44px] flex-1 rounded-full text-sm font-semibold"
+          className="btn btn-secondary flex-1 text-sm"
         >
           Template
         </button>
@@ -454,17 +460,6 @@ function Field({
   );
 }
 
-function Tile({ n, label, tint }: { n: number; label: string; tint?: string }) {
-  return (
-    <div className="panel rounded-xl px-3 py-3 text-center">
-      <div className="text-lg font-bold tnum" style={{ color: tint }}>
-        {n}
-      </div>
-      <div className="text-xs text-ink-3">{label}</div>
-    </div>
-  );
-}
-
 function Chip({
   on,
   onClick,
@@ -482,8 +477,9 @@ function Chip({
       }}
       className="tap shrink-0 rounded-full px-3.5 py-2 text-sm font-semibold whitespace-nowrap"
       style={{
-        background: on ? "var(--color-surface-2)" : "var(--color-surface)",
-        color: on ? "var(--color-ink)" : "var(--color-ink-3)",
+        background: on ? "var(--color-accent)" : "var(--color-surface)",
+        color: on ? "var(--color-accent-ink)" : "var(--color-ink-3)",
+        border: on ? "none" : "1px solid var(--color-line)",
       }}
     >
       {children}
