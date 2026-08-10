@@ -264,6 +264,25 @@ Sample output, unedited: `אֲנִי צָרִיךְ עֶזְרָה.` · `יֵש�
 
 Attribution for Tatoeba (CC-BY) ships with the corpus.
 
+## 13b. Corpus status
+
+Days 1-5 are the hand-checked seed from deck.ts. Days 6-27 are generated:
+280 lines total, 725 distinct words, every one vocalised, every one paired
+with French. Audio exists for all of them.
+
+Two things it is not, and neither should be forgotten:
+
+- **Not syllabus-ordered.** Selection maximises new-word yield (§1) but ignores
+  §4's thematic roadmap, so day 8 can ask for "in autumn the leaves turn
+  yellow" before "where is the station". Fixing it means classifying the
+  candidate pool by theme and selecting within the month's themes, which is
+  the next real piece of work on the corpus.
+- **Not reviewed.** Nakdan flagged 648 words as uncertain across the generated
+  range. Those are the review queue, and no native speaker has seen them yet.
+
+Transliterations and English glosses are empty on generated lines. French is
+the primary gloss, which matches the trainee.
+
 ## 14. Open
 
 - **Audio — solved for now, with a caveat.** Every line ships two renderings
