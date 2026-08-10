@@ -1,246 +1,283 @@
 "use client";
 
 import Link from "next/link";
-import { LETTERS } from "@/lib/letters";
-import { useDeck } from "@/lib/use-deck";
-import { buildQueue, isMature } from "@/lib/srs";
-import { masteredCount } from "@/lib/progress";
+import { LINES, LAST_SEEDED_DAY, linesForDay } from "@/lib/lines";
+import {
+  DEPLOY_AT,
+  MASTERY_DAYS,
+  PROGRAMME_DAYS,
+  cardId,
+  dayNumber,
+  intakeFor,
+  project,
+  readiness,
+  retentionRate,
+} from "@/lib/programme";
 import {
   BLOCKS,
-  WEEK_FOCUS,
   coverageFor,
   dayMinutes,
-  monthFor,
-  streak,
   weekdayIndex,
 } from "@/lib/plan";
+import { isDue, isMature } from "@/lib/srs";
 import { useStore } from "@/lib/store";
-import { tap } from "@/lib/feedback";
-import { LINK_PREFETCH } from "@/lib/base-path";
 import { useNow, useToday } from "@/lib/clock";
+import { LINK_PREFETCH } from "@/lib/base-path";
+import { tap } from "@/lib/feedback";
 
-const LONG_DAY = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+/** Blocks the app runs itself, in order. Immersion is logged, not run. */
+const RUNNABLE: Record<string, string | null> = {
+  vocab: "/study",
+  shadow: null, // no voice yet — PROGRAMME.md §14
+  speak: null,
+  immerse: null,
+  consolidate: "/study",
+};
 
-const MONTHS = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-export default function Today() {
+export default function TodayPage() {
   const { data, ready } = useStore();
-  const { cards, items } = useDeck();
   const now = useNow();
   const today = useToday();
 
-  const run = ready ? streak(data.plan) : 0;
-  const allowance = Math.max(
-    0,
-    data.settings.newPerDay - (today ? (data.newLog[today] ?? 0) : 0),
-  );
-  const due = ready
-    ? buildQueue(cards, data.srs, now, allowance).counts.total
-    : 0;
+  const startedOn = data.plan.startedOn ?? today;
+  const day = today && startedOn ? dayNumber(startedOn, today) : 1;
+  const isRest = today ? weekdayIndex(today) === 6 : false;
+
+  // Scheduling state for the lines issued so far.
+  const issued = LINES.filter((l) => l.day <= day);
+  const backlog = issued.reduce((n, l) => {
+    const c = data.srs[cardId(l.id, "read")];
+    return n + (c && isDue(c, now) ? 1 : 0);
+  }, 0);
+  const mastered = issued.filter((l) => {
+    const c = data.srs[cardId(l.id, "read")];
+    return c && isMature(c);
+  }).length;
+
+  const recent = Object.values(data.srs)
+    .filter((c) => c.reps > 0)
+    .slice(-60)
+    .map((c) => ({ correct: c.lapses === 0 }));
+  const intake = intakeFor(backlog, retentionRate(recent), isRest);
 
   const log = today ? data.plan.days[today] : undefined;
-  const blocksDone = BLOCKS.filter((b) => log?.blocks[b.id]).length;
+  const doneBlocks = BLOCKS.filter((b) => log?.blocks[b.id]).length;
   const minutes = dayMinutes(log);
 
-  const mastered = ready ? masteredCount(data.alphabet) : 0;
-  const mature = Object.values(data.srs).filter(isMature).length;
-  const words = mature + (data.plan.wordsElsewhere ?? 0);
-  const month = monthFor(words);
+  const loggedDays = Object.keys(data.plan.days).length;
+  const proj =
+    today && startedOn ? project(startedOn, loggedDays, today) : null;
 
-  // Dates are client-only: these pages prerender and the build runs in UTC.
-  const [y, m, d] = today ? today.split("-").map(Number) : [0, 0, 0];
-  const focus = today ? WEEK_FOCUS[weekdayIndex(today)].focus : "";
+  const words = new Set(issued.flatMap((l) => l.words)).size;
+  const score = readiness({
+    masteredLines: mastered,
+    totalLines: LINES.length,
+    coverage: coverageFor(words + (data.plan.wordsElsewhere ?? 0)),
+    assessmentsCleared: 0,
+    assessmentsDue: Math.floor(day / 28),
+  });
+
+  const beyondSeed = day > LAST_SEEDED_DAY;
+  const todaysLines = linesForDay(Math.min(day, LAST_SEEDED_DAY));
+
+  // The first block that isn't finished is the one being ordered.
+  const currentIdx = BLOCKS.findIndex((b) => !log?.blocks[b.id]);
 
   return (
     <>
       <header className="mb-6 flex items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
-            {today ? LONG_DAY[weekdayIndex(today)] : " "}
-          </h1>
-          <p className="text-sm text-ink-3 tnum">
-            {today ? `${d} ${MONTHS[m - 1]} ${y}` : " "}
+          <p className="eyebrow">
+            Day {ready ? day : "—"} of {PROGRAMME_DAYS}
           </p>
+          <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+            {isRest ? "Review and rest" : "Today's assignment"}
+          </h1>
         </div>
         <div className="shrink-0 text-right">
-          <div className="text-md leading-none font-semibold tnum">{run}</div>
-          <div className="mt-1 text-xs text-ink-3">day streak</div>
+          <div className="text-xl leading-none font-semibold tnum">
+            {ready ? score : 0}
+            <span className="text-sm font-normal text-ink-3">%</span>
+          </div>
+          <div className="mt-1 text-xs text-ink-3">readiness</div>
         </div>
       </header>
 
-      <p className="mb-5 text-base leading-snug text-ink-2">{focus || " "}</p>
+      {/* The order, in one line. */}
+      <p className="mb-6 text-base leading-snug text-ink-2">
+        {isRest
+          ? "No new lines today. Clear everything overdue."
+          : `${intake.count} new lines, ${backlog} to review.`}
+        {intake.reason === "backlog" && (
+          <span className="text-warn">
+            {" "}
+            Intake cut: clear the backlog first.
+          </span>
+        )}
+        {intake.reason === "retention" && (
+          <span className="text-warn">
+            {" "}
+            Intake halved: accuracy below 85%.
+          </span>
+        )}
+      </p>
 
-      {/* what to do now ---------------------------------------------------- */}
-      <div className="mb-8 flex flex-col gap-2.5">
-        <Action
-          href="/study"
-          primary={due > 0}
-          lead={String(due)}
-          title={due === 1 ? "card due" : "cards due"}
-          detail={
-            due > 0
-              ? `${allowance} new still allowed today`
-              : "everything is scheduled ahead"
-          }
-          cta={due > 0 ? "Study" : "Browse"}
-        />
-        <Action
-          href="/plan"
-          primary={false}
-          lead={`${blocksDone}/${BLOCKS.length}`}
-          title="blocks logged"
-          detail={
-            minutes > 0
-              ? `${Math.floor(minutes / 60)}h ${minutes % 60}m of 4h`
-              : "nothing logged yet"
-          }
-          cta="Log"
-        />
-      </div>
+      <h2 className="eyebrow mb-1">Blocks</h2>
+      <ol className="mb-7 flex flex-col">
+        {BLOCKS.map((b, i) => {
+          const done = !!log?.blocks[b.id];
+          const current = i === currentIdx;
+          const href = RUNNABLE[b.id];
+          const inner = (
+            <>
+              <span
+                className="grid size-[22px] shrink-0 place-items-center rounded-md text-xs font-semibold tnum"
+                style={{
+                  background: done ? "var(--color-accent)" : "transparent",
+                  border: done
+                    ? "none"
+                    : `1.5px solid ${current ? "var(--color-accent)" : "var(--color-line-strong)"}`,
+                  color: done ? "var(--color-accent-ink)" : "var(--color-ink-3)",
+                }}
+              >
+                {done ? "✓" : i + 1}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span
+                  className="block text-base"
+                  style={{ color: done ? "var(--color-ink-3)" : "var(--color-ink)" }}
+                >
+                  {b.label}
+                </span>
+                <span className="block truncate text-sm text-ink-3">
+                  {href === null && !done ? "Log it when you've done it" : b.goal}
+                </span>
+              </span>
+              <span className="shrink-0 text-sm text-ink-3 tnum">
+                {b.minutes}m
+              </span>
+            </>
+          );
+          const rowStyle = {
+            borderBottom:
+              i === BLOCKS.length - 1 ? "none" : "1px solid var(--color-line)",
+            opacity: current || done ? 1 : 0.55,
+          };
+          return (
+            <li key={b.id}>
+              {href && current ? (
+                <Link
+                  href={href}
+                  prefetch={LINK_PREFETCH}
+                  onClick={tap}
+                  className="tap flex items-center gap-3 py-3"
+                  style={rowStyle}
+                >
+                  {inner}
+                </Link>
+              ) : (
+                <div className="flex items-center gap-3 py-3" style={rowStyle}>
+                  {inner}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
 
-      {/* where you are ----------------------------------------------------- */}
-      <h2 className="eyebrow mb-1">Where you are</h2>
+      {/* Today's material, so the assignment is visible before it's run. */}
+      {!isRest && todaysLines.length > 0 && (
+        <>
+          <h2 className="eyebrow mb-1">
+            New today{beyondSeed ? " · repeating the last seeded day" : ""}
+          </h2>
+          <ul className="mb-7 flex flex-col">
+            {todaysLines.slice(0, intake.count).map((l, i, arr) => (
+              <li
+                key={l.id}
+                className="py-3"
+                style={{
+                  borderBottom:
+                    i === arr.length - 1
+                      ? "none"
+                      : "1px solid var(--color-line)",
+                }}
+              >
+                <p className="heb text-md leading-snug">{l.he}</p>
+                <p className="mt-1 text-sm text-ink-3">
+                  {data.settings.gloss === "fr" ? l.fr : l.en}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
-      <ul className="flex flex-col">
-        <Row
-          href="/alphabet"
-          label="Alphabet"
-          value={`${mastered}/${LETTERS.length}`}
-          note="mastered"
-          ratio={mastered / LETTERS.length}
+      {/* Standing, stated plainly. */}
+      <h2 className="eyebrow mb-1">Standing</h2>
+      <dl className="mb-6 flex flex-col">
+        <Fact
+          k="Lines mastered"
+          v={`${mastered} of ${LINES.length}`}
+          note={`${MASTERY_DAYS}-day interval`}
         />
-        <Row
-          href="/words"
-          label="Vocabulary"
-          value={`${mature}`}
-          note={`mature of ${items.length}`}
-          ratio={items.length ? mature / items.length : 0}
+        <Fact k="Words carried" v={String(words)} />
+        <Fact
+          k="Logged today"
+          v={`${doneBlocks} of ${BLOCKS.length} blocks`}
+          note={minutes ? `${Math.floor(minutes / 60)}h ${minutes % 60}m` : undefined}
         />
-        <Row
-          href="/plan"
-          label={`Month ${month.n} · ${month.title}`}
-          value={`${Math.round(coverageFor(words))}%`}
-          note={`${words} words · ${month.to} target`}
-          ratio={coverageFor(words) / 100}
-          last
-        />
-      </ul>
+        {proj && (
+          <Fact
+            k="Projected deployment"
+            v={proj.deployOn}
+            note={
+              proj.slippage > 0 ? `${proj.slippage} days behind` : "on schedule"
+            }
+            warn={proj.slippage > 0}
+            last
+          />
+        )}
+      </dl>
+
+      <p className="text-xs leading-relaxed text-ink-3">
+        Deployment at {DEPLOY_AT}% readiness with every assessment cleared.
+        Shadowing and production are not yet issued: they need a recorded voice.
+      </p>
     </>
   );
 }
 
-/** Something to do now: the number leads, the verb sits on the right. */
-function Action({
-  href,
-  primary,
-  lead,
-  title,
-  detail,
-  cta,
-}: {
-  href: string;
-  primary: boolean;
-  lead: string;
-  title: string;
-  detail: string;
-  cta: string;
-}) {
-  return (
-    <Link
-      href={href}
-      prefetch={LINK_PREFETCH}
-      onClick={tap}
-      className="tap panel flex items-center gap-3.5 rounded-xl px-4 py-3.5"
-    >
-      <span className="flex min-w-0 flex-1 items-baseline gap-2.5">
-        <span
-          className="text-xl leading-none font-semibold tnum"
-          style={{
-            color: primary ? "var(--color-accent)" : "var(--color-ink)",
-          }}
-        >
-          {lead}
-        </span>
-        <span className="min-w-0">
-          <span className="block text-base leading-tight">{title}</span>
-          <span className="block truncate text-sm text-ink-3">{detail}</span>
-        </span>
-      </span>
-      <span
-        className={`btn shrink-0 text-sm ${primary ? "btn-primary" : "btn-secondary"}`}
-        style={{ minHeight: 36, paddingInline: "0.875rem" }}
-      >
-        {cta}
-      </span>
-    </Link>
-  );
-}
-
-/** A row, not a card. The bar carries the progress so the number stays quiet. */
-function Row({
-  href,
-  label,
-  value,
+function Fact({
+  k,
+  v,
   note,
-  ratio,
+  warn,
   last,
 }: {
-  href: string;
-  label: string;
-  value: string;
-  note: string;
-  ratio: number;
+  k: string;
+  v: string;
+  note?: string;
+  warn?: boolean;
   last?: boolean;
 }) {
   return (
-    <li>
-      <Link
-        href={href}
-        prefetch={LINK_PREFETCH}
-        onClick={tap}
-        className="tap flex items-center gap-4 py-3.5"
-        style={{ borderBottom: last ? "none" : "1px solid var(--color-line)" }}
-      >
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-base">{label}</span>
-          <span className="mt-2 block h-[3px] w-full overflow-hidden rounded-full bg-line">
-            <span
-              className="block h-full rounded-full bg-accent"
-              style={{
-                width: `${Math.min(100, Math.max(0, ratio * 100))}%`,
-                transition: "width 200ms var(--ease-out-quart)",
-              }}
-            />
+    <div
+      className="flex items-baseline justify-between gap-4 py-2.5"
+      style={{ borderBottom: last ? "none" : "1px solid var(--color-line)" }}
+    >
+      <dt className="text-base text-ink-2">{k}</dt>
+      <dd className="text-right">
+        <span className="text-base font-semibold tnum">{v}</span>
+        {note && (
+          <span
+            className="ml-2 text-xs"
+            style={{ color: warn ? "var(--color-warn)" : "var(--color-ink-3)" }}
+          >
+            {note}
           </span>
-        </span>
-        <span className="shrink-0 text-right">
-          <span className="block text-md leading-none font-semibold tnum">
-            {value}
-          </span>
-          <span className="mt-1 block text-xs text-ink-3">{note}</span>
-        </span>
-      </Link>
-    </li>
+        )}
+      </dd>
+    </div>
   );
 }
