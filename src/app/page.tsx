@@ -49,13 +49,7 @@ export default function Home() {
         <h1 className="mt-0.5 text-[32px] leading-[1.1] font-bold tracking-[-0.03em]">
           Teach me
           <br />
-          <span
-            style={{
-              background:
-                "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}
+          <span className="text-accent-grad"
           >
             Daddy
           </span>
@@ -102,12 +96,7 @@ export default function Home() {
             href="/study"
             prefetch={LINK_PREFETCH}
             onClick={tap}
-            className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
-            style={{
-              background:
-                "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-              boxShadow: "0 6px 20px -8px rgba(111,139,255,0.8)",
-            }}
+            className="btn-accent press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
           >
             {due > 0 ? `Study ${due}` : "Study"}
           </Link>
@@ -132,7 +121,7 @@ export default function Home() {
           title="The Alphabet"
           detail={`${mastered}/${LETTERS.length} mastered · print, cursive, traps`}
           glyph="א"
-          tint="rgba(111,139,255,0.16)"
+          tint="rgba(10,186,181,0.20)"
           delay={120}
         />
         <Module
@@ -140,7 +129,7 @@ export default function Home() {
           title="Vocabulary"
           detail={`${items.length} words · patterns first, then the pieces`}
           glyph="מ"
-          tint="rgba(180,137,255,0.16)"
+          tint="rgba(127,227,218,0.16)"
           delay={175}
         />
         <Module
@@ -148,7 +137,7 @@ export default function Home() {
           title="Your Words"
           detail={`${items.length} in the deck · add, import, export`}
           glyph="ו"
-          tint="rgba(255,183,77,0.14)"
+          tint="rgba(60,170,210,0.18)"
           delay={230}
         />
         <Module
@@ -156,7 +145,7 @@ export default function Home() {
           title="The 5-Month Plan"
           detail="Daily blocks, metrics, coverage curve"
           glyph="ה"
-          tint="rgba(74,222,156,0.14)"
+          tint="rgba(88,224,106,0.14)"
           delay={285}
         />
       </div>

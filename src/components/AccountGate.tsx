@@ -21,7 +21,6 @@ const TAGLINES = [
   "From alef to oy vey.",
   "Right to left. No going back.",
   "Nikud? Never heard of her.",
-  "Where Anki comes to die.",
   "Low and slow, like a good tsimmes.",
   "Five months. Six thousand words. One Daddy.",
   "22 letters stand between you and shawarma.",
@@ -78,7 +77,7 @@ function Wordmark({ tagline }: { tagline: string }) {
           className="heb text-[34px] leading-none"
           style={{
             fontFamily: "var(--font-hebrew)",
-            background: "linear-gradient(135deg, #a8b6ff, #d3b0ff)",
+            background: "linear-gradient(135deg, #4fd8d0, #a8f0e8)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
           }}
@@ -88,13 +87,7 @@ function Wordmark({ tagline }: { tagline: string }) {
       </div>
       <h1 className="text-[30px] leading-[1.1] font-bold tracking-[-0.03em]">
         Teach me{" "}
-        <span
-          style={{
-            background:
-              "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
+        <span className="text-accent-grad"
         >
           Daddy
         </span>
@@ -200,12 +193,7 @@ function Gate() {
                 setName("");
                 setErr(null);
               }}
-              className="press mb-2.5 min-h-[52px] w-full rounded-full text-[15px] font-semibold"
-              style={{
-                background:
-                  "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-                boxShadow: "0 8px 26px -10px rgba(111,139,255,0.9)",
-              }}
+              className="btn-accent press mb-2.5 min-h-[52px] w-full rounded-full text-[15px] font-semibold"
             >
               Log in
             </button>
@@ -302,7 +290,7 @@ function Gate() {
             <button
               disabled={busy || name.trim().length < 3}
               onClick={submit}
-              className="press mt-4 min-h-[52px] w-full rounded-full text-[15px] font-semibold"
+              className="btn-accent press mt-4 min-h-[52px] w-full rounded-full text-[15px] font-semibold"
               style={{
                 background:
                   "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",

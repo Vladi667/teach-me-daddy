@@ -137,7 +137,7 @@ export default function ProgressPage() {
                           ? "rgba(255,183,77,0.65)"
                           : "rgba(255,255,255,0.10)",
                     boxShadow:
-                      ratio >= 1 ? "0 0 6px rgba(74,222,156,0.6)" : undefined,
+                      ratio >= 1 ? "0 0 6px rgba(88,224,106,0.6)" : undefined,
                   }}
                 />
               </div>

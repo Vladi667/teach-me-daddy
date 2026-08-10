@@ -82,11 +82,7 @@ export default function WordsPage() {
               setNote(null);
               setErr(null);
             }}
-            className="press min-h-[44px] flex-1 rounded-full text-[13px] font-semibold"
-            style={{
-              background:
-                "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-            }}
+            className="btn-accent press min-h-[44px] flex-1 rounded-full text-[13px] font-semibold"
           >
             Add a word
           </button>
@@ -141,7 +137,7 @@ export default function WordsPage() {
       {note && (
         <p
           className="anim-fade mb-3 rounded-[14px] px-3.5 py-2.5 text-[12px]"
-          style={{ background: "rgba(74,222,156,0.12)", color: "var(--color-mint)" }}
+          style={{ background: "rgba(88,224,106,0.12)", color: "var(--color-mint)" }}
         >
           {note}
         </p>

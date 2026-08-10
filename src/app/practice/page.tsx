@@ -185,7 +185,7 @@ export default function PracticePage() {
               maxHeight: 300,
               borderColor:
                 verdict === "correct"
-                  ? "rgba(74,222,156,0.45)"
+                  ? "rgba(88,224,106,0.45)"
                   : verdict === "wrong"
                     ? "rgba(255,107,122,0.45)"
                     : undefined,
@@ -217,8 +217,8 @@ export default function PracticePage() {
               let fg: string | undefined;
 
               if (verdict && isTarget) {
-                bg = "rgba(74,222,156,0.16)";
-                brd = "rgba(74,222,156,0.55)";
+                bg = "rgba(88,224,106,0.16)";
+                brd = "rgba(88,224,106,0.55)";
                 fg = "var(--color-mint)";
               } else if (verdict && isPicked) {
                 bg = "rgba(255,107,122,0.16)";
@@ -277,8 +277,8 @@ function Results({
         className="mx-auto grid size-14 place-items-center rounded-full"
         style={{
           background: clean
-            ? "rgba(74,222,156,0.15)"
-            : "rgba(111,139,255,0.15)",
+            ? "rgba(88,224,106,0.15)"
+            : "rgba(10,186,181,0.18)",
         }}
       >
         <span className="text-[26px]">{clean ? "🏆" : "✦"}</span>
@@ -323,12 +323,7 @@ function Results({
 
       <button
         onClick={onRestart}
-        className="press mt-5 w-full rounded-full py-3.5 text-[14px] font-semibold"
-        style={{
-          background:
-            "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-          boxShadow: "0 8px 26px -10px rgba(111,139,255,0.9)",
-        }}
+        className="btn-accent press mt-5 w-full rounded-full py-3.5 text-[14px] font-semibold"
       >
         Another round
       </button>

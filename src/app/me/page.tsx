@@ -87,7 +87,7 @@ export default function MePage() {
       {note && (
         <p
           className="anim-fade mb-4 rounded-[14px] px-3.5 py-2.5 text-[12px]"
-          style={{ background: "rgba(74,222,156,0.12)", color: "var(--color-mint)" }}
+          style={{ background: "rgba(88,224,106,0.12)", color: "var(--color-mint)" }}
         >
           {note}
         </p>

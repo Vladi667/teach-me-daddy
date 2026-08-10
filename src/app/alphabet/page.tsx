@@ -104,11 +104,7 @@ export default function AlphabetPage() {
           href="/practice"
           prefetch={LINK_PREFETCH}
           onClick={tap}
-          className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
-          style={{
-            background:
-              "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-          }}
+          className="btn-accent press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
         >
           Drill the letters
         </Link>

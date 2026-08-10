@@ -141,8 +141,8 @@ export default function PlanPage() {
                 onClick={() => toggleBlock(b.id)}
                 className="press flex items-center gap-3 rounded-[16px] px-3 py-2.5 text-left"
                 style={{
-                  background: on ? "rgba(74,222,156,0.12)" : "rgba(255,255,255,0.04)",
-                  border: `1px solid ${on ? "rgba(74,222,156,0.35)" : "rgba(255,255,255,0.07)"}`,
+                  background: on ? "rgba(88,224,106,0.12)" : "rgba(255,255,255,0.04)",
+                  border: `1px solid ${on ? "rgba(88,224,106,0.35)" : "rgba(255,255,255,0.07)"}`,
                 }}
               >
                 <span
@@ -310,7 +310,7 @@ export default function PlanPage() {
                 className="glass rounded-[20px] p-3.5"
                 style={{
                   borderColor: current
-                    ? "rgba(111,139,255,0.4)"
+                    ? "rgba(10,186,181,0.45)"
                     : undefined,
                   opacity: passed ? 0.55 : 1,
                 }}

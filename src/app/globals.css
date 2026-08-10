@@ -10,9 +10,16 @@
   --color-ink-dim: #9a9aa4;
   --color-ink-faint: #62626c;
 
-  --color-accent: #6f8bff;
-  --color-accent-2: #b489ff;
-  --color-mint: #4ade9c;
+  /* Tiffany blue (Pantone 1837, ~#0ABAB5) into a lighter aqua. */
+  --color-accent: #0abab5;
+  --color-accent-2: #7fe3da;
+  /* Text on a filled accent surface. White on Tiffany is only ~2.5:1;
+     near-black clears 6:1 and is the truer look for this colour. */
+  --color-on-accent: #04211f;
+
+  /* Success sits well clear of the accent in hue so "correct" never reads
+     as "primary" — the accent is cyan, this stays green. */
+  --color-mint: #58e06a;
   --color-coral: #ff6b7a;
   --color-amber: #ffb74d;
 
@@ -90,7 +97,7 @@ body {
   height: 58vmax;
   left: -12%;
   top: -6%;
-  background: radial-gradient(circle, rgba(90, 108, 255, 0.5), transparent 66%);
+  background: radial-gradient(circle, rgba(10, 186, 181, 0.5), transparent 66%);
   animation: drift-a 26s var(--ease-out-soft) infinite alternate;
 }
 
@@ -99,7 +106,7 @@ body {
   height: 52vmax;
   right: -16%;
   top: 18%;
-  background: radial-gradient(circle, rgba(176, 96, 255, 0.42), transparent 66%);
+  background: radial-gradient(circle, rgba(46, 140, 190, 0.42), transparent 66%);
   animation: drift-b 32s var(--ease-out-soft) infinite alternate;
 }
 
@@ -108,7 +115,7 @@ body {
   height: 46vmax;
   left: 8%;
   bottom: -18%;
-  background: radial-gradient(circle, rgba(0, 190, 190, 0.34), transparent 66%);
+  background: radial-gradient(circle, rgba(127, 227, 218, 0.26), transparent 66%);
   animation: drift-c 38s var(--ease-out-soft) infinite alternate;
 }
 
@@ -161,6 +168,32 @@ body {
 .glass-strong {
   background: var(--glass-bg-strong);
   border-color: var(--glass-brd-strong);
+}
+
+/* Filled accent surfaces ------------------------------------------------- */
+
+/* One place for the primary-button look, so the palette can move without
+   hunting down inline gradients — and so the dark ink is never forgotten. */
+.btn-accent {
+  background: linear-gradient(
+    100deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+  color: var(--color-on-accent);
+  box-shadow: 0 8px 26px -12px rgba(10, 186, 181, 0.85);
+}
+
+/* Accent as text or an icon, on the dark canvas. */
+.text-accent-grad {
+  background: linear-gradient(
+    100deg,
+    var(--color-accent),
+    var(--color-accent-2)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Pressable ------------------------------------------------------------- */

@@ -192,8 +192,8 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
         <div
           className="mt-3 rounded-[18px] px-4 py-3.5"
           style={{
-            background: "rgba(111,139,255,0.10)",
-            border: "1px solid rgba(111,139,255,0.20)",
+            background: "rgba(10,186,181,0.12)",
+            border: "1px solid rgba(10,186,181,0.28)",
           }}
         >
           <div className="text-[10px] font-semibold tracking-[0.08em] text-(--color-accent) uppercase">

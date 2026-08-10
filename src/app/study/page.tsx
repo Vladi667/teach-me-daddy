@@ -141,7 +141,7 @@ export default function StudyPage() {
         <div className="glass anim-rise rounded-[28px] p-6 text-center">
           <div
             className="mx-auto grid size-14 place-items-center rounded-full"
-            style={{ background: "rgba(74,222,156,0.15)" }}
+            style={{ background: "rgba(88,224,106,0.15)" }}
           >
             <span className="text-[26px]">✓</span>
           </div>
@@ -165,11 +165,7 @@ export default function StudyPage() {
           {!nothingLeft && (
             <button
               onClick={restart}
-              className="press mt-5 w-full rounded-full py-3.5 text-[14px] font-semibold"
-              style={{
-                background:
-                  "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-              }}
+              className="btn-accent press mt-5 w-full rounded-full py-3.5 text-[14px] font-semibold"
             >
               Keep going
             </button>
