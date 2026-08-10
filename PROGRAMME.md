@@ -266,22 +266,36 @@ Attribution for Tatoeba (CC-BY) ships with the corpus.
 
 ## 13b. Corpus status
 
-Days 1-5 are the hand-checked seed from deck.ts. Days 6-27 are generated:
-280 lines total, 725 distinct words, every one vocalised, every one paired
-with French. Audio exists for all of them.
+Days 1-5 are the hand-checked seed from deck.ts. Days 6-132 are generated:
+**1,298 lines, 3,848 distinct words**, every one vocalised and paired with
+French, no duplicates. Line ids are a hash of the consonantal skeleton, so
+regenerating keeps ids stable and the audio named after them stays valid.
 
-Two things it is not, and neither should be forgotten:
+Audio covers **days 1-30** (504 files, 13 MB). The full corpus would be ~57 MB,
+past what belongs in a git repository, so the generator takes `--maxDay` and
+LineAudio renders nothing for lines that have none. Blob storage is the fix.
 
-- **Not syllabus-ordered.** Selection maximises new-word yield (§1) but ignores
-  §4's thematic roadmap, so day 8 can ask for "in autumn the leaves turn
-  yellow" before "where is the station". Fixing it means classifying the
-  candidate pool by theme and selecting within the month's themes, which is
-  the next real piece of work on the corpus.
-- **Not reviewed.** Nakdan flagged 648 words as uncertain across the generated
-  range. Those are the review queue, and no native speaker has seen them yet.
+**Theme ordering does not work yet, and this should not be reported as done.**
+The classifier keys French translations against a keyword lexicon per §4
+theme. Two rounds of fixes were not enough:
 
-Transliterations and English glosses are empty on generated lines. French is
-the primary gloss, which matches the trainee.
+- Substring matching fired "vent" on "souvent" and "été" (the participle of
+  *être*) on everything, putting 1,074 of 1,620 lines in *weather*. Fixed with
+  whole-word matching.
+- Even then, common verbs dominate: "aime", "pense", "crois" put 1,075 lines
+  in *emotion*. General-domain Tatoeba sentences simply do not sort into
+  survival themes on keywords.
+
+So the corpus is ordered by sentence length and new-word yield, which is §1
+satisfied and §4 not. A trainee on day 10 may meet "I refuse to talk to you"
+before "where is the station". The material is correct and the vocabulary
+spread is good; the syllabus sequencing is not there.
+
+What would actually work: classify the 4,928 candidates once with an embedding
+or language model against the §4 theme list, cache the labels, and select
+within them. That is a bounded job and the right next piece of corpus work.
+
+5,860 words are flagged low-confidence by Nakdan and remain unreviewed.
 
 ## 14. Open
 

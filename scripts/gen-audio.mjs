@@ -11,7 +11,7 @@
  *
  * Idempotent: existing files are skipped, so a partial run resumes.
  *
- *   node scripts/gen-audio.mjs [--force] [--voice he-IL-HilaNeural]
+ *   node scripts/gen-audio.mjs [--force] [--maxDay 30] [--voice he-IL-HilaNeural]
  */
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import { existsSync, mkdirSync, renameSync, rmSync, statSync } from "node:fs";
@@ -31,7 +31,11 @@ const voice =
 /** Rates chosen by ear: slow stays intelligible, natural keeps real elision. */
 const SPEEDS = { slow: "-35%", natural: "default" };
 
-const { LINES } = await import("../src/lib/lines.ts");
+const maxDay = Number(args[args.indexOf("--maxDay") + 1]) || Infinity;
+const { LINES: ALL } = await import("../src/lib/lines.ts");
+// The full corpus is ~57 MB of audio, past what belongs in git. Bound it and
+// let LineAudio render nothing for the days that have none yet.
+const LINES = ALL.filter((l) => l.day <= maxDay);
 
 mkdirSync(outDir, { recursive: true });
 

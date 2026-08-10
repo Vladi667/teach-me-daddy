@@ -32,6 +32,79 @@ const OUT = resolve(root, arg("out", "src/lib/lines.ts"));
 const NIKUD = /[֑-ׇ]/g;
 const HEB = /[א-ת]/;
 
+/**
+ * Ids derive from the consonantal skeleton, so regenerating the corpus keeps
+ * the id of any sentence that survives selection — and the audio files named
+ * after it stay valid. Sequential ids would orphan every mp3 on each run.
+ */
+function lineId(he) {
+  const skeleton = he.replace(NIKUD, "").replace(/[^א-ת]/g, "");
+  let h = 2166136261;
+  for (let i = 0; i < skeleton.length; i++) {
+    h ^= skeleton.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return "l" + (h >>> 0).toString(36).padStart(7, "0");
+}
+
+/**
+ * §4's roadmap, month by month. Themes are matched on the French pair, which
+ * is far easier to key on than Hebrew morphology. A sentence that matches
+ * nothing is "general" and fills gaps once the month's own themes run dry.
+ */
+const THEMES = {
+  greeting: "bonjour salut merci pardon excuse plaît revoir appelle enchanté ça va",
+  self: "je suis j'ai ans habite viens origine parle langue français anglais hébreu israël france nom âge",
+  family: "famille père mère frère sœur soeur fils fille enfant mari femme parents grand-père grand-mère ami amie marié",
+  home: "maison appartement chambre cuisine porte fenêtre table chaise lit clé eau électricité voisin loyer étage salle",
+  directions: "où gauche droite tout droit près loin ici là-bas côté gare bus train taxi rue adresse carte centre coin station",
+  food: "manger boire café thé pain eau restaurant plat viande poisson légume fruit lait fromage repas déjeuner dîner faim soif",
+  shopping: "acheter magasin prix coûte cher argent payer carte monnaie euro shekel vendre client boutique marché",
+  transport: "voiture avion vol billet partir arriver voyage route conduire vélo aéroport",
+  money: "banque compte carte crédit payer facture salaire prêt",
+  weather: "pluie soleil neige vent chaud froid nuage automne hiver orage météo",
+  health: "médecin malade mal tête douleur hôpital pharmacie fatigue dormir corps main pied",
+  work: "travail travaille bureau patron collègue réunion projet entreprise emploi salaire étudier école cours",
+  admin: "papier document formulaire rendez-vous téléphone appeler bureau ministère passeport visa carte identité",
+  emotion: "content triste heureux peur colère aime déteste espère pense crois sentiment inquiet fatigué",
+  describing: "grand petit beau joli nouveau vieux jeune bon mauvais couleur rouge bleu vert noir blanc lourd léger",
+  news: "pays gouvernement guerre paix élection journal nouvelle politique monde histoire société",
+  culture: "musique film livre lire écrire art théâtre fête religion tradition",
+};
+
+/** Which themes each month is allowed to draw on, from §4. */
+const MONTH_THEMES = [
+  ["greeting", "self", "family", "home", "directions"],
+  ["food", "shopping", "transport", "money", "weather", "health"],
+  ["work", "admin", "emotion", "describing"],
+  ["news", "culture", "emotion", "describing"],
+  [],
+];
+
+const THEME_WORDS = Object.fromEntries(
+  Object.entries(THEMES).map(([k, v]) => [k, v.split(/s+/)]),
+);
+
+function themeOf(fr) {
+  const t = fr.toLowerCase();
+  // Whole words only. Substring matching made "vent" fire on "souvent" and
+  // buried every other theme.
+  const toks = new Set(t.split(/[^a-zà-öø-ÿ'-]+/).filter(Boolean));
+  let best = "general";
+  let score = 0;
+  for (const [name, words] of Object.entries(THEME_WORDS)) {
+    let n = 0;
+    for (const w of words) {
+      if (w.includes(" ") ? t.includes(w) : toks.has(w)) n++;
+    }
+    if (n > score) {
+      score = n;
+      best = name;
+    }
+  }
+  return best;
+}
+
 /** Nikud-stripped surface form. An approximation: Hebrew morphology means
  *  "בבית" and "בית" count as different words, so new-word yield runs a little
  *  high. Good enough to spread the corpus, not a lemmatiser. */
@@ -86,35 +159,63 @@ const usable = pairs.filter(({ he, fr }) => {
 });
 console.log(`${usable.length} usable after length and shape filters`);
 
-/* --- greedy selection by new-word yield ----------------------------------- */
+/* --- selection: month themes first, then new-word yield ------------------ */
 
 const known = new Set();
 const chosen = [];
 const target = DAYS * PER_DAY;
 
-// Shortest first inside each yield band: simpler sentences teach the same
-// words with less unexplained grammar around them.
-const scored = usable
-  .map((p) => ({ ...p, w: wordsOf(p.he) }))
+// Shortest first inside each band: a simpler sentence teaches the same words
+// with less unexplained grammar wrapped around them.
+const pool = usable
+  .map((p) => ({ ...p, w: wordsOf(p.he), theme: themeOf(p.fr) }))
   .sort((a, b) => a.w.length - b.w.length);
 
-for (let pass = 0; pass < 3 && chosen.length < target; pass++) {
-  for (const cand of scored) {
-    if (chosen.length >= target) break;
+/** Lines are issued 12 a day, so a month is about 24 working days. */
+const MONTH_LINES = Math.ceil(target / 5);
+
+function take(allowed, quota, lo, hi) {
+  let n = 0;
+  for (const cand of pool) {
+    if (n >= quota || chosen.length >= target) break;
     if (cand.used) continue;
+    if (allowed && !allowed.has(cand.theme)) continue;
     const fresh = cand.w.filter((w) => !known.has(w));
-    // Pass 0 wants the sweet spot; later passes relax so the run still fills.
-    const lo = pass === 0 ? 3 : pass === 1 ? 2 : 1;
-    const hi = pass === 0 ? 4 : 6;
     if (fresh.length < lo || fresh.length > hi) continue;
     cand.used = true;
     fresh.forEach((w) => known.add(w));
-    chosen.push({ ...cand, fresh: fresh.length });
+    chosen.push(cand);
+    n++;
   }
+  return n;
 }
+
+// §4: each month draws on its own themes first. What the themes can't fill is
+// topped up from anything, because a thin theme must not stall the programme.
+for (let month = 0; month < 5; month++) {
+  const allowed = MONTH_THEMES[month].length
+    ? new Set(MONTH_THEMES[month])
+    : null;
+  const before = chosen.length;
+  if (allowed) {
+    take(allowed, MONTH_LINES, 3, 4);
+    take(allowed, MONTH_LINES - (chosen.length - before), 2, 6);
+  }
+  // Yield bands relax as the month fills: late in the programme most words
+  // are already known, so insisting on 3-4 new ones would starve it.
+  take(null, MONTH_LINES - (chosen.length - before), 3, 5);
+  take(null, MONTH_LINES - (chosen.length - before), 2, 6);
+  take(null, MONTH_LINES - (chosen.length - before), 1, 8);
+}
+// Anything still short is filled from the whole pool.
+take(null, target - chosen.length, 0, 99);
+
+const themeCount = {};
+chosen.forEach((c) => (themeCount[c.theme] = (themeCount[c.theme] || 0) + 1));
 console.log(
   `selected ${chosen.length} lines carrying ${known.size} distinct words`,
 );
+console.log("themes:", JSON.stringify(themeCount));
 
 /* --- vocalise ------------------------------------------------------------- */
 
@@ -190,13 +291,12 @@ const seedEntries = keepSeed
   })
   .map((b) => `  {\n${b}`.replace(/\n$/, ""));
 
-let n = seedEntries.length;
 let day = FIRST_DAY;
 let inDay = 0;
 const fresh = vocalised.map((c) => {
   if (day % 7 === 0) day++; // §5: the rest day issues nothing new
   const entry = `  {
-    id: "l-${String(++n).padStart(3, "0")}",
+    id: "${lineId(c.he)}",
     day: ${day},
     he: ${JSON.stringify(c.he)},
     tr: "",
