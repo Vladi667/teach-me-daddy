@@ -266,12 +266,13 @@ Attribution for Tatoeba (CC-BY) ships with the corpus.
 
 ## 13b. Corpus status
 
-Days 1-5 are the hand-checked seed from deck.ts. Days 6-132 are generated:
-**1,298 lines, 3,848 distinct words**, every one vocalised and paired with
+Days 1-5 are the hand-checked seed from deck.ts, in `lines.seed.ts`. Days
+6-132 are generated into `lines.gen.ts`; `lines.ts` merges the two. **1,356
+lines, 3,906 distinct words**, every one vocalised and paired with
 French, no duplicates. Line ids are a hash of the consonantal skeleton, so
 regenerating keeps ids stable and the audio named after them stays valid.
 
-Audio covers **days 1-30** (504 files, 13 MB). The full corpus would be ~57 MB,
+Audio covers **days 1-30** (620 files, 16 MB). The full corpus would be ~57 MB,
 past what belongs in a git repository, so the generator takes `--maxDay` and
 LineAudio renders nothing for lines that have none. Blob storage is the fix.
 

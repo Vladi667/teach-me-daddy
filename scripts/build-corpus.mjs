@@ -27,7 +27,7 @@ const DATA = arg("data", process.env.TEMP ? `${process.env.TEMP}` : "/tmp");
 const DAYS = Number(arg("days", 20));
 const FIRST_DAY = Number(arg("from", 6));
 const PER_DAY = 12;
-const OUT = resolve(root, arg("out", "src/lib/lines.ts"));
+const OUT = resolve(root, arg("out", "src/lib/lines.gen.ts"));
 
 const NIKUD = /[֑-ׇ]/g;
 const HEB = /[א-ת]/;
@@ -277,23 +277,12 @@ console.log(`\n${flaggedTotal} words flagged low-confidence for review`);
 
 /* --- emit ----------------------------------------------------------------- */
 
-const existing = existsSync(OUT) ? readFileSync(OUT, "utf8") : "";
-const keepSeed = existing.slice(
-  existing.indexOf("export const LINES: Line[] = ["),
-  existing.indexOf("\n];"),
-);
-const seedEntries = keepSeed
-  .split(/\n  \{\n/)
-  .slice(1)
-  .filter((b) => {
-    const d = Number(b.match(/day: (\d+)/)?.[1] ?? 999);
-    return d < FIRST_DAY;
-  })
-  .map((b) => `  {\n${b}`.replace(/\n$/, ""));
-
+// Only the generated range is written here. The hand-checked seed lives in
+// lines.seed.ts and lines.ts merges the two: parsing our own previous output
+// to preserve the seed silently dropped days 1-5 once, so it isn't done.
 let day = FIRST_DAY;
 let inDay = 0;
-const fresh = vocalised.map((c) => {
+const entries = vocalised.map((c) => {
   if (day % 7 === 0) day++; // §5: the rest day issues nothing new
   const entry = `  {
     id: "${lineId(c.he)}",
@@ -311,34 +300,27 @@ const fresh = vocalised.map((c) => {
   return entry;
 });
 
-const body = [...seedEntries, ...fresh].join("\n");
-const lastDay = day;
-
 writeFileSync(
   OUT,
   `/**
- * Programme corpus.
+ * Generated programme lines, days ${FIRST_DAY}-${day}.
  *
- * Days 1-${FIRST_DAY - 1} are the hand-checked seed built from deck.ts.
- * Days ${FIRST_DAY}-${lastDay} are Tatoeba sentences (CC-BY) vocalised by Dicta Nakdan,
- * selected greedily for new-word yield per PROGRAMME.md §1.
- *
- * The generated range has NOT had a native speaker's review yet: Nakdan flags
- * its uncertain words, and those are what a reviewer should look at first.
- * Transliterations and English glosses are empty for generated lines.
+ * Tatoeba sentences (CC-BY) vocalised by Dicta Nakdan, selected for new-word
+ * yield per PROGRAMME.md §1. Not reviewed by a native speaker; Nakdan's
+ * low-confidence words are the queue for that. Transliteration and English
+ * are empty here — French is the primary gloss.
  *
  * Do not hand-edit. Regenerate with scripts/build-corpus.mjs.
  */
 
 import type { Line } from "./programme.ts";
 
-export const LINES: Line[] = [
-${body}
+export const GENERATED: Line[] = [
+${entries.join("\n")}
 ];
 
-export const linesForDay = (day: number) => LINES.filter((l) => l.day === day);
-export const LAST_SEEDED_DAY = ${lastDay};
+export const LAST_GENERATED_DAY = ${day};
 `,
 );
 
-console.log(`wrote ${OUT}: ${seedEntries.length + fresh.length} lines, to day ${lastDay}`);
+console.log(`wrote ${OUT}: ${entries.length} lines, days ${FIRST_DAY}-${day}`);
