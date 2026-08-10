@@ -25,6 +25,7 @@ import { update, useStore } from "@/lib/store";
 import { useNow, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { tap } from "@/lib/feedback";
+import LineAudio from "@/components/LineAudio";
 
 /** Blocks the app runs itself, in order. Immersion is logged, not run. */
 const RUNNABLE: Record<string, string | null> = {
@@ -252,10 +253,17 @@ export default function TodayPage() {
                       : "1px solid var(--color-line)",
                 }}
               >
-                <p className="heb text-md leading-snug">{l.he}</p>
-                <p className="mt-1 text-sm text-ink-3">
-                  {data.settings.gloss === "fr" ? l.fr : l.en}
-                </p>
+                <div className="flex items-start gap-3">
+                  <span className="min-w-0 flex-1">
+                    <span className="heb block text-md leading-snug">
+                      {l.he}
+                    </span>
+                    <span className="mt-1 block text-sm text-ink-3">
+                      {data.settings.gloss === "fr" ? l.fr : l.en}
+                    </span>
+                  </span>
+                  <LineAudio lineId={l.id} showNatural />
+                </div>
               </li>
             ))}
           </ul>

@@ -266,11 +266,20 @@ Attribution for Tatoeba (CC-BY) ships with the corpus.
 
 ## 14. Open
 
-- **Audio.** Still the one thing that cannot come from the repository. Two
-  recordings per line, slow and natural. A native speaker is the best outcome;
-  a cloud TTS key is the fallback. **Robotic synthesis is not an acceptable
-  substitute for the shadowing block** — wrong prosody drilled 45 minutes a day
-  is worse than no audio, so Block 2 stays absent rather than wrong until a
-  real voice exists.
+- **Audio — solved for now, with a caveat.** Every line ships two renderings
+  from Microsoft's `he-IL-AvriNeural` voice, reached through the Edge
+  read-aloud endpoint: free, no key, and genuinely neural rather than the
+  formant synthesis the earlier objection was about. `scripts/gen-audio.mjs`
+  regenerates them; files live in `public/audio` as `<line>-slow.mp3` and
+  `<line>-natural.mp3`.
+
+  Three things to keep honest about it. The endpoint is undocumented and meant
+  for Edge's own read-aloud, so it could change or rate-limit without notice —
+  the generator is idempotent and resumable for that reason. A synthetic voice
+  is still second best for Block 2: it is good enough to shadow rhythm and
+  stress, not good enough to learn a native accent from, and a real speaker
+  should replace it before Month 3 pushes into connected speech. And at ~40 KB
+  a line, 1,700 lines is roughly 70 MB, which is past what belongs in a git
+  repository — the full corpus needs blob storage, not `public/`.
 - **Nikud review pass.** The 73 items authored before this pipeline existed
   were written by hand and still want the same review.
