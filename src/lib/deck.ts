@@ -10,6 +10,7 @@
  */
 
 export type Group =
+  // §6 — weeks 1–2, the function words, patterns first
   | "patterns"
   | "pronouns"
   | "questions"
@@ -17,7 +18,14 @@ export type Group =
   | "connectors"
   | "time"
   | "numbers"
-  | "politeness";
+  | "politeness"
+  // §4 month 1, weeks 3–4 — immediate survival themes
+  | "introductions"
+  | "family"
+  | "home"
+  | "directions"
+  // words you add yourself
+  | "captured";
 
 export interface GroupMeta {
   id: Group;
@@ -71,6 +79,36 @@ export const GROUPS: GroupMeta[] = [
     label: "Politeness",
     note: "A pure list — fine to learn in isolation.",
     order: 7,
+  },
+  {
+    id: "introductions",
+    label: "Introducing yourself",
+    note: "Month 1, weeks 3–4 — the first thing you'll actually need.",
+    order: 8,
+  },
+  {
+    id: "family",
+    label: "Family",
+    note: "Concrete nouns. §9.4 says these are fine as atoms.",
+    order: 9,
+  },
+  {
+    id: "home",
+    label: "Housing",
+    note: "Concrete nouns. §9.4 says these are fine as atoms.",
+    order: 10,
+  },
+  {
+    id: "directions",
+    label: "Getting around",
+    note: "The positional words carry grammar, so they come with a frame.",
+    order: 11,
+  },
+  {
+    id: "captured",
+    label: "Your words",
+    note: "Words you added yourself — from a tutor, a podcast, the street.",
+    order: 12,
   },
 ];
 
@@ -198,9 +236,107 @@ export const ITEMS: Item[] = [
   { id: "c-bevakasha", group: "politeness", he: "בְּבַקָּשָׁה", tr: "bevakasha", fr: "s'il te plaît", en: "please", atomic: true },
   { id: "c-slicha", group: "politeness", he: "סְלִיחָה", tr: "slicha", fr: "pardon / excuse-moi", en: "sorry / excuse me", atomic: true },
   { id: "c-lehitraot", group: "politeness", he: "לְהִתְרָאוֹת", tr: "lehitra'ot", fr: "au revoir", en: "goodbye", atomic: true },
+
+  // --- §4 month 1, weeks 3–4: introducing yourself -------------------------
+  { id: "i-shem", group: "introductions", he: "שֵׁם", tr: "shem", fr: "nom", en: "name", atomic: true },
+  { id: "i-ma-hashem", group: "introductions", he: "?מָה הַשֵּׁם שֶׁלְּךָ", tr: "Ma ha-shem shelcha?", fr: "Comment tu t'appelles ?", en: "What's your name?" },
+  { id: "i-shmi", group: "introductions", he: "___ שְׁמִי", tr: "Shmi ___", fr: "Je m'appelle ___", en: "My name is ___" },
+  { id: "i-naim", group: "introductions", he: "נָעִים מְאוֹד", tr: "na'im me'od", fr: "enchanté", en: "nice to meet you", atomic: true },
+  { id: "i-ma-shlomcha", group: "introductions", he: "?מָה שְׁלוֹמְךָ", tr: "Ma shlomcha?", fr: "Comment vas-tu ?", en: "How are you?" },
+  { id: "i-ma-nishma", group: "introductions", he: "?מָה נִשְׁמָע", tr: "Ma nishma?", fr: "Quoi de neuf ?", en: "What's up?" },
+  { id: "i-beseder", group: "introductions", he: "בְּסֵדֶר", tr: "beseder", fr: "ça va / d'accord", en: "okay / fine", atomic: true },
+  { id: "i-tov", group: "introductions", he: "טוֹב", tr: "tov", fr: "bien / bon", en: "good", atomic: true },
+  { id: "i-ani-mi", group: "introductions", he: "___ אֲנִי מִ", tr: "Ani mi-___", fr: "Je viens de ___", en: "I'm from ___" },
+  { id: "i-tsarfat", group: "introductions", he: "צָרְפַת", tr: "Tsarfat", fr: "la France", en: "France", atomic: true },
+  { id: "i-yisrael", group: "introductions", he: "יִשְׂרָאֵל", tr: "Yisra'el", fr: "Israël", en: "Israel", atomic: true },
+  { id: "i-ivrit", group: "introductions", he: "עִבְרִית", tr: "ivrit", fr: "l'hébreu", en: "Hebrew", atomic: true },
+  { id: "i-tsarfatit", group: "introductions", he: "צָרְפָתִית", tr: "tsarfatit", fr: "le français", en: "French", atomic: true },
+  { id: "i-ktsat", group: "introductions", he: "קְצָת", tr: "ktsat", fr: "un peu", en: "a little", example: { he: "אֲנִי מְדַבֵּר קְצָת עִבְרִית", tr: "Ani medaber ktsat ivrit", fr: "Je parle un peu hébreu", en: "I speak a little Hebrew" } },
+  { id: "i-ben-kama", group: "introductions", he: "?בֶּן כַּמָּה אַתָּה", tr: "Ben kama ata?", fr: "Quel âge as-tu ?", en: "How old are you?" },
+  { id: "i-shana", group: "introductions", he: "שָׁנָה", tr: "shana", fr: "année", en: "year", atomic: true },
+  { id: "i-tayar", group: "introductions", he: "תַּיָּר", tr: "tayar", fr: "touriste", en: "tourist", atomic: true },
+  { id: "i-oleh", group: "introductions", he: "עוֹלֶה חָדָשׁ", tr: "oleh chadash", fr: "nouvel immigrant", en: "new immigrant", atomic: true },
+
+  // --- family --------------------------------------------------------------
+  { id: "f-mishpacha", group: "family", he: "מִשְׁפָּחָה", tr: "mishpacha", fr: "famille", en: "family", atomic: true },
+  { id: "f-aba", group: "family", he: "אַבָּא", tr: "aba", fr: "papa", en: "dad", atomic: true },
+  { id: "f-ima", group: "family", he: "אִמָּא", tr: "ima", fr: "maman", en: "mum", atomic: true },
+  { id: "f-horim", group: "family", he: "הוֹרִים", tr: "horim", fr: "parents", en: "parents", atomic: true },
+  { id: "f-ach", group: "family", he: "אָח", tr: "ach", fr: "frère", en: "brother", atomic: true },
+  { id: "f-achot", group: "family", he: "אָחוֹת", tr: "achot", fr: "sœur", en: "sister", atomic: true },
+  { id: "f-ben", group: "family", he: "בֵּן", tr: "ben", fr: "fils", en: "son", atomic: true },
+  { id: "f-bat", group: "family", he: "בַּת", tr: "bat", fr: "fille (enfant)", en: "daughter", atomic: true },
+  { id: "f-yeled", group: "family", he: "יֶלֶד", tr: "yeled", fr: "enfant / garçon", en: "child / boy", atomic: true },
+  { id: "f-yalda", group: "family", he: "יַלְדָּה", tr: "yalda", fr: "petite fille", en: "girl", atomic: true },
+  { id: "f-ish", group: "family", he: "אִישׁ", tr: "ish", fr: "homme", en: "man", atomic: true },
+  { id: "f-isha", group: "family", he: "אִשָּׁה", tr: "isha", fr: "femme / épouse", en: "woman / wife", atomic: true },
+  { id: "f-baal", group: "family", he: "בַּעַל", tr: "ba'al", fr: "mari", en: "husband", atomic: true },
+  { id: "f-saba", group: "family", he: "סַבָּא", tr: "saba", fr: "grand-père", en: "grandfather", atomic: true },
+  { id: "f-savta", group: "family", he: "סַבְתָּא", tr: "savta", fr: "grand-mère", en: "grandmother", atomic: true },
+  { id: "f-chaver", group: "family", he: "חָבֵר / חֲבֵרָה", tr: "chaver / chavera", fr: "ami / amie", en: "friend (m/f)", atomic: true },
+  { id: "f-nasui", group: "family", he: "נָשׂוּי / נְשׂוּאָה", tr: "nasui / nesu'a", fr: "marié / mariée", en: "married (m/f)", atomic: true },
+  { id: "f-yesh-li-yeladim", group: "family", he: "יֵשׁ לִי שְׁנֵי יְלָדִים", tr: "Yesh li shnei yeladim", fr: "J'ai deux enfants", en: "I have two children" },
+
+  // --- housing -------------------------------------------------------------
+  { id: "h-bayit", group: "home", he: "בַּיִת", tr: "bayit", fr: "maison", en: "house", atomic: true },
+  { id: "h-dira", group: "home", he: "דִּירָה", tr: "dira", fr: "appartement", en: "apartment", atomic: true },
+  { id: "h-cheder", group: "home", he: "חֶדֶר", tr: "cheder", fr: "chambre / pièce", en: "room", atomic: true },
+  { id: "h-mitbach", group: "home", he: "מִטְבָּח", tr: "mitbach", fr: "cuisine", en: "kitchen", atomic: true },
+  { id: "h-sherutim", group: "home", he: "שֵׁרוּתִים", tr: "sherutim", fr: "toilettes", en: "toilet", atomic: true },
+  { id: "h-miklachat", group: "home", he: "מִקְלַחַת", tr: "miklachat", fr: "douche", en: "shower", atomic: true },
+  { id: "h-delet", group: "home", he: "דֶּלֶת", tr: "delet", fr: "porte", en: "door", atomic: true },
+  { id: "h-chalon", group: "home", he: "חַלּוֹן", tr: "chalon", fr: "fenêtre", en: "window", atomic: true },
+  { id: "h-shulchan", group: "home", he: "שֻׁלְחָן", tr: "shulchan", fr: "table", en: "table", atomic: true },
+  { id: "h-kise", group: "home", he: "כִּסֵּא", tr: "kise", fr: "chaise", en: "chair", atomic: true },
+  { id: "h-mita", group: "home", he: "מִטָּה", tr: "mita", fr: "lit", en: "bed", atomic: true },
+  { id: "h-mafteach", group: "home", he: "מַפְתֵּחַ", tr: "mafteach", fr: "clé", en: "key", atomic: true },
+  { id: "h-chashmal", group: "home", he: "חַשְׁמַל", tr: "chashmal", fr: "électricité", en: "electricity", atomic: true },
+  { id: "h-mayim", group: "home", he: "מַיִם", tr: "mayim", fr: "eau", en: "water", atomic: true },
+  { id: "h-shachen", group: "home", he: "שָׁכֵן", tr: "shachen", fr: "voisin", en: "neighbour", atomic: true },
+  { id: "h-schirut", group: "home", he: "שְׂכִירוּת", tr: "schirut", fr: "loyer", en: "rent", atomic: true },
+  { id: "h-koma", group: "home", he: "קוֹמָה", tr: "koma", fr: "étage", en: "floor / storey", atomic: true },
+  { id: "h-gar-be", group: "home", he: "___ אֲנִי גָּר בְּ", tr: "Ani gar be-___", fr: "J'habite à ___", en: "I live in ___" },
+
+  // --- getting around ------------------------------------------------------
+  { id: "d-yamina", group: "directions", he: "יָמִינָה", tr: "yamina", fr: "à droite", en: "to the right", example: { he: "לִפְנוֹת יָמִינָה", tr: "Lifnot yamina", fr: "Tourner à droite", en: "Turn right" } },
+  { id: "d-smola", group: "directions", he: "שְׂמֹאלָה", tr: "smola", fr: "à gauche", en: "to the left", example: { he: "לִפְנוֹת שְׂמֹאלָה", tr: "Lifnot smola", fr: "Tourner à gauche", en: "Turn left" } },
+  { id: "d-yashar", group: "directions", he: "יָשָׁר", tr: "yashar", fr: "tout droit", en: "straight ahead", example: { he: "תֵּלֵךְ יָשָׁר", tr: "Telech yashar", fr: "Va tout droit", en: "Go straight" } },
+  { id: "d-karov", group: "directions", he: "קָרוֹב", tr: "karov", fr: "près", en: "near", example: { he: "?זֶה קָרוֹב", tr: "Ze karov?", fr: "C'est près ?", en: "Is it near?" } },
+  { id: "d-rachok", group: "directions", he: "רָחוֹק", tr: "rachok", fr: "loin", en: "far", example: { he: "זֶה רָחוֹק מִכָּאן", tr: "Ze rachok mikan", fr: "C'est loin d'ici", en: "It's far from here" } },
+  { id: "d-kan", group: "directions", he: "כָּאן", tr: "kan", fr: "ici", en: "here", example: { he: "אֲנִי כָּאן", tr: "Ani kan", fr: "Je suis ici", en: "I'm here" } },
+  { id: "d-sham", group: "directions", he: "שָׁם", tr: "sham", fr: "là-bas", en: "there", example: { he: "זֶה שָׁם", tr: "Ze sham", fr: "C'est là-bas", en: "It's over there" } },
+  { id: "d-leyad", group: "directions", he: "לְיַד", tr: "leyad", fr: "à côté de", en: "next to", example: { he: "לְיַד הַתַּחֲנָה", tr: "Leyad ha-tachana", fr: "À côté de la gare", en: "Next to the station" } },
+  { id: "d-mul", group: "directions", he: "מוּל", tr: "mul", fr: "en face de", en: "opposite", example: { he: "מוּל הַבַּיִת", tr: "Mul ha-bayit", fr: "En face de la maison", en: "Opposite the house" } },
+  { id: "d-bein", group: "directions", he: "בֵּין", tr: "bein", fr: "entre", en: "between", example: { he: "בֵּין הַבַּיִת וְהַתַּחֲנָה", tr: "Bein ha-bayit ve-ha-tachana", fr: "Entre la maison et la gare", en: "Between the house and the station" } },
+  { id: "d-tachana", group: "directions", he: "תַּחֲנָה", tr: "tachana", fr: "gare / arrêt", en: "station / stop", atomic: true },
+  { id: "d-otobus", group: "directions", he: "אוֹטוֹבּוּס", tr: "otobus", fr: "bus", en: "bus", atomic: true },
+  { id: "d-rakevet", group: "directions", he: "רַכֶּבֶת", tr: "rakevet", fr: "train", en: "train", atomic: true },
+  { id: "d-monit", group: "directions", he: "מוֹנִית", tr: "monit", fr: "taxi", en: "taxi", atomic: true },
+  { id: "d-rechov", group: "directions", he: "רְחוֹב", tr: "rechov", fr: "rue", en: "street", atomic: true },
+  { id: "d-ktovet", group: "directions", he: "כְּתוֹבֶת", tr: "ktovet", fr: "adresse", en: "address", atomic: true },
+  { id: "d-mapa", group: "directions", he: "מַפָּה", tr: "mapa", fr: "carte", en: "map", atomic: true },
+  { id: "d-merkaz", group: "directions", he: "מֶרְכָּז", tr: "merkaz", fr: "centre", en: "centre", atomic: true },
+  { id: "d-pina", group: "directions", he: "פִּנָּה", tr: "pina", fr: "coin", en: "corner", atomic: true },
+  { id: "d-eich-magiim", group: "directions", he: "?___ אֵיךְ מַגִּיעִים לְ", tr: "Eich magi'im le-___?", fr: "Comment on va à ___ ?", en: "How do you get to ___?" },
 ];
 
-export const ITEM_BY_ID = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
+/** A word you added yourself. Same shape, plus provenance. */
+export interface CustomItem extends Item {
+  group: "captured";
+  createdAt: number;
+  /** Where you met it — a tutor, a podcast, a sign. */
+  source?: string;
+}
+
+/** Ids are content-derived so the same word imported twice doesn't duplicate. */
+export function customId(he: string): string {
+  const slug = he
+    .normalize("NFC")
+    // strip nikud so "בַּיִת" and "בית" are the same word
+    .replace(/[֑-ׇ]/g, "")
+    .replace(/\s+/g, "-");
+  return `u-${slug}`;
+}
 
 /** Recognition (see Hebrew → know it) and recall (know it → produce Hebrew). */
 export type Direction = "he2m" | "m2he";
@@ -212,19 +348,26 @@ export interface Card {
 }
 
 /**
- * Two cards per item. Recognition comes first in queue order because it's the
- * easier direction and seeds the recall card.
+ * Two cards per item. Recognition first in queue order — it's the easier
+ * direction and it seeds the recall card. Groups sort by the plan's own
+ * ordering, so patterns are always introduced before the words filling them.
  */
-export const CARDS: Card[] = ITEMS.flatMap((item) => [
-  { id: `${item.id}:he2m`, itemId: item.id, direction: "he2m" as Direction },
-  { id: `${item.id}:m2he`, itemId: item.id, direction: "m2he" as Direction },
-]).sort((a, b) => {
-  const ga = GROUP_BY_ID[ITEM_BY_ID[a.itemId].group].order;
-  const gb = GROUP_BY_ID[ITEM_BY_ID[b.itemId].group].order;
-  if (ga !== gb) return ga - gb;
-  if (a.direction !== b.direction) return a.direction === "he2m" ? -1 : 1;
-  return 0;
-});
+export function makeCards(items: Item[]): Card[] {
+  const byId = new Map(items.map((i) => [i.id, i]));
+  return items
+    .flatMap((item) => [
+      { id: `${item.id}:he2m`, itemId: item.id, direction: "he2m" as Direction },
+      { id: `${item.id}:m2he`, itemId: item.id, direction: "m2he" as Direction },
+    ])
+    .sort((a, b) => {
+      const ga = GROUP_BY_ID[byId.get(a.itemId)!.group].order;
+      const gb = GROUP_BY_ID[byId.get(b.itemId)!.group].order;
+      if (ga !== gb) return ga - gb;
+      if (a.direction !== b.direction) return a.direction === "he2m" ? -1 : 1;
+      return 0;
+    });
+}
 
-export const cardsForGroup = (g: Group) =>
-  CARDS.filter((c) => ITEM_BY_ID[c.itemId].group === g);
+/** Curated items only. Merge with the profile's captured words via useDeck(). */
+export const ITEM_BY_ID = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
+export const CARDS: Card[] = makeCards(ITEMS);

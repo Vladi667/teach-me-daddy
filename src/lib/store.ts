@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import type { SrsCard } from "./srs";
+import type { CustomItem } from "./deck";
 import { emptyPlan, type PlanState } from "./plan";
 import { NEW_WORDS_CAP } from "./plan";
 
@@ -28,6 +29,8 @@ export interface ProfileData {
   srs: Record<string, SrsCard>;
   /** "YYYY-MM-DD" → new cards introduced that day, for the daily cap. */
   newLog: Record<string, number>;
+  /** Words you added yourself, scheduled alongside the curated deck. */
+  custom: CustomItem[];
   plan: PlanState;
   settings: Settings;
   /** Epoch ms of the last local change — drives last-write-wins on sync. */
@@ -41,6 +44,7 @@ export const emptyData = (): ProfileData => ({
   alphabet: {},
   srs: {},
   newLog: {},
+  custom: [],
   plan: emptyPlan(),
   settings: { newPerDay: NEW_WORDS_CAP, gloss: "fr" },
   updatedAt: 0,
@@ -56,6 +60,7 @@ function normalise(raw: Partial<ProfileData> | null): ProfileData {
     alphabet: raw.alphabet ?? base.alphabet,
     srs: raw.srs ?? base.srs,
     newLog: raw.newLog ?? base.newLog,
+    custom: raw.custom ?? base.custom,
     plan: { ...base.plan, ...(raw.plan ?? {}) },
     settings: { ...base.settings, ...(raw.settings ?? {}) },
     version: 1,
@@ -344,6 +349,56 @@ export function forgetProfile(username: string) {
   writeJSON(K_PROFILES, next);
   set({ profiles: next });
   if (getSnapshot().username === username) signOut();
+}
+
+/* --- vocabulary you add yourself ---------------------------------------- */
+
+/** Add or overwrite a captured word. Returns false if the id already existed. */
+export function upsertCustom(item: CustomItem): boolean {
+  let existed = false;
+  update((d) => {
+    existed = d.custom.some((c) => c.id === item.id);
+    return {
+      ...d,
+      custom: existed
+        ? d.custom.map((c) => (c.id === item.id ? { ...c, ...item } : c))
+        : [...d.custom, item],
+    };
+  });
+  return !existed;
+}
+
+/** Drop a captured word and any scheduling attached to it. */
+export function removeCustom(id: string) {
+  update((d) => {
+    const srs = { ...d.srs };
+    delete srs[`${id}:he2m`];
+    delete srs[`${id}:m2he`];
+    return { ...d, custom: d.custom.filter((c) => c.id !== id), srs };
+  });
+}
+
+/** Bulk add. Existing words are updated, not duplicated. */
+export function mergeCustom(items: CustomItem[]): {
+  added: number;
+  updated: number;
+} {
+  let added = 0;
+  let updated = 0;
+  update((d) => {
+    const byId = new Map(d.custom.map((c) => [c.id, c]));
+    for (const item of items) {
+      if (byId.has(item.id)) {
+        byId.set(item.id, { ...byId.get(item.id)!, ...item });
+        updated++;
+      } else {
+        byId.set(item.id, item);
+        added++;
+      }
+    }
+    return { ...d, custom: [...byId.values()] };
+  });
+  return { added, updated };
 }
 
 export function resetCurrent() {

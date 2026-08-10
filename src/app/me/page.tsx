@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { LETTERS } from "@/lib/letters";
-import { CARDS } from "@/lib/deck";
+import { useDeck } from "@/lib/use-deck";
 import { isMature, isReview } from "@/lib/srs";
 import { MASTERY_TARGET, masteredCount } from "@/lib/progress";
 import { streak, totalMinutes } from "@/lib/plan";
@@ -25,6 +25,7 @@ type Mode = "menu" | "create" | "signin";
 
 export default function MePage() {
   const { username, data, profiles, sync, isGuest, ready } = useStore();
+  const { cards: CARDS } = useDeck();
   const [mode, setMode] = useState<Mode>("menu");
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");

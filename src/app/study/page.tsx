@@ -2,12 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  CARDS,
-  GROUP_BY_ID,
-  ITEM_BY_ID,
-  type Card as DeckCard,
-} from "@/lib/deck";
+import { GROUP_BY_ID, type Card as DeckCard } from "@/lib/deck";
+import { useDeck } from "@/lib/use-deck";
 import {
   AGAIN,
   GRADES,
@@ -33,6 +29,7 @@ interface Session {
 
 export default function StudyPage() {
   const { data, ready, update } = useStore();
+  const { cards: CARDS, byId } = useDeck();
   const now = useNow();
   const [session, setSession] = useState<Session | null>(null);
   const [shown, setShown] = useState(false);
@@ -74,7 +71,7 @@ export default function StudyPage() {
     : { fresh: 0, learning: 0, due: 0, total: 0 };
 
   const card = session?.queue[session.pos];
-  const item = card ? ITEM_BY_ID[card.itemId] : null;
+  const item = card ? byId[card.itemId] : null;
   const srs: SrsCard = (card && data.srs[card.id]) || newCard(now);
   const gloss = data.settings.gloss;
 

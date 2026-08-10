@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Ring from "@/components/Ring";
 import { LETTERS } from "@/lib/letters";
-import { CARDS } from "@/lib/deck";
+import { useDeck } from "@/lib/use-deck";
 import { buildQueue } from "@/lib/srs";
 import { masteredCount } from "@/lib/progress";
 import {
@@ -21,6 +21,7 @@ import { useNow, useToday } from "@/lib/clock";
 
 export default function Home() {
   const { data, ready, isGuest, username } = useStore();
+  const { cards: CARDS, items } = useDeck();
   const now = useNow();
   // null until hydration — see useToday.
   const today = useToday();
@@ -161,10 +162,18 @@ export default function Home() {
         <Module
           href="/study"
           title="Vocabulary"
-          detail={`${CARDS.length} cards · patterns first, then the pieces`}
+          detail={`${items.length} words · patterns first, then the pieces`}
           glyph="מ"
           tint="rgba(180,137,255,0.16)"
           delay={175}
+        />
+        <Module
+          href="/words"
+          title="Your Words"
+          detail={`${items.length} in the deck · add, import, export`}
+          glyph="ו"
+          tint="rgba(255,183,77,0.14)"
+          delay={230}
         />
         <Module
           href="/plan"
@@ -172,7 +181,7 @@ export default function Home() {
           detail="Daily blocks, metrics, coverage curve"
           glyph="ה"
           tint="rgba(74,222,156,0.14)"
-          delay={230}
+          delay={285}
         />
       </div>
     </>
