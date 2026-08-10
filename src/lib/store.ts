@@ -175,7 +175,10 @@ function hydrate(): Snapshot {
 }
 
 function getSnapshot(): Snapshot {
-  snapshot ??= hydrate();
+  if (!snapshot) {
+    snapshot = hydrate();
+    bindFlush();
+  }
   return snapshot;
 }
 
@@ -198,14 +201,62 @@ function set(patch: Partial<Snapshot>) {
 /* --- mutations ----------------------------------------------------------- */
 
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
+/** True between a local change and the push that lands it on the server. */
+let dirty = false;
 
 /** Apply a change to the current profile, persist locally, queue a push. */
 export function update(fn: (d: ProfileData) => ProfileData) {
   const cur = getSnapshot();
   const next = { ...fn(cur.data), updatedAt: Date.now() };
   writeJSON(K_DATA(cur.username), next);
+  dirty = true;
   set({ data: next });
   schedulePush();
+}
+
+/**
+ * Send whatever is pending before the page goes away.
+ *
+ * The ordinary push is debounced, so answering a card and immediately closing
+ * the tab would leave the server a version behind — harmless on this device,
+ * but the next device to sign in would pull stale data. `keepalive` lets the
+ * request outlive the page.
+ */
+function flush() {
+  if (!SYNC_ENABLED || !dirty) return;
+  const { username, data } = getSnapshot();
+  if (username === GUEST) return;
+  if (pushTimer) {
+    clearTimeout(pushTimer);
+    pushTimer = null;
+  }
+  try {
+    void fetch("/api/profile", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        action: "save",
+        username,
+        pin: pinFor(username),
+        data,
+      }),
+      keepalive: true,
+    });
+    dirty = false;
+  } catch {
+    /* the local copy is still authoritative */
+  }
+}
+
+let flushBound = false;
+function bindFlush() {
+  if (flushBound || typeof window === "undefined") return;
+  flushBound = true;
+  // pagehide is the reliable one on iOS; visibilitychange covers tab switches.
+  window.addEventListener("pagehide", flush);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") flush();
+  });
 }
 
 function schedulePush() {
@@ -251,6 +302,7 @@ export async function push(): Promise<void> {
   set({ sync: "syncing" });
   try {
     await api("save", { username, pin: pinFor(username), data });
+    dirty = false;
     set({ sync: "synced", error: null });
   } catch (e) {
     const offline = typeof navigator !== "undefined" && !navigator.onLine;
@@ -272,6 +324,7 @@ function rememberProfile(username: string, hasPin: boolean) {
 
 /** Adopt a profile locally and make it current. */
 function adopt(username: string, data: ProfileData, hasPin: boolean) {
+  dirty = false;
   writeJSON(K_DATA(username), data);
   window.localStorage.setItem(K_CURRENT, username);
   rememberProfile(username, hasPin);

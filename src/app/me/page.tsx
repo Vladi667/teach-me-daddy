@@ -5,7 +5,7 @@ import { LETTERS } from "@/lib/letters";
 import { useDeck } from "@/lib/use-deck";
 import { isMature, isReview } from "@/lib/srs";
 import { MASTERY_TARGET, masteredCount } from "@/lib/progress";
-import { streak, totalMinutes } from "@/lib/plan";
+import { NEW_WORDS_CAP, streak, totalMinutes } from "@/lib/plan";
 import {
   GUEST,
   SYNC_ENABLED,
@@ -17,6 +17,7 @@ import {
   resetCurrent,
   signIn,
   signOut,
+  update,
   useStore,
 } from "@/lib/store";
 import { tap } from "@/lib/feedback";
@@ -322,6 +323,89 @@ export default function MePage() {
         card is mature once its interval passes 21 days — that&apos;s the §8
         metric. {seen} of {CARDS.length} cards have been seen; {run}-day streak.
       </p>
+
+      {/* settings ---------------------------------------------------------- */}
+      <section className="anim-rise mb-4" style={{ animationDelay: "150ms" }}>
+        <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
+          Settings
+        </h2>
+
+        <div className="glass mb-2 flex items-center justify-between rounded-[18px] px-4 py-3">
+          <span className="text-[12.5px] text-(--color-ink-dim)">
+            Show meanings in
+          </span>
+          <div className="flex gap-1.5">
+            {(["fr", "en"] as const).map((g) => (
+              <button
+                key={g}
+                onClick={() => {
+                  tap();
+                  update((d) => ({
+                    ...d,
+                    settings: { ...d.settings, gloss: g },
+                  }));
+                }}
+                className="press rounded-full px-3.5 py-1.5 text-[12px] font-semibold"
+                style={{
+                  background:
+                    data.settings.gloss === g
+                      ? "rgba(255,255,255,0.14)"
+                      : "rgba(255,255,255,0.05)",
+                  color:
+                    data.settings.gloss === g
+                      ? "var(--color-ink)"
+                      : "var(--color-ink-faint)",
+                }}
+              >
+                {g === "fr" ? "Français" : "English"}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="glass rounded-[18px] px-4 py-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[12.5px] text-(--color-ink-dim)">
+              New cards per day
+            </span>
+            <div className="flex items-center gap-2">
+              {[-10, 10].map((d) => (
+                <button
+                  key={d}
+                  onClick={() => {
+                    tap();
+                    update((s) => ({
+                      ...s,
+                      settings: {
+                        ...s.settings,
+                        newPerDay: Math.max(
+                          5,
+                          Math.min(120, s.settings.newPerDay + d),
+                        ),
+                      },
+                    }));
+                  }}
+                  className="press rounded-full bg-white/8 px-2.5 py-1 text-[11px] font-semibold tabular-nums"
+                >
+                  {d > 0 ? `+${d}` : d}
+                </button>
+              ))}
+              <span className="w-8 text-right text-[13px] font-bold tabular-nums">
+                {data.settings.newPerDay}
+              </span>
+            </div>
+          </div>
+          {data.settings.newPerDay > NEW_WORDS_CAP && (
+            <p
+              className="mt-2 text-[11px] leading-snug"
+              style={{ color: "var(--color-amber)" }}
+            >
+              Above the {NEW_WORDS_CAP}/day the plan sets. §5: past that,
+              retention collapses because review can&apos;t keep up.
+            </p>
+          )}
+        </div>
+      </section>
 
       {/* data ------------------------------------------------------------- */}
       <section className="anim-rise mb-4" style={{ animationDelay: "160ms" }}>
