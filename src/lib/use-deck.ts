@@ -1,12 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import {
-  ITEMS,
-  makeCards,
-  type Card,
-  type Item,
-} from "./deck";
+import { ITEMS, makeCards, type Card, type Item } from "./deck";
 import { useStore } from "./store";
 
 /**

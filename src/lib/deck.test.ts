@@ -37,15 +37,18 @@ test("every item is complete and in a known group", () => {
 
 test("group ordering is unique and gapless", () => {
   const orders = GROUPS.map((g) => g.order).sort((a, b) => a - b);
-  assert.deepEqual(orders, orders.map((_, i) => i));
+  assert.deepEqual(
+    orders,
+    orders.map((_, i) => i),
+  );
 });
 
 test("patterns are introduced before the words that fill them", () => {
   const firstNonPattern = CARDS.findIndex(
     (c) => ITEMS.find((i) => i.id === c.itemId)!.group !== "patterns",
   );
-  const lastPattern = CARDS.map((c) =>
-    ITEMS.find((i) => i.id === c.itemId)!.group,
+  const lastPattern = CARDS.map(
+    (c) => ITEMS.find((i) => i.id === c.itemId)!.group,
   ).lastIndexOf("patterns");
   assert.ok(lastPattern < firstNonPattern, "a pattern sorts after a word");
 });
@@ -67,7 +70,10 @@ test("function words carry an example, concrete nouns needn't", () => {
       !i.atomic,
   );
   const bare = functional.filter((i) => !i.example);
-  assert.deepEqual(bare.map((i) => i.id), []);
+  assert.deepEqual(
+    bare.map((i) => i.id),
+    [],
+  );
 });
 
 test("two cards per item", () => {
@@ -113,7 +119,11 @@ test("reads a CSV with headers", () => {
 });
 
 test("reads Anki's tab-separated export with no header", () => {
-  const { items } = parseVocabFile("מַיִם\tmayim\teau\nלֶחֶם\tlechem\tpain", "fr", NOW);
+  const { items } = parseVocabFile(
+    "מַיִם\tmayim\teau\nלֶחֶם\tlechem\tpain",
+    "fr",
+    NOW,
+  );
   assert.equal(items.length, 2);
   assert.equal(items[1].tr, "lechem");
 });

@@ -31,70 +31,62 @@ export default function ProgressPage() {
 
   return (
     <>
-      <header className="anim-rise mb-5">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">Progress</h1>
-        <p className="mt-1 text-[13px] text-(--color-ink-dim)">
-          Saved on this device.
-        </p>
+      <header className="mb-5">
+        <h1 className="text-lg font-bold tracking-[-0.03em]">Progress</h1>
+        <p className="mt-1 text-sm text-ink-2">Saved on this device.</p>
       </header>
 
-      <section
-        className="glass anim-rise mb-3 flex items-center gap-5 rounded-[28px] p-5"
-        style={{ animationDelay: "50ms" }}
-      >
+      <section className="panel  mb-3 flex items-center gap-5 rounded-2xl p-5">
         <Ring value={done / LETTERS.length} size={88} stroke={7}>
           <div className="text-center leading-none">
-            <div className="text-[20px] font-bold tracking-[-0.04em]">
+            <div className="text-lg font-bold tracking-[-0.04em]">
               {Math.round((done / LETTERS.length) * 100)}
-              <span className="text-[12px]">%</span>
+              <span className="text-sm">%</span>
             </div>
           </div>
         </Ring>
         <div>
-          <div className="text-[15px] font-semibold">
+          <div className="text-base font-semibold">
             {done} of {LETTERS.length} mastered
           </div>
-          <p className="mt-1 text-[12.5px] leading-snug text-(--color-ink-dim)">
+          <p className="mt-1 text-sm leading-snug text-ink-2">
             A letter counts as mastered after {MASTERY_TARGET} correct answers
             in a row.
           </p>
         </div>
       </section>
 
-      <div
-        className="anim-rise mb-5 grid grid-cols-2 gap-3"
-        style={{ animationDelay: "100ms" }}
-      >
+      <div className="mb-5 grid grid-cols-2 gap-3">
         <Stat label="Answers given" value={seen} />
         <Stat label="Accuracy" value={seen ? `${accuracy}%` : "—"} />
       </div>
 
       {weakest.length > 0 && (
-        <section className="anim-rise mb-5" style={{ animationDelay: "140ms" }}>
-          <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
+        <section className="mb-5">
+          <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
             Costing you the most
           </h2>
           <div className="flex flex-col gap-2">
             {weakest.map(({ l, s }) => (
               <div
                 key={l.char}
-                className="glass flex items-center gap-3.5 rounded-[20px] px-4 py-3"
+                className="panel flex items-center gap-3.5 rounded-xl px-4 py-3"
               >
                 <span
-                  className="heb w-8 text-center text-[26px] leading-none"
+                  className="heb w-8 text-center text-lg leading-none"
                   style={{ fontFamily: "var(--font-hebrew)" }}
                 >
                   {l.char}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13.5px] font-semibold tracking-[0.03em]">
+                  <div className="text-sm font-semibold tracking-[0.03em]">
                     {l.name}
                   </div>
-                  <div className="mt-0.5 text-[11.5px] text-(--color-ink-faint)">
+                  <div className="mt-0.5 text-xs text-ink-3">
                     {s.wrong} miss{s.wrong === 1 ? "" : "es"} in {s.seen}
                   </div>
                 </div>
-                <span className="text-[11px] tabular-nums text-(--color-ink-faint)">
+                <span className="text-xs tnum text-ink-3">
                   {s.streak}/{MASTERY_TARGET}
                 </span>
               </div>
@@ -104,11 +96,11 @@ export default function ProgressPage() {
       )}
 
       {/* per-letter map --------------------------------------------------- */}
-      <section className="anim-rise mb-6" style={{ animationDelay: "180ms" }}>
-        <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
+      <section className="mb-6">
+        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
           Every letter
         </h2>
-        <div className="glass grid grid-cols-6 gap-2 rounded-[24px] p-4">
+        <div className="panel grid grid-cols-6 gap-2 rounded-2xl p-4">
           {LETTERS.map((l) => {
             const s = statFor(progress, l.char);
             const ratio = Math.min(1, s.streak / MASTERY_TARGET);
@@ -119,7 +111,7 @@ export default function ProgressPage() {
                 className="flex flex-col items-center gap-1.5"
               >
                 <span
-                  className="heb text-[19px] leading-none"
+                  className="heb text-lg leading-none"
                   style={{
                     fontFamily: "var(--font-hebrew)",
                     opacity: 0.35 + ratio * 0.65,
@@ -132,12 +124,14 @@ export default function ProgressPage() {
                   style={{
                     background:
                       ratio >= 1
-                        ? "var(--color-mint)"
+                        ? "var(--color-good)"
                         : ratio > 0
-                          ? "rgba(255,183,77,0.65)"
-                          : "rgba(255,255,255,0.10)",
+                          ? "color-mix(in oklch, var(--color-warn) 65%, transparent)"
+                          : "var(--color-surface-2)",
                     boxShadow:
-                      ratio >= 1 ? "0 0 6px rgba(88,224,106,0.6)" : undefined,
+                      ratio >= 1
+                        ? "0 0 6px color-mix(in oklch, var(--color-good) 60%, transparent)"
+                        : undefined,
                   }}
                 />
               </div>
@@ -147,8 +141,8 @@ export default function ProgressPage() {
       </section>
 
       {confirming ? (
-        <div className="glass anim-fade rounded-[22px] p-4 text-center">
-          <p className="text-[13px] text-(--color-ink-dim)">
+        <div className="panel anim-fade rounded-xl p-4 text-center">
+          <p className="text-sm text-ink-2">
             Erase all progress on this device?
           </p>
           <div className="mt-3 flex gap-2.5">
@@ -157,7 +151,7 @@ export default function ProgressPage() {
                 tap();
                 setConfirming(false);
               }}
-              className="press flex-1 rounded-full bg-white/8 py-2.5 text-[13px] font-semibold"
+              className="tap flex-1 rounded-full bg-surface-2 py-2.5 text-sm font-semibold"
             >
               Keep it
             </button>
@@ -167,10 +161,11 @@ export default function ProgressPage() {
                 reset();
                 setConfirming(false);
               }}
-              className="press flex-1 rounded-full py-2.5 text-[13px] font-semibold"
+              className="tap flex-1 rounded-full py-2.5 text-sm font-semibold"
               style={{
-                background: "rgba(255,107,122,0.18)",
-                color: "var(--color-coral)",
+                background:
+                  "color-mix(in oklch, var(--color-bad) 18%, transparent)",
+                color: "var(--color-bad)",
               }}
             >
               Erase
@@ -183,7 +178,7 @@ export default function ProgressPage() {
             tap();
             setConfirming(true);
           }}
-          className="press w-full rounded-full py-3 text-[12.5px] font-medium text-(--color-ink-faint)"
+          className="tap w-full rounded-full py-3 text-sm font-medium text-ink-3"
         >
           Reset progress
         </button>
@@ -194,13 +189,9 @@ export default function ProgressPage() {
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="glass rounded-[22px] px-4 py-4">
-      <div className="text-[24px] font-bold tracking-[-0.03em] tabular-nums">
-        {value}
-      </div>
-      <div className="mt-0.5 text-[11.5px] text-(--color-ink-faint)">
-        {label}
-      </div>
+    <div className="panel rounded-xl px-4 py-4">
+      <div className="text-lg font-bold tracking-[-0.03em] tnum">{value}</div>
+      <div className="mt-0.5 text-xs text-ink-3">{label}</div>
     </div>
   );
 }

@@ -68,12 +68,7 @@ function normalise(raw: Partial<ProfileData> | null): ProfileData {
 }
 
 export type SyncState =
-  | "off"
-  | "idle"
-  | "syncing"
-  | "synced"
-  | "offline"
-  | "error";
+  "off" | "idle" | "syncing" | "synced" | "offline" | "error";
 
 /* --- keys ---------------------------------------------------------------- */
 
@@ -83,8 +78,7 @@ const K_DATA = (u: string) => `tmd:data:${u}`;
 const K_PIN = (u: string) => `tmd:pin:${u}`;
 const K_LEGACY_ALPHABET = "tmd.alphabet.v1";
 
-export const SYNC_ENABLED =
-  process.env.NEXT_PUBLIC_SYNC_ENABLED === "1";
+export const SYNC_ENABLED = process.env.NEXT_PUBLIC_SYNC_ENABLED === "1";
 
 export const USERNAME_RE = /^[a-z0-9](?:[a-z0-9_-]{1,18}[a-z0-9])$/;
 
@@ -346,7 +340,9 @@ export async function signIn(rawName: string, pin?: string): Promise<void> {
 
   if (!SYNC_ENABLED) {
     // Local-only: just switch to whatever this device holds.
-    const local = normalise(readJSON<ProfileData | null>(K_DATA(username), null));
+    const local = normalise(
+      readJSON<ProfileData | null>(K_DATA(username), null),
+    );
     adopt(username, local);
     return;
   }

@@ -54,11 +54,36 @@ export interface Block {
 }
 
 export const BLOCKS: Block[] = [
-  { id: "vocab", minutes: 45, label: "New words + patterns", goal: "The vocabulary engine — in sentences, plus spaced repetition" },
-  { id: "shadow", minutes: 45, label: "Shadowing", goal: "Rhythm, ear, pronunciation over native audio" },
-  { id: "speak", minutes: 45, label: "Forced speaking", goal: "Turns passive into active" },
-  { id: "immerse", minutes: 45, label: "Active immersion", goal: "Podcast or series, no French subtitles" },
-  { id: "consolidate", minutes: 40, label: "Consolidation", goal: "Today's and yesterday's cards, pronunciation fixes" },
+  {
+    id: "vocab",
+    minutes: 45,
+    label: "New words + patterns",
+    goal: "The vocabulary engine — in sentences, plus spaced repetition",
+  },
+  {
+    id: "shadow",
+    minutes: 45,
+    label: "Shadowing",
+    goal: "Rhythm, ear, pronunciation over native audio",
+  },
+  {
+    id: "speak",
+    minutes: 45,
+    label: "Forced speaking",
+    goal: "Turns passive into active",
+  },
+  {
+    id: "immerse",
+    minutes: 45,
+    label: "Active immersion",
+    goal: "Podcast or series, no French subtitles",
+  },
+  {
+    id: "consolidate",
+    minutes: 40,
+    label: "Consolidation",
+    goal: "Today's and yesterday's cards, pronunciation fixes",
+  },
 ];
 
 export const DAILY_MINUTES = BLOCKS.reduce((n, b) => n + b.minutes, 0);
@@ -71,7 +96,10 @@ export const WEEK_FOCUS = [
   { day: "Thu", focus: "Intensive production on both of the week's themes" },
   { day: "Fri", focus: "Immersion + cumulative review" },
   { day: "Sat", focus: "Real simulation — play a full scenario end to end" },
-  { day: "Sun", focus: "Wide spaced review (everything overdue) + partial rest" },
+  {
+    day: "Sun",
+    focus: "Wide spaced review (everything overdue) + partial rest",
+  },
 ];
 
 /** §5 — retention ceiling. Past this, review can't keep up. */

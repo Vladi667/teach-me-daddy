@@ -35,20 +35,17 @@ export default function MePage() {
 
   return (
     <>
-      <header className="anim-rise mb-4">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">{username}</h1>
-        <p className="mt-1 flex items-center gap-2 text-[13px] text-(--color-ink-dim)">
+      <header className="mb-4">
+        <h1 className="text-lg font-bold tracking-[-0.03em]">{username}</h1>
+        <p className="mt-1 flex items-center gap-2 text-sm text-ink-2">
           <SyncDot state={sync} />
           {label(sync)}
         </p>
       </header>
 
       {/* identity --------------------------------------------------------- */}
-      {(
-        <section
-          className="glass anim-rise mb-4 rounded-[26px] p-4"
-          style={{ animationDelay: "40ms" }}
-        >
+      {
+        <section className="panel  mb-4 rounded-2xl p-4">
           <div className="flex gap-2.5">
             <button
               onClick={() => {
@@ -56,7 +53,7 @@ export default function MePage() {
                 void push();
               }}
               disabled={!SYNC_ENABLED}
-              className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
+              className="tap flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold"
               style={{ opacity: SYNC_ENABLED ? 1 : 0.4 }}
             >
               Sync now
@@ -67,18 +64,22 @@ export default function MePage() {
                 // Back to the gate; the local copy is kept for offline safety.
                 logOut();
               }}
-              className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
+              className="tap flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold"
             >
               Log out
             </button>
           </div>
         </section>
-      )}
+      }
 
       {err && (
         <p
-          className="anim-fade mb-4 rounded-[14px] px-3.5 py-2.5 text-[12px]"
-          style={{ background: "rgba(255,107,122,0.12)", color: "var(--color-coral)" }}
+          className="anim-fade mb-4 rounded-lg px-3.5 py-2.5 text-sm"
+          style={{
+            background:
+              "color-mix(in oklch, var(--color-bad) 12%, transparent)",
+            color: "var(--color-bad)",
+          }}
         >
           {err}
         </p>
@@ -86,40 +87,42 @@ export default function MePage() {
 
       {note && (
         <p
-          className="anim-fade mb-4 rounded-[14px] px-3.5 py-2.5 text-[12px]"
-          style={{ background: "rgba(88,224,106,0.12)", color: "var(--color-mint)" }}
+          className="anim-fade mb-4 rounded-lg px-3.5 py-2.5 text-sm"
+          style={{
+            background:
+              "color-mix(in oklch, var(--color-good) 12%, transparent)",
+            color: "var(--color-good)",
+          }}
         >
           {note}
         </p>
       )}
 
       {/* stats ------------------------------------------------------------ */}
-      <section
-        className="anim-rise mb-4 grid grid-cols-2 gap-3"
-        style={{ animationDelay: "120ms" }}
-      >
-        <Stat value={`${mastered}/${LETTERS.length}`} label="letters mastered" />
+      <section className="mb-4 grid grid-cols-2 gap-3">
+        <Stat
+          value={`${mastered}/${LETTERS.length}`}
+          label="letters mastered"
+        />
         <Stat value={`${mature}`} label="mature cards" />
         <Stat value={`${inReview}/${CARDS.length}`} label="cards in review" />
         <Stat value={`${hours}h`} label="logged study time" />
       </section>
 
-      <p className="mb-4 px-1 text-[11px] leading-relaxed text-(--color-ink-faint)">
+      <p className="mb-4 px-1 text-xs leading-relaxed text-ink-3">
         A letter counts as mastered after {MASTERY_TARGET} correct in a row. A
         card is mature once its interval passes 21 days — that&apos;s the §8
         metric. {seen} of {CARDS.length} cards have been seen; {run}-day streak.
       </p>
 
       {/* settings ---------------------------------------------------------- */}
-      <section className="anim-rise mb-4" style={{ animationDelay: "150ms" }}>
-        <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
+      <section className="mb-4">
+        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
           Settings
         </h2>
 
-        <div className="glass mb-2 flex items-center justify-between rounded-[18px] px-4 py-3">
-          <span className="text-[12.5px] text-(--color-ink-dim)">
-            Show meanings in
-          </span>
+        <div className="panel mb-2 flex items-center justify-between rounded-xl px-4 py-3">
+          <span className="text-sm text-ink-2">Show meanings in</span>
           <div className="flex gap-1.5">
             {(["fr", "en"] as const).map((g) => (
               <button
@@ -131,16 +134,16 @@ export default function MePage() {
                     settings: { ...d.settings, gloss: g },
                   }));
                 }}
-                className="press rounded-full px-3.5 py-1.5 text-[12px] font-semibold"
+                className="tap rounded-full px-3.5 py-1.5 text-sm font-semibold"
                 style={{
                   background:
                     data.settings.gloss === g
-                      ? "rgba(255,255,255,0.14)"
-                      : "rgba(255,255,255,0.05)",
+                      ? "var(--color-surface-2)"
+                      : "var(--color-surface)",
                   color:
                     data.settings.gloss === g
                       ? "var(--color-ink)"
-                      : "var(--color-ink-faint)",
+                      : "var(--color-ink-3)",
                 }}
               >
                 {g === "fr" ? "Français" : "English"}
@@ -149,11 +152,9 @@ export default function MePage() {
           </div>
         </div>
 
-        <div className="glass rounded-[18px] px-4 py-3">
+        <div className="panel rounded-xl px-4 py-3">
           <div className="flex items-center justify-between">
-            <span className="text-[12.5px] text-(--color-ink-dim)">
-              New cards per day
-            </span>
+            <span className="text-sm text-ink-2">New cards per day</span>
             <div className="flex items-center gap-2">
               {[-10, 10].map((d) => (
                 <button
@@ -171,20 +172,20 @@ export default function MePage() {
                       },
                     }));
                   }}
-                  className="press rounded-full bg-white/8 px-2.5 py-1 text-[11px] font-semibold tabular-nums"
+                  className="tap rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tnum"
                 >
                   {d > 0 ? `+${d}` : d}
                 </button>
               ))}
-              <span className="w-8 text-right text-[13px] font-bold tabular-nums">
+              <span className="w-8 text-right text-sm font-bold tnum">
                 {data.settings.newPerDay}
               </span>
             </div>
           </div>
           {data.settings.newPerDay > NEW_WORDS_CAP && (
             <p
-              className="mt-2 text-[11px] leading-snug"
-              style={{ color: "var(--color-amber)" }}
+              className="mt-2 text-xs leading-snug"
+              style={{ color: "var(--color-warn)" }}
             >
               Above the {NEW_WORDS_CAP}/day the plan sets. §5: past that,
               retention collapses because review can&apos;t keep up.
@@ -194,27 +195,29 @@ export default function MePage() {
       </section>
 
       {/* data ------------------------------------------------------------- */}
-      <section className="anim-rise mb-4" style={{ animationDelay: "160ms" }}>
-        <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
+      <section className="mb-4">
+        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
           Your data
         </h2>
         <div className="flex flex-col gap-2">
           <button
             onClick={() => {
               tap();
-              const blob = new Blob([exportData()], { type: "application/json" });
+              const blob = new Blob([exportData()], {
+                type: "application/json",
+              });
               const a = document.createElement("a");
               a.href = URL.createObjectURL(blob);
               a.download = `teach-me-daddy-${username === GUEST ? "device" : username}.json`;
               a.click();
               URL.revokeObjectURL(a.href);
             }}
-            className="glass press rounded-[18px] px-4 py-3 text-left text-[13px] font-semibold"
+            className="panel tap rounded-xl px-4 py-3 text-left text-sm font-semibold"
           >
             Export a backup
           </button>
 
-          <label className="glass press cursor-pointer rounded-[18px] px-4 py-3 text-[13px] font-semibold">
+          <label className="panel tap cursor-pointer rounded-xl px-4 py-3 text-sm font-semibold">
             Import a backup
             <input
               type="file"
@@ -236,9 +239,9 @@ export default function MePage() {
           </label>
 
           {confirmReset ? (
-            <div className="glass rounded-[18px] p-4 text-center">
-              <p className="text-[12.5px] text-(--color-ink-dim)">
-                Erase all progress for{" "}
+            <div className="panel rounded-xl p-4 text-center">
+              <p className="text-sm text-ink-2">
+                Erase all progress for{""}
                 <strong>{username}</strong>?
               </p>
               <div className="mt-3 flex gap-2.5">
@@ -247,7 +250,7 @@ export default function MePage() {
                     tap();
                     setConfirmReset(false);
                   }}
-                  className="press flex-1 rounded-full bg-white/8 py-2.5 text-[13px] font-semibold"
+                  className="tap flex-1 rounded-full bg-surface-2 py-2.5 text-sm font-semibold"
                 >
                   Keep it
                 </button>
@@ -258,10 +261,11 @@ export default function MePage() {
                     setConfirmReset(false);
                     setNote("Progress erased.");
                   }}
-                  className="press flex-1 rounded-full py-2.5 text-[13px] font-semibold"
+                  className="tap flex-1 rounded-full py-2.5 text-sm font-semibold"
                   style={{
-                    background: "rgba(255,107,122,0.18)",
-                    color: "var(--color-coral)",
+                    background:
+                      "color-mix(in oklch, var(--color-bad) 18%, transparent)",
+                    color: "var(--color-bad)",
                   }}
                 >
                   Erase
@@ -274,7 +278,7 @@ export default function MePage() {
                 tap();
                 setConfirmReset(true);
               }}
-              className="press rounded-[18px] px-4 py-3 text-left text-[13px] font-medium text-(--color-ink-faint)"
+              className="tap rounded-xl px-4 py-3 text-left text-sm font-medium text-ink-3"
             >
               Reset progress
             </button>
@@ -307,12 +311,12 @@ function label(s: string) {
 function SyncDot({ state }: { state: string }) {
   const tint =
     state === "synced"
-      ? "var(--color-mint)"
+      ? "var(--color-good)"
       : state === "syncing"
         ? "var(--color-accent)"
         : state === "error"
-          ? "var(--color-coral)"
-          : "var(--color-ink-faint)";
+          ? "var(--color-bad)"
+          : "var(--color-ink-3)";
   return (
     <span
       className="inline-block size-2 shrink-0 rounded-full"
@@ -323,11 +327,9 @@ function SyncDot({ state }: { state: string }) {
 
 function Stat({ value, label }: { value: string; label: string }) {
   return (
-    <div className="glass rounded-[20px] px-4 py-3.5">
-      <div className="text-[20px] font-bold tracking-[-0.03em] tabular-nums">
-        {value}
-      </div>
-      <div className="mt-0.5 text-[11px] text-(--color-ink-faint)">{label}</div>
+    <div className="panel rounded-xl px-4 py-3.5">
+      <div className="text-lg font-bold tracking-[-0.03em] tnum">{value}</div>
+      <div className="mt-0.5 text-xs text-ink-3">{label}</div>
     </div>
   );
 }

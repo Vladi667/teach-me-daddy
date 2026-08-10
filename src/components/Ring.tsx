@@ -25,7 +25,7 @@ export default function Ring({
         <defs>
           <linearGradient id="ring-grad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="var(--color-accent)" />
-            <stop offset="100%" stopColor="var(--color-accent-2)" />
+            <stop offset="100%" stopColor="var(--color-accent)" />
           </linearGradient>
         </defs>
         <circle
@@ -47,7 +47,7 @@ export default function Ring({
           strokeDasharray={c}
           strokeDashoffset={c * (1 - clamped)}
           style={{
-            transition: "stroke-dashoffset 900ms var(--ease-out-soft)",
+            transition: "stroke-dashoffset 260ms var(--ease-out-quart)",
             filter: "drop-shadow(0 0 8px rgba(10,186,181,0.55))",
           }}
         />

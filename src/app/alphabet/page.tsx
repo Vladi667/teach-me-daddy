@@ -31,16 +31,14 @@ export default function AlphabetPage() {
 
   return (
     <>
-      <header className="anim-rise mb-4">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">
-          The Alphabet
-        </h1>
-        <p className="mt-1 text-[13px] text-(--color-ink-dim)">
+      <header className="mb-4">
+        <h1 className="text-lg font-bold tracking-[-0.03em]">The Alphabet</h1>
+        <p className="mt-1 text-sm text-ink-2">
           22 letters, read right to left. Tap any one.
         </p>
       </header>
 
-      <div className="anim-rise mb-4" style={{ animationDelay: "60ms" }}>
+      <div className="mb-4">
         <Segmented options={SCRIPTS} value={script} onChange={setScript} />
       </div>
 
@@ -54,15 +52,15 @@ export default function AlphabetPage() {
                 tap();
                 setOpen(l);
               }}
-              className="glass press anim-rise relative flex aspect-4/5 flex-col items-center justify-center rounded-[22px]"
+              className="panel tap  relative flex aspect-4/5 flex-col items-center justify-center rounded-xl"
               style={{ animationDelay: `${Math.min(i, 12) * 28}ms` }}
             >
               {mastered && (
                 <span
                   className="absolute top-2.5 right-2.5 size-1.5 rounded-full"
                   style={{
-                    background: "var(--color-mint)",
-                    boxShadow: "0 0 8px var(--color-mint)",
+                    background: "var(--color-good)",
+                    boxShadow: "0 0 8px var(--color-good)",
                   }}
                   aria-label="mastered"
                 />
@@ -81,7 +79,7 @@ export default function AlphabetPage() {
                 {l.char}
               </span>
 
-              <span className="mt-2.5 text-[10px] font-semibold tracking-[0.06em] text-(--color-ink-faint)">
+              <span className="mt-2.5 text-xs font-semibold tracking-[0.06em] text-ink-3">
                 {l.name}
               </span>
             </button>
@@ -89,10 +87,10 @@ export default function AlphabetPage() {
         })}
       </div>
 
-      <p className="mt-5 px-1 text-center text-[11.5px] leading-relaxed text-(--color-ink-faint)">
+      <p className="mt-5 px-1 text-center text-xs leading-relaxed text-ink-3">
         Five letters change shape at the end of a word:
         <span
-          className="heb mx-1.5 text-[15px]"
+          className="heb mx-1.5 text-base"
           style={{ fontFamily: "var(--font-hebrew)" }}
         >
           ך ם ן ף ץ
@@ -104,7 +102,7 @@ export default function AlphabetPage() {
           href="/practice"
           prefetch={LINK_PREFETCH}
           onClick={tap}
-          className="btn-accent press flex min-h-[44px] flex-1 items-center justify-center rounded-full text-[13px] font-semibold"
+          className="btn btn-primary flex-1 text-sm"
         >
           Drill the letters
         </Link>
@@ -112,7 +110,7 @@ export default function AlphabetPage() {
           href="/progress"
           prefetch={LINK_PREFETCH}
           onClick={tap}
-          className="press flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-white/8 text-[13px] font-semibold"
+          className="tap flex min-h-[44px] flex-1 items-center justify-center rounded-full bg-surface-2 text-sm font-semibold"
         >
           Letter stats
         </Link>

@@ -114,7 +114,11 @@ test("a lapsed card re-graduates at one day, not its old interval", () => {
   const g = graduate();
   const long = review(review(g, EASY, g.due), EASY, g.due + 10 * DAY);
   const lapsed = review(long, AGAIN, long.due);
-  const relearn = review(review(lapsed, GOOD, lapsed.due), GOOD, lapsed.due + 10 * MIN);
+  const relearn = review(
+    review(lapsed, GOOD, lapsed.due),
+    GOOD,
+    lapsed.due + 10 * MIN,
+  );
   assert.equal(relearn.interval, 1);
 });
 
@@ -158,7 +162,10 @@ test("the queue puts cards in flight before new ones and skips future cards", ()
     later: { ...graduate(), due: T0 + 5 * DAY },
   };
   const { queue, counts } = buildQueue(items, cards, T0, 10);
-  assert.deepEqual(queue.map((q) => q.id), ["due", "fresh"]);
+  assert.deepEqual(
+    queue.map((q) => q.id),
+    ["due", "fresh"],
+  );
   assert.equal(counts.due, 1);
   assert.equal(counts.fresh, 1);
   assert.equal(counts.learning, 0);

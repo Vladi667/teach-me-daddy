@@ -85,7 +85,10 @@ export default function StudyPage() {
 
     update((d) => ({
       ...d,
-      srs: { ...d.srs, [card.id]: review(d.srs[card.id] ?? newCard(at), g, at) },
+      srs: {
+        ...d.srs,
+        [card.id]: review(d.srs[card.id] ?? newCard(at), g, at),
+      },
       newLog:
         wasNew && today
           ? { ...d.newLog, [today]: (d.newLog[today] ?? 0) + 1 }
@@ -94,7 +97,7 @@ export default function StudyPage() {
 
     setSession((s) => {
       if (!s) return s;
-      // "Again" sends the card back to the end of this session, so you finish
+      //"Again" sends the card back to the end of this session, so you finish
       // having actually got it right at least once.
       const queue = g === AGAIN ? [...s.queue, card] : s.queue;
       return {
@@ -126,7 +129,7 @@ export default function StudyPage() {
     return (
       <>
         <Header counts={counts} mature={matureCount} />
-        <div className="glass grid h-[320px] place-items-center rounded-[28px] text-[13px] text-(--color-ink-faint)">
+        <div className="panel grid h-[320px] place-items-center rounded-2xl text-sm text-ink-3">
           Loading…
         </div>
       </>
@@ -138,23 +141,27 @@ export default function StudyPage() {
     return (
       <>
         <Header counts={counts} mature={matureCount} />
-        <div className="glass anim-rise rounded-[28px] p-6 text-center">
+        <div className="panel  rounded-2xl p-6 text-center">
           <div
             className="mx-auto grid size-14 place-items-center rounded-full"
-            style={{ background: "rgba(88,224,106,0.15)" }}
+            style={{
+              background:
+                "color-mix(in oklch, var(--color-good) 15%, transparent)",
+            }}
           >
-            <span className="text-[26px]">✓</span>
+            <span className="text-lg">✓</span>
           </div>
-          <h2 className="mt-4 text-[20px] font-bold tracking-[-0.02em]">
+          <h2 className="mt-4 text-lg font-bold tracking-[-0.02em]">
             {session.answered > 0 ? "Session done" : "Nothing due"}
           </h2>
           {session.answered > 0 && (
-            <p className="mt-1.5 text-[13px] text-(--color-ink-dim)">
-              {session.answered} answered ·{" "}
-              {Math.round((session.correct / session.answered) * 100)}% first try
+            <p className="mt-1.5 text-sm text-ink-2">
+              {session.answered} answered ·{""}
+              {Math.round((session.correct / session.answered) * 100)}% first
+              try
             </p>
           )}
-          <p className="mt-3 text-[12.5px] leading-relaxed text-(--color-ink-dim)">
+          <p className="mt-3 text-sm leading-relaxed text-ink-2">
             {nothingLeft
               ? allowance === 0
                 ? `You've introduced today's ${data.settings.newPerDay} new cards. The plan caps it there — past that, review can't keep up.`
@@ -163,10 +170,7 @@ export default function StudyPage() {
           </p>
 
           {!nothingLeft && (
-            <button
-              onClick={restart}
-              className="btn-accent press mt-5 w-full rounded-full py-3.5 text-[14px] font-semibold"
-            >
+            <button onClick={restart} className="btn btn-primary mt-5 w-full">
               Keep going
             </button>
           )}
@@ -174,7 +178,7 @@ export default function StudyPage() {
             href="/plan"
             prefetch={LINK_PREFETCH}
             onClick={tap}
-            className="press mt-2.5 block w-full rounded-full py-3 text-[13px] font-medium text-(--color-ink-dim)"
+            className="tap mt-2.5 block w-full rounded-full py-3 text-sm font-medium text-ink-2"
           >
             Log today&apos;s blocks
           </Link>
@@ -193,19 +197,17 @@ export default function StudyPage() {
     <>
       <Header counts={counts} mature={matureCount} />
 
-      <div className="mb-3 flex items-center justify-between px-1 text-[11.5px]">
-        <span className="text-(--color-ink-faint)">
+      <div className="mb-3 flex items-center justify-between px-1 text-xs">
+        <span className="text-ink-3">
           {group.label} · {askHebrew ? "produce" : "recognise"}
         </span>
-        <span className="text-(--color-ink-faint) tabular-nums">
-          {remaining} left
-        </span>
+        <span className="text-ink-3 tnum">{remaining} left</span>
       </div>
 
-      <div className="glass anim-rise flex min-h-[260px] flex-1 flex-col items-center justify-center rounded-[28px] px-5 py-7 text-center">
+      <div className="panel flex flex-col items-center justify-center rounded-2xl px-5 py-9 text-center">
         {/* prompt */}
         {askHebrew ? (
-          <p className="text-[22px] leading-snug font-semibold tracking-[-0.02em]">
+          <p className="text-lg leading-snug font-semibold tracking-[-0.02em]">
             {gloss === "fr" ? item!.fr : item!.en}
           </p>
         ) : (
@@ -223,12 +225,12 @@ export default function StudyPage() {
               tap();
               setShown(true);
             }}
-            className="press mt-7 rounded-full bg-white/8 px-6 py-3 text-[13px] font-semibold"
+            className="tap mt-7 rounded-full bg-surface-2 px-6 py-3 text-sm font-semibold"
           >
             Show answer
           </button>
         ) : (
-          <div className="anim-fade mt-6 w-full border-t border-white/10 pt-6">
+          <div className="anim-fade mt-6 w-full border-t border-line pt-6">
             {askHebrew ? (
               <p
                 className="heb text-[32px] leading-snug"
@@ -237,15 +239,13 @@ export default function StudyPage() {
                 {item!.he}
               </p>
             ) : (
-              <p className="text-[20px] leading-snug font-semibold tracking-[-0.02em]">
+              <p className="text-lg leading-snug font-semibold tracking-[-0.02em]">
                 {gloss === "fr" ? item!.fr : item!.en}
               </p>
             )}
 
             <div className="mt-2 flex items-center justify-center gap-2">
-              <span className="text-[13.5px] text-(--color-ink-dim) italic">
-                {item!.tr}
-              </span>
+              <span className="text-sm text-ink-2 italic">{item!.tr}</span>
               {voice && (
                 <button
                   onClick={() => {
@@ -253,11 +253,18 @@ export default function StudyPage() {
                     speak(item!.he);
                   }}
                   aria-label="Hear it"
-                  className="press grid size-7 place-items-center rounded-full bg-white/8"
+                  className="tap grid size-7 place-items-center rounded-full bg-surface-2"
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <path d="M11 5 6.5 9H3v6h3.5L11 19z" />
                     <path d="M15.5 8.5a5 5 0 0 1 0 7" />
                   </svg>
@@ -267,20 +274,20 @@ export default function StudyPage() {
 
             {/* Function words are never shown bare — §9.4 */}
             {item!.example && (
-              <div className="mt-4 rounded-[16px] bg-white/5 px-4 py-3">
-                <div className="text-[9.5px] font-semibold tracking-[0.08em] text-(--color-ink-faint) uppercase">
+              <div className="mt-4 rounded-xl bg-surface px-4 py-3">
+                <div className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">
                   In a sentence
                 </div>
                 <p
-                  className="heb mt-1.5 text-[18px]"
+                  className="heb mt-1.5 text-md"
                   style={{ fontFamily: "var(--font-hebrew)" }}
                 >
                   {item!.example.he}
                 </p>
-                <p className="mt-1 text-[12px] text-(--color-ink-dim) italic">
+                <p className="mt-1 text-sm text-ink-2 italic">
                   {item!.example.tr}
                 </p>
-                <p className="mt-0.5 text-[12px] text-(--color-ink-faint)">
+                <p className="mt-0.5 text-sm text-ink-3">
                   {gloss === "fr" ? item!.example.fr : item!.example.en}
                 </p>
               </div>
@@ -295,11 +302,11 @@ export default function StudyPage() {
             <button
               key={g.grade}
               onClick={() => grade(g.grade)}
-              className="glass press flex flex-col items-center gap-0.5 rounded-[18px] py-3"
+              className="panel tap flex flex-col items-center gap-0.5 rounded-xl py-3"
               style={{ color: g.tint }}
             >
-              <span className="text-[12.5px] font-semibold">{g.label}</span>
-              <span className="text-[10px] tabular-nums opacity-70">
+              <span className="text-sm font-semibold">{g.label}</span>
+              <span className="text-xs tnum opacity-70">
                 {previewInterval(srs, g.grade, now)}
               </span>
             </button>
@@ -318,16 +325,14 @@ function Header({
   mature: number;
 }) {
   return (
-    <header className="anim-rise mb-4">
+    <header className="mb-4">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">Study</h1>
-        <span className="text-[12px] text-(--color-ink-faint)">
-          {mature} mature
-        </span>
+        <h1 className="text-lg font-bold tracking-[-0.03em]">Study</h1>
+        <span className="text-sm text-ink-3">{mature} mature</span>
       </div>
       <div className="mt-3 flex gap-2">
-        <Pill n={counts.learning} label="learning" tint="var(--color-amber)" />
-        <Pill n={counts.due} label="due" tint="var(--color-mint)" />
+        <Pill n={counts.learning} label="learning" tint="var(--color-warn)" />
+        <Pill n={counts.due} label="due" tint="var(--color-good)" />
         <Pill n={counts.fresh} label="new" tint="var(--color-accent)" />
       </div>
     </header>
@@ -337,11 +342,11 @@ function Header({
 function Pill({ n, label, tint }: { n: number; label: string; tint: string }) {
   return (
     <span
-      className="flex-1 rounded-[14px] bg-white/6 px-3 py-2 text-center"
-      style={{ color: n ? tint : "var(--color-ink-faint)" }}
+      className="flex-1 rounded-lg bg-surface px-3 py-2 text-center"
+      style={{ color: n ? tint : "var(--color-ink-3)" }}
     >
-      <span className="block text-[17px] font-bold tabular-nums">{n}</span>
-      <span className="block text-[10px] text-(--color-ink-faint)">{label}</span>
+      <span className="block text-md font-bold tnum">{n}</span>
+      <span className="block text-xs text-ink-3">{label}</span>
     </span>
   );
 }

@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { GROUPS, GROUP_BY_ID, customId, type CustomItem, type Group } from "@/lib/deck";
+import {
+  GROUPS,
+  GROUP_BY_ID,
+  customId,
+  type CustomItem,
+  type Group,
+} from "@/lib/deck";
 import { useDeck } from "@/lib/use-deck";
 import { isMature, isReview } from "@/lib/srs";
 import { mergeCustom, removeCustom, upsertCustom, useStore } from "@/lib/store";
@@ -55,26 +61,31 @@ export default function WordsPage() {
 
   return (
     <>
-      <header className="anim-rise mb-4 flex items-baseline justify-between">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">Words</h1>
-        <span className="text-[12px] text-(--color-ink-faint) tabular-nums">
+      <header className="mb-4 flex items-baseline justify-between">
+        <h1 className="text-lg font-bold tracking-[-0.03em]">Words</h1>
+        <span className="text-sm text-ink-3 tnum">
           {ready ? counts.total : 0} total
         </span>
       </header>
 
       {/* counts ----------------------------------------------------------- */}
-      <div
-        className="anim-rise mb-4 grid grid-cols-3 gap-2"
-        style={{ animationDelay: "40ms" }}
-      >
+      <div className="mb-4 grid grid-cols-3 gap-2">
         <Tile n={ready ? counts.seen : 0} label="seen" />
-        <Tile n={ready ? counts.mature : 0} label="mature" tint="var(--color-mint)" />
-        <Tile n={ready ? counts.captured : 0} label="yours" tint="var(--color-accent)" />
+        <Tile
+          n={ready ? counts.mature : 0}
+          label="mature"
+          tint="var(--color-good)"
+        />
+        <Tile
+          n={ready ? counts.captured : 0}
+          label="yours"
+          tint="var(--color-accent)"
+        />
       </div>
 
       {/* add / import ----------------------------------------------------- */}
       {!adding ? (
-        <div className="anim-rise mb-4 flex gap-2.5" style={{ animationDelay: "70ms" }}>
+        <div className="mb-4 flex gap-2.5">
           <button
             onClick={() => {
               tap();
@@ -82,11 +93,11 @@ export default function WordsPage() {
               setNote(null);
               setErr(null);
             }}
-            className="btn-accent press min-h-[44px] flex-1 rounded-full text-[13px] font-semibold"
+            className="btn btn-primary flex-1 text-sm"
           >
             Add a word
           </button>
-          <label className="press glass flex min-h-[44px] flex-1 cursor-pointer items-center justify-center rounded-full text-[13px] font-semibold">
+          <label className="tap panel flex min-h-[44px] flex-1 cursor-pointer items-center justify-center rounded-full text-sm font-semibold">
             Import
             <input
               type="file"
@@ -136,16 +147,24 @@ export default function WordsPage() {
 
       {note && (
         <p
-          className="anim-fade mb-3 rounded-[14px] px-3.5 py-2.5 text-[12px]"
-          style={{ background: "rgba(88,224,106,0.12)", color: "var(--color-mint)" }}
+          className="anim-fade mb-3 rounded-lg px-3.5 py-2.5 text-sm"
+          style={{
+            background:
+              "color-mix(in oklch, var(--color-good) 12%, transparent)",
+            color: "var(--color-good)",
+          }}
         >
           {note}
         </p>
       )}
       {err && (
         <p
-          className="anim-fade mb-3 rounded-[14px] px-3.5 py-2.5 text-[12px] leading-snug"
-          style={{ background: "rgba(255,107,122,0.12)", color: "var(--color-coral)" }}
+          className="anim-fade mb-3 rounded-lg px-3.5 py-2.5 text-sm leading-snug"
+          style={{
+            background:
+              "color-mix(in oklch, var(--color-bad) 12%, transparent)",
+            color: "var(--color-bad)",
+          }}
         >
           {err}
         </p>
@@ -156,8 +175,8 @@ export default function WordsPage() {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search Hebrew, transliteration or meaning"
-        className="mb-3 w-full rounded-[16px] bg-white/6 px-4 py-3 text-[14px] outline-none placeholder:text-(--color-ink-faint)"
-        style={{ border: "1px solid rgba(255,255,255,0.1)" }}
+        className="mb-3 w-full rounded-xl bg-surface px-4 py-3 text-base outline-none placeholder:text-ink-3"
+        style={{ border: "1px solid var(--color-surface-2)" }}
       />
 
       <div className="no-bar mb-4 -mx-5 flex gap-2 overflow-x-auto px-5 pb-1">
@@ -172,7 +191,7 @@ export default function WordsPage() {
       </div>
 
       {group !== "all" && GROUP_BY_ID[group].note && (
-        <p className="mb-3 rounded-[14px] bg-white/5 px-3.5 py-2.5 text-[11.5px] leading-snug text-(--color-ink-dim)">
+        <p className="mb-3 rounded-lg bg-surface px-3.5 py-2.5 text-xs leading-snug text-ink-2">
           {GROUP_BY_ID[group].note}
         </p>
       )}
@@ -180,7 +199,7 @@ export default function WordsPage() {
       {/* list -------------------------------------------------------------- */}
       <div className="mb-5 flex flex-col gap-2">
         {filtered.length === 0 && (
-          <p className="py-8 text-center text-[13px] text-(--color-ink-faint)">
+          <p className="py-8 text-center text-sm text-ink-3">
             Nothing matches.
           </p>
         )}
@@ -196,19 +215,19 @@ export default function WordsPage() {
           return (
             <div
               key={item.id}
-              className="glass flex items-center gap-3 rounded-[18px] px-4 py-3"
+              className="panel flex items-center gap-3 rounded-xl px-4 py-3"
             >
               <span
-                className="heb shrink-0 text-[20px] leading-none"
+                className="heb shrink-0 text-lg leading-none"
                 style={{ fontFamily: "var(--font-hebrew)" }}
               >
                 {item.he}
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-[12.5px] text-(--color-ink-dim)">
+                <span className="block truncate text-sm text-ink-2">
                   {gloss === "fr" ? item.fr || item.en : item.en || item.fr}
                 </span>
-                <span className="block truncate text-[11px] text-(--color-ink-faint) italic">
+                <span className="block truncate text-xs text-ink-3 italic">
                   {item.tr || GROUP_BY_ID[item.group].label}
                 </span>
               </span>
@@ -219,10 +238,10 @@ export default function WordsPage() {
                   style={{
                     background:
                       state === "mature"
-                        ? "var(--color-mint)"
+                        ? "var(--color-good)"
                         : state === "review"
                           ? "var(--color-accent)"
-                          : "var(--color-amber)",
+                          : "var(--color-warn)",
                   }}
                 />
               )}
@@ -233,7 +252,7 @@ export default function WordsPage() {
                     removeCustom(item.id);
                   }}
                   aria-label={`Remove ${item.he}`}
-                  className="press shrink-0 text-[11px] text-(--color-ink-faint)"
+                  className="tap shrink-0 text-xs text-ink-3"
                 >
                   Remove
                 </button>
@@ -242,7 +261,7 @@ export default function WordsPage() {
           );
         })}
         {filtered.length > 200 && (
-          <p className="py-3 text-center text-[11.5px] text-(--color-ink-faint)">
+          <p className="py-3 text-center text-xs text-ink-3">
             Showing the first 200 of {filtered.length}. Narrow the search.
           </p>
         )}
@@ -259,7 +278,7 @@ export default function WordsPage() {
             }
             download("my-hebrew-words.csv", toCSV(data.custom));
           }}
-          className="glass press min-h-[44px] flex-1 rounded-full text-[12.5px] font-semibold"
+          className="panel tap min-h-[44px] flex-1 rounded-full text-sm font-semibold"
         >
           Export your words
         </button>
@@ -268,13 +287,13 @@ export default function WordsPage() {
             tap();
             download("import-template.csv", CSV_TEMPLATE);
           }}
-          className="glass press min-h-[44px] flex-1 rounded-full text-[12.5px] font-semibold"
+          className="panel tap min-h-[44px] flex-1 rounded-full text-sm font-semibold"
         >
           Template
         </button>
       </div>
 
-      <p className="px-1 text-center text-[11px] leading-relaxed text-(--color-ink-faint)">
+      <p className="px-1 text-center text-xs leading-relaxed text-ink-3">
         Import takes CSV or tab-separated text. From Anki, use
         <em> File → Export → Notes in Plain Text</em>; `.apkg` is a zipped
         SQLite database and isn&apos;t read here. Columns are matched by header
@@ -335,26 +354,44 @@ function AddForm({
   }
 
   return (
-    <section className="glass anim-rise mb-4 rounded-[24px] p-4">
-      <h2 className="mb-3 text-[15px] font-semibold">Add a word</h2>
+    <section className="panel  mb-4 rounded-2xl p-4">
+      <h2 className="mb-3 text-base font-semibold">Add a word</h2>
 
-      <Field value={he} onChange={setHe} placeholder="Hebrew — with nikud if you can" hebrew />
-      <Field value={tr} onChange={setTr} placeholder="Transliteration (optional)" />
+      <Field
+        value={he}
+        onChange={setHe}
+        placeholder="Hebrew — with nikud if you can"
+        hebrew
+      />
+      <Field
+        value={tr}
+        onChange={setTr}
+        placeholder="Transliteration (optional)"
+      />
       <Field
         value={meaning}
         onChange={setMeaning}
         placeholder={gloss === "fr" ? "Sens en français" : "Meaning in English"}
       />
-      <Field value={example} onChange={setExample} placeholder="Example sentence (optional)" hebrew />
-      <Field value={source} onChange={setSource} placeholder="Where you met it (optional)" />
+      <Field
+        value={example}
+        onChange={setExample}
+        placeholder="Example sentence (optional)"
+        hebrew
+      />
+      <Field
+        value={source}
+        onChange={setSource}
+        placeholder="Where you met it (optional)"
+      />
 
       {problem && (
-        <p className="mt-2 text-[11.5px]" style={{ color: "var(--color-coral)" }}>
+        <p className="mt-2 text-xs" style={{ color: "var(--color-bad)" }}>
           {problem}
         </p>
       )}
 
-      <p className="mt-2.5 text-[11px] leading-relaxed text-(--color-ink-faint)">
+      <p className="mt-2.5 text-xs leading-relaxed text-ink-3">
         A function word — a verb, a question word, a connector — should get an
         example sentence. §9.4: those are never learned bare.
       </p>
@@ -362,14 +399,14 @@ function AddForm({
       <div className="mt-3.5 flex gap-2.5">
         <button
           onClick={onCancel}
-          className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
+          className="tap flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold"
         >
           Cancel
         </button>
         <button
           disabled={!canSave}
           onClick={() => save(true)}
-          className="press flex-1 rounded-full bg-white/10 py-3 text-[13px] font-semibold"
+          className="tap flex-1 rounded-full bg-surface-2 py-3 text-sm font-semibold"
           style={{ opacity: canSave ? 1 : 0.4 }}
         >
           Save &amp; next
@@ -377,10 +414,9 @@ function AddForm({
         <button
           disabled={!canSave}
           onClick={() => save(false)}
-          className="press flex-1 rounded-full py-3 text-[13px] font-semibold"
+          className="tap flex-1 rounded-full py-3 text-sm font-semibold"
           style={{
-            background:
-              "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
+            background: "var(--color-accent)",
             opacity: canSave ? 1 : 0.4,
           }}
         >
@@ -408,9 +444,9 @@ function Field({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       dir={hebrew ? "rtl" : "ltr"}
-      className="mb-2 w-full rounded-[14px] bg-white/6 px-3.5 py-2.5 text-[14px] outline-none placeholder:text-(--color-ink-faint)"
+      className="mb-2 w-full rounded-lg bg-surface px-3.5 py-2.5 text-base outline-none placeholder:text-ink-3"
       style={{
-        border: "1px solid rgba(255,255,255,0.1)",
+        border: "1px solid var(--color-surface-2)",
         fontFamily: hebrew ? "var(--font-hebrew)" : undefined,
         textAlign: hebrew ? "right" : "left",
       }}
@@ -420,14 +456,11 @@ function Field({
 
 function Tile({ n, label, tint }: { n: number; label: string; tint?: string }) {
   return (
-    <div className="glass rounded-[18px] px-3 py-3 text-center">
-      <div
-        className="text-[19px] font-bold tabular-nums"
-        style={{ color: tint }}
-      >
+    <div className="panel rounded-xl px-3 py-3 text-center">
+      <div className="text-lg font-bold tnum" style={{ color: tint }}>
         {n}
       </div>
-      <div className="text-[10.5px] text-(--color-ink-faint)">{label}</div>
+      <div className="text-xs text-ink-3">{label}</div>
     </div>
   );
 }
@@ -447,10 +480,10 @@ function Chip({
         tap();
         onClick();
       }}
-      className="press shrink-0 rounded-full px-3.5 py-2 text-[12px] font-semibold whitespace-nowrap"
+      className="tap shrink-0 rounded-full px-3.5 py-2 text-sm font-semibold whitespace-nowrap"
       style={{
-        background: on ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.05)",
-        color: on ? "var(--color-ink)" : "var(--color-ink-faint)",
+        background: on ? "var(--color-surface-2)" : "var(--color-surface)",
+        color: on ? "var(--color-ink)" : "var(--color-ink-3)",
       }}
     >
       {children}

@@ -95,7 +95,8 @@ export function parseVocabFile(
     .map((l) => l.trim())
     .filter(Boolean);
 
-  if (!lines.length) return { items: [], skipped: 0, problems: ["Empty file."] };
+  if (!lines.length)
+    return { items: [], skipped: 0, problems: ["Empty file."] };
 
   // Tab wins when present — that's what Anki writes.
   const delim = lines[0].includes("\t") ? "\t" : ",";
@@ -135,7 +136,8 @@ export function parseVocabFile(
     }
     if (!meaning) {
       skipped++;
-      if (problems.length < 5) problems.push(`Line ${n + 1}: no meaning given.`);
+      if (problems.length < 5)
+        problems.push(`Line ${n + 1}: no meaning given.`);
       return;
     }
 

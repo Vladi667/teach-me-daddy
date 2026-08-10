@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import {
-  GROUP_LABEL,
-  LETTERS,
-  type Letter,
-} from "@/lib/letters";
+import { GROUP_LABEL, LETTERS, type Letter } from "@/lib/letters";
 import { canSpeak, speak, tap } from "@/lib/feedback";
 
 interface Props {
@@ -79,14 +75,15 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-label={current.name}
-        className="glass glass-strong anim-sheet no-bar relative w-full max-w-[480px] overflow-y-auto rounded-t-[34px] px-6 pt-3"
+        className="panel-2 anim-sheet no-bar relative w-full max-w-[480px] overflow-y-auto rounded-t-[20px] px-6 pt-3"
         style={{
           maxHeight: "88dvh",
           paddingBottom: "calc(var(--safe-b) + 26px)",
           transform: drag ? `translateY(${drag}px)` : undefined,
-          transition: startY.current === null
-            ? "transform 420ms var(--ease-spring)"
-            : "none",
+          transition:
+            startY.current === null
+              ? "transform 200ms var(--ease-out-quart)"
+              : "none",
         }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
@@ -99,7 +96,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
         <div className="relative flex items-center justify-center gap-3 pb-1">
           <Arrow dir="prev" onClick={() => go(1)} />
 
-          <div key={current.char} className="anim-pop flex-1 text-center">
+          <div key={current.char} className="anim-card flex-1 text-center">
             <div className="flex items-end justify-center gap-6">
               <Glyph
                 char={current.char}
@@ -122,7 +119,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
         {/* identity ------------------------------------------------------- */}
         <div className="mt-5 text-center">
           <div className="flex items-center justify-center gap-2">
-            <h2 className="text-[24px] font-bold tracking-[-0.02em]">
+            <h2 className="text-lg font-bold tracking-[-0.02em]">
               {current.name}
             </h2>
             {voice && (
@@ -132,7 +129,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
                   speak(current.nameHe);
                 }}
                 aria-label={`Hear ${current.name}`}
-                className="press grid size-8 place-items-center rounded-full bg-white/8"
+                className="tap grid size-8 place-items-center rounded-full bg-surface-2"
               >
                 <svg
                   width="15"
@@ -152,7 +149,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
             )}
           </div>
           <p
-            className="heb mt-1 text-[18px] text-(--color-ink-dim)"
+            className="heb mt-1 text-md text-ink-2"
             style={{ fontFamily: "var(--font-hebrew)" }}
           >
             {current.nameHe}
@@ -163,24 +160,18 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
         <div className="mt-5 flex flex-col gap-2.5">
           <Row label="Sounds like" value={current.value} />
           <Row label="Name said" value={current.sound} />
-          <Row
-            label="Number"
-            value={String(current.gematria)}
-            mono
-          />
+          <Row label="Number" value={String(current.gematria)} mono />
           {current.final && (
-            <div className="glass flex items-center justify-between rounded-[18px] px-4 py-3">
-              <span className="text-[12.5px] text-(--color-ink-faint)">
-                Final form
-              </span>
+            <div className="panel flex items-center justify-between rounded-xl px-4 py-3">
+              <span className="text-sm text-ink-3">Final form</span>
               <div className="flex items-baseline gap-3">
                 <span
-                  className="heb text-[26px] leading-none"
+                  className="heb text-lg leading-none"
                   style={{ fontFamily: "var(--font-hebrew)" }}
                 >
                   {current.final}
                 </span>
-                <span className="heb heb-cursive text-[26px] leading-none">
+                <span className="heb heb-cursive text-lg leading-none">
                   {current.final}
                 </span>
               </div>
@@ -190,33 +181,37 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
 
         {/* memory hook ----------------------------------------------------- */}
         <div
-          className="mt-3 rounded-[18px] px-4 py-3.5"
+          className="mt-3 rounded-xl px-4 py-3.5"
           style={{
-            background: "rgba(10,186,181,0.12)",
-            border: "1px solid rgba(10,186,181,0.28)",
+            background:
+              "color-mix(in oklch, var(--color-accent) 12%, transparent)",
+            border:
+              "1px solid color-mix(in oklch, var(--color-accent) 28%, transparent)",
           }}
         >
-          <div className="text-[10px] font-semibold tracking-[0.08em] text-(--color-accent) uppercase">
+          <div className="text-xs font-semibold tracking-[0.08em] text-accent uppercase">
             Remember it
           </div>
-          <p className="mt-1.5 text-[13.5px] leading-relaxed text-(--color-ink)">
+          <p className="mt-1.5 text-sm leading-relaxed text-(--color-ink)">
             {current.hint}
           </p>
         </div>
 
         {current.group && (
           <div
-            className="mt-2.5 flex items-center gap-3 rounded-[18px] px-4 py-3"
+            className="mt-2.5 flex items-center gap-3 rounded-xl px-4 py-3"
             style={{
-              background: "rgba(255,183,77,0.09)",
-              border: "1px solid rgba(255,183,77,0.18)",
+              background:
+                "color-mix(in oklch, var(--color-warn) 9%, transparent)",
+              border:
+                "1px solid color-mix(in oklch, var(--color-warn) 18%, transparent)",
             }}
           >
-            <span className="text-[10px] font-semibold tracking-[0.08em] text-(--color-amber) uppercase">
+            <span className="text-xs font-semibold tracking-[0.08em] text-warn uppercase">
               Easily confused
             </span>
             <span
-              className="heb ml-auto text-[19px]"
+              className="heb ml-auto text-lg"
               style={{ fontFamily: "var(--font-hebrew)" }}
             >
               {GROUP_LABEL[current.group]}
@@ -224,7 +219,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
           </div>
         )}
 
-        <div className="mt-4 text-center text-[11px] text-(--color-ink-faint)">
+        <div className="mt-4 text-center text-xs text-ink-3">
           {index + 1} of {LETTERS.length}
         </div>
       </div>
@@ -253,12 +248,12 @@ function Glyph({
         style={{
           fontSize: emphasis ? 84 : 58,
           fontFamily: cursive ? undefined : "var(--font-hebrew)",
-          transition: "font-size 380ms var(--ease-spring)",
+          transition: "font-size 180ms var(--ease-out-quart)",
         }}
       >
         {char}
       </span>
-      <span className="mt-3 text-[9.5px] font-semibold tracking-[0.1em] text-(--color-ink-faint) uppercase">
+      <span className="mt-3 text-xs font-semibold tracking-[0.1em] text-ink-3 uppercase">
         {caption}
       </span>
     </div>
@@ -275,27 +270,27 @@ function Row({
   mono?: boolean;
 }) {
   return (
-    <div className="glass flex items-center justify-between gap-4 rounded-[18px] px-4 py-3">
-      <span className="shrink-0 text-[12.5px] text-(--color-ink-faint)">
-        {label}
-      </span>
-      <span
-        className={`text-right text-[13.5px] font-medium ${
-          mono ? "tabular-nums" : ""
-        }`}
-      >
+    <div className="panel flex items-center justify-between gap-4 rounded-xl px-4 py-3">
+      <span className="shrink-0 text-sm text-ink-3">{label}</span>
+      <span className={`text-right text-sm font-medium ${mono ? "tnum" : ""}`}>
         {value}
       </span>
     </div>
   );
 }
 
-function Arrow({ dir, onClick }: { dir: "prev" | "next"; onClick: () => void }) {
+function Arrow({
+  dir,
+  onClick,
+}: {
+  dir: "prev" | "next";
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
       aria-label={dir === "prev" ? "Previous letter" : "Next letter"}
-      className="press grid size-9 shrink-0 place-items-center rounded-full bg-white/6 text-(--color-ink-faint)"
+      className="tap grid size-9 shrink-0 place-items-center rounded-full bg-surface text-ink-3"
     >
       <svg
         width="16"

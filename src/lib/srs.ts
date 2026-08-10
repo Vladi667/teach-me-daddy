@@ -17,9 +17,9 @@ export const EASY = 3;
 export type Grade = typeof AGAIN | typeof HARD | typeof GOOD | typeof EASY;
 
 export const GRADES: { grade: Grade; label: string; tint: string }[] = [
-  { grade: AGAIN, label: "Again", tint: "var(--color-coral)" },
-  { grade: HARD, label: "Hard", tint: "var(--color-amber)" },
-  { grade: GOOD, label: "Good", tint: "var(--color-mint)" },
+  { grade: AGAIN, label: "Again", tint: "var(--color-bad)" },
+  { grade: HARD, label: "Hard", tint: "var(--color-warn)" },
+  { grade: GOOD, label: "Good", tint: "var(--color-good)" },
   { grade: EASY, label: "Easy", tint: "var(--color-accent)" },
 ];
 

@@ -124,38 +124,37 @@ export default function PracticePage() {
 
   return (
     <>
-      <header className="anim-rise mb-4 flex items-baseline justify-between">
-        <h1 className="text-[27px] font-bold tracking-[-0.03em]">Drill</h1>
-        <span className="text-[12px] text-(--color-ink-faint)">
+      <header className="mb-4 flex items-baseline justify-between">
+        <h1 className="text-lg font-bold tracking-[-0.03em]">Drill</h1>
+        <span className="text-sm text-ink-3">
           {mastered}/{pool.length} locked in
         </span>
       </header>
 
-      <div className="anim-rise mb-3" style={{ animationDelay: "50ms" }}>
+      <div className="mb-3">
         <Segmented options={MODES} value={mode} onChange={changeMode} />
       </div>
 
-      <p className="mb-4 px-1 text-[11.5px] text-(--color-ink-faint)">
+      <p className="mb-4 px-1 text-xs text-ink-3">
         {mode === "print" && "Name the printed letter."}
         {mode === "cursive" && "Name the handwritten letter."}
         {mode === "traps" && "Only the letters people actually mix up."}
       </p>
 
       {/* mastery bar ----------------------------------------------------- */}
-      <div className="mb-4 h-1 overflow-hidden rounded-full bg-white/8">
+      <div className="mb-4 h-1 overflow-hidden rounded-full bg-surface-2">
         <div
           className="h-full rounded-full"
           style={{
             width: `${(mastered / pool.length) * 100}%`,
-            background:
-              "linear-gradient(90deg, var(--color-accent), var(--color-accent-2))",
-            transition: "width 700ms var(--ease-out-soft)",
+            background: "var(--color-accent)",
+            transition: "width 200ms var(--ease-out-quart)",
           }}
         />
       </div>
 
       {!round ? (
-        <div className="glass grid h-[320px] place-items-center rounded-[28px] text-[13px] text-(--color-ink-faint)">
+        <div className="panel grid h-[320px] place-items-center rounded-2xl text-sm text-ink-3">
           Loading…
         </div>
       ) : round.over ? (
@@ -168,33 +167,33 @@ export default function PracticePage() {
         />
       ) : (
         <div className="flex flex-1 flex-col justify-center pb-4">
-          <div className="mb-3 flex items-center justify-between px-1 text-[12px]">
-            <span className="text-(--color-ink-faint)">
+          <div className="mb-3 flex items-center justify-between px-1 text-sm">
+            <span className="text-ink-3">
               {round.index} / {ROUND_LENGTH}
             </span>
-            <span className="rounded-full bg-white/8 px-2.5 py-1 text-[11px] font-semibold tabular-nums">
+            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tnum">
               {round.score} correct
             </span>
           </div>
 
           <div
-            className={`glass mb-3 grid min-h-[190px] flex-1 place-items-center rounded-[28px] ${
-              verdict === "wrong" ? "anim-shake" : ""
+            className={`panel mb-3 grid min-h-[190px] flex-1 place-items-center rounded-2xl ${
+              verdict === "wrong" ? "anim-nudge" : ""
             }`}
             style={{
               maxHeight: 300,
               borderColor:
                 verdict === "correct"
-                  ? "rgba(88,224,106,0.45)"
+                  ? "color-mix(in oklch, var(--color-good) 45%, transparent)"
                   : verdict === "wrong"
-                    ? "rgba(255,107,122,0.45)"
+                    ? "color-mix(in oklch, var(--color-bad) 45%, transparent)"
                     : undefined,
               transition: "border-color 260ms ease",
             }}
           >
             <span
               key={round.question.target.char + round.index}
-              className={`heb anim-pop text-[96px] leading-none ${
+              className={`heb anim-card text-[96px] leading-none ${
                 mode === "cursive" ? "heb-cursive" : ""
               }`}
               style={
@@ -217,15 +216,15 @@ export default function PracticePage() {
               let fg: string | undefined;
 
               if (verdict && isTarget) {
-                bg = "rgba(88,224,106,0.16)";
-                brd = "rgba(88,224,106,0.55)";
-                fg = "var(--color-mint)";
+                bg = "color-mix(in oklch, var(--color-good) 16%, transparent)";
+                brd = "color-mix(in oklch, var(--color-good) 55%, transparent)";
+                fg = "var(--color-good)";
               } else if (verdict && isPicked) {
-                bg = "rgba(255,107,122,0.16)";
-                brd = "rgba(255,107,122,0.55)";
-                fg = "var(--color-coral)";
+                bg = "color-mix(in oklch, var(--color-bad) 16%, transparent)";
+                brd = "color-mix(in oklch, var(--color-bad) 55%, transparent)";
+                fg = "var(--color-bad)";
               } else if (verdict) {
-                fg = "var(--color-ink-faint)";
+                fg = "var(--color-ink-3)";
               }
 
               return (
@@ -233,7 +232,7 @@ export default function PracticePage() {
                   key={opt.char}
                   onClick={() => answer(opt)}
                   disabled={!!verdict}
-                  className="glass press flex items-center justify-center gap-1.5 rounded-[20px] py-4 text-[14px] font-semibold tracking-[0.03em]"
+                  className="panel tap flex items-center justify-center gap-1.5 rounded-xl py-4 text-base font-semibold tracking-[0.03em]"
                   style={{
                     background: bg,
                     borderColor: brd,
@@ -250,7 +249,7 @@ export default function PracticePage() {
           </div>
 
           {verdict === "wrong" && (
-            <p className="anim-fade mt-3.5 px-1 text-center text-[12.5px] leading-relaxed text-(--color-ink-dim)">
+            <p className="anim-fade mt-3.5 px-1 text-center text-sm leading-relaxed text-ink-2">
               {round.question.target.hint}
             </p>
           )}
@@ -272,47 +271,45 @@ function Results({
   const clean = unique.length === 0;
 
   return (
-    <div className="glass anim-rise rounded-[28px] p-6 text-center">
+    <div className="panel  rounded-2xl p-6 text-center">
       <div
         className="mx-auto grid size-14 place-items-center rounded-full"
         style={{
           background: clean
-            ? "rgba(88,224,106,0.15)"
-            : "rgba(10,186,181,0.18)",
+            ? "color-mix(in oklch, var(--color-good) 15%, transparent)"
+            : "color-mix(in oklch, var(--color-accent) 18%, transparent)",
         }}
       >
-        <span className="text-[26px]">{clean ? "🏆" : "✦"}</span>
+        <span className="text-lg">{clean ? "🏆" : "✦"}</span>
       </div>
 
-      <div className="mt-4 text-[42px] leading-none font-bold tracking-[-0.04em] tabular-nums">
+      <div className="mt-4 text-2xl leading-none font-bold tracking-[-0.04em] tnum">
         {round.score}
-        <span className="text-[22px] text-(--color-ink-faint)">
-          /{ROUND_LENGTH}
-        </span>
+        <span className="text-lg text-ink-3">/{ROUND_LENGTH}</span>
       </div>
-      <p className="mt-1.5 text-[13px] text-(--color-ink-dim)">
+      <p className="mt-1.5 text-sm text-ink-2">
         {pct}% correct
         {clean && " · flawless round"}
       </p>
 
       {!clean && (
-        <div className="mt-5 rounded-[20px] bg-white/5 p-4 text-left">
-          <div className="text-[10px] font-semibold tracking-[0.08em] text-(--color-ink-faint) uppercase">
+        <div className="mt-5 rounded-xl bg-surface p-4 text-left">
+          <div className="text-xs font-semibold tracking-[0.08em] text-ink-3 uppercase">
             Revisit these
           </div>
           <div className="mt-2.5 flex flex-wrap gap-2">
             {unique.map((l) => (
               <span
                 key={l.char}
-                className="flex items-center gap-1.5 rounded-full bg-white/8 py-1 pr-3 pl-2"
+                className="flex items-center gap-1.5 rounded-full bg-surface-2 py-1 pr-3 pl-2"
               >
                 <span
-                  className="heb text-[17px] leading-none"
+                  className="heb text-md leading-none"
                   style={{ fontFamily: "var(--font-hebrew)" }}
                 >
                   {l.char}
                 </span>
-                <span className="text-[11px] font-semibold tracking-[0.04em] text-(--color-ink-dim)">
+                <span className="text-xs font-semibold tracking-[0.04em] text-ink-2">
                   {l.name}
                 </span>
               </span>
@@ -321,10 +318,7 @@ function Results({
         </div>
       )}
 
-      <button
-        onClick={onRestart}
-        className="btn-accent press mt-5 w-full rounded-full py-3.5 text-[14px] font-semibold"
-      >
+      <button onClick={onRestart} className="btn btn-primary mt-5 w-full">
         Another round
       </button>
 
@@ -332,12 +326,12 @@ function Results({
         href="/alphabet"
         prefetch={LINK_PREFETCH}
         onClick={tap}
-        className="press mt-2.5 block w-full rounded-full py-3 text-[13px] font-medium text-(--color-ink-dim)"
+        className="tap mt-2.5 block w-full rounded-full py-3 text-sm font-medium text-ink-2"
       >
         Back to the letters
       </Link>
 
-      <p className="mt-4 text-[11px] text-(--color-ink-faint)">
+      <p className="mt-4 text-xs text-ink-3">
         {MASTERY_TARGET} correct in a row locks a letter in.
       </p>
     </div>

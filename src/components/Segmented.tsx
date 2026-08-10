@@ -8,7 +8,7 @@ interface SegmentedProps<T extends string> {
   onChange: (id: T) => void;
 }
 
-/** iOS-style segmented control with a sliding glass thumb. */
+/** iOS-style segmented control with a sliding panel thumb. */
 export default function Segmented<T extends string>({
   options,
   value,
@@ -21,21 +21,21 @@ export default function Segmented<T extends string>({
 
   return (
     <div
-      className="glass relative flex rounded-[18px] p-1"
+      className="panel relative flex rounded-xl p-1"
       role="tablist"
       aria-orientation="horizontal"
     >
       <div
         aria-hidden
-        className="absolute top-1 bottom-1 rounded-[14px]"
+        className="absolute top-1 bottom-1 rounded-lg"
         style={{
           width: `calc((100% - 8px) / ${options.length})`,
           left: 4,
           transform: `translateX(${index * 100}%)`,
-          background: "rgba(255,255,255,0.12)",
+          background: "var(--color-surface-2)",
           boxShadow:
             "0 1px 0 0 rgba(255,255,255,0.2) inset, 0 4px 14px -6px rgba(0,0,0,0.9)",
-          transition: "transform 460ms var(--ease-spring)",
+          transition: "transform 180ms var(--ease-out-quart)",
         }}
       />
       {options.map((o) => {
@@ -51,9 +51,9 @@ export default function Segmented<T extends string>({
                 onChange(o.id);
               }
             }}
-            className="relative z-10 flex-1 rounded-[14px] py-2 text-[13px] font-semibold tracking-[-0.01em] transition-colors duration-200"
+            className="relative z-10 flex-1 rounded-lg py-2 text-sm font-semibold tracking-[-0.01em] transition-colors duration-200"
             style={{
-              color: active ? "var(--color-ink)" : "var(--color-ink-faint)",
+              color: active ? "var(--color-ink)" : "var(--color-ink-3)",
             }}
           >
             {o.label}

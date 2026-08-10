@@ -48,7 +48,11 @@ export const metadata: Metadata = {
       { url: asset("/icon-192.png"), sizes: "192x192", type: "image/png" },
     ],
     apple: [
-      { url: asset("/apple-touch-icon.png"), sizes: "180x180", type: "image/png" },
+      {
+        url: asset("/apple-touch-icon.png"),
+        sizes: "180x180",
+        type: "image/png",
+      },
     ],
   },
   openGraph: {
@@ -90,20 +94,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${notoHebrew.variable} ${ktav.variable}`}>
       <body className="antialiased">
-        <div className="ambient" aria-hidden>
-          <span />
-          <span />
-          <span />
-        </div>
-
         {/* Nothing below here renders until an account is active. */}
         <AccountGate>
           <main
-            className="stage mx-auto flex min-h-dvh w-full max-w-[480px] flex-col px-5"
+            className="mx-auto flex min-h-dvh w-full max-w-[480px] flex-col"
             style={{
-              paddingTop: "calc(var(--safe-t) + 18px)",
-              paddingBottom:
-                "calc(var(--safe-b) + var(--tabbar-h) + 34px)",
+              paddingInline: "var(--gutter)",
+              paddingTop: "calc(var(--safe-t) + 20px)",
+              paddingBottom: "calc(var(--safe-b) + var(--tabbar-h) + 32px)",
             }}
           >
             {children}
