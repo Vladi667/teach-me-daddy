@@ -13,6 +13,28 @@ import { tap } from "@/lib/feedback";
 type Mode = "choose" | "create" | "login";
 
 /**
+ * The first one is the flagship and the only one that ever server-renders —
+ * see Splash. The rest rotate on the gate, which is client-only.
+ */
+const TAGLINES = [
+  "Cook Hebrew like Daddy.",
+  "From alef to oy vey.",
+  "Right to left. No going back.",
+  "Nikud? Never heard of her.",
+  "Where Anki comes to die.",
+  "Low and slow, like a good tsimmes.",
+  "Five months. Six thousand words. One Daddy.",
+  "22 letters stand between you and shawarma.",
+  "Read backwards. Brag forwards.",
+  "Your bubbe is watching.",
+];
+
+/** Imported rather than inlined so the purity lint rule stays happy. */
+function pickTagline(): string {
+  return TAGLINES[Math.floor(Math.random() * TAGLINES.length)];
+}
+
+/**
  * Nothing in the app is reachable without an account. Until one is active this
  * replaces the whole shell — the tab bar included — so there's no half-signed-in
  * state to reason about downstream.
@@ -41,9 +63,9 @@ function Shell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Wordmark() {
+function Wordmark({ tagline }: { tagline: string }) {
   return (
-    <div className="mb-8 text-center">
+    <div className="mb-7 text-center">
       <div
         className="mx-auto mb-5 grid size-[68px] place-items-center rounded-[22px]"
         style={{
@@ -77,9 +99,29 @@ function Wordmark() {
           Daddy
         </span>
       </h1>
-      <p className="mt-2 text-[13px] text-(--color-ink-dim)">
-        Hebrew, one letter at a time.
+      <p className="mt-2.5 min-h-[20px] text-[14px] font-medium text-(--color-ink-dim)">
+        {tagline}
       </p>
+    </div>
+  );
+}
+
+/** What a friend arriving cold is actually signing up for. */
+function Pitch() {
+  return (
+    <div className="mb-7 flex justify-center gap-1.5">
+      {["22 letters", "Spaced repetition", "5-month plan"].map((t) => (
+        <span
+          key={t}
+          className="rounded-full px-3 py-1.5 text-[10.5px] font-semibold whitespace-nowrap text-(--color-ink-dim)"
+          style={{
+            background: "rgba(255,255,255,0.05)",
+            border: "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          {t}
+        </span>
+      ))}
     </div>
   );
 }
@@ -88,7 +130,8 @@ function Splash() {
   return (
     <Shell>
       <div className="anim-fade">
-        <Wordmark />
+        {/* The flagship line only — this is the one that server-renders. */}
+        <Wordmark tagline={TAGLINES[0]} />
       </div>
     </Shell>
   );
@@ -96,6 +139,7 @@ function Splash() {
 
 function Gate() {
   const { data } = useStore();
+  const [tagline] = useState(pickTagline);
   const [mode, setMode] = useState<Mode>("choose");
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -143,10 +187,12 @@ function Gate() {
   return (
     <Shell>
       <div className="anim-rise">
-        <Wordmark />
+        <Wordmark tagline={tagline} />
 
         {mode === "choose" ? (
           <>
+            <Pitch />
+
             <button
               onClick={() => {
                 tap();
