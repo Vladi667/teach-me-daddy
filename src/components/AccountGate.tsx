@@ -10,7 +10,7 @@ import {
 } from "@/lib/store";
 import { tap } from "@/lib/feedback";
 
-type Mode = "choose" | "create" | "join";
+type Mode = "choose" | "create" | "login";
 
 /**
  * Nothing in the app is reachable without an account. Until one is active this
@@ -95,7 +95,7 @@ function Splash() {
 }
 
 function Gate() {
-  const { profiles, data } = useStore();
+  const { data } = useStore();
   const [mode, setMode] = useState<Mode>("choose");
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -147,52 +147,10 @@ function Gate() {
 
         {mode === "choose" ? (
           <>
-            {profiles.length > 0 && (
-              <div className="mb-4">
-                <p className="mb-2 px-1 text-[11.5px] font-semibold tracking-[0.04em] text-(--color-ink-faint) uppercase">
-                  Continue as
-                </p>
-                <div className="flex flex-col gap-2">
-                  {profiles.slice(0, 4).map((p) => (
-                    <button
-                      key={p.username}
-                      onClick={() => {
-                        tap();
-                        setName(p.username);
-                        setPin("");
-                        setErr(null);
-                        setMode("join");
-                      }}
-                      className="glass press flex items-center gap-3 rounded-[20px] px-4 py-3.5 text-left"
-                    >
-                      <span
-                        className="grid size-9 shrink-0 place-items-center rounded-full text-[14px] font-bold"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, rgba(111,139,255,0.35), rgba(180,137,255,0.35))",
-                        }}
-                      >
-                        {p.username.slice(0, 1).toUpperCase()}
-                      </span>
-                      <span className="min-w-0 flex-1 truncate text-[14px] font-semibold">
-                        {p.username}
-                      </span>
-                      {p.hasPin && (
-                        <span className="text-[10px] text-(--color-ink-faint)">
-                          PIN
-                        </span>
-                      )}
-                      <Chevron />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
             <button
               onClick={() => {
                 tap();
-                setMode("create");
+                setMode("login");
                 setName("");
                 setErr(null);
               }}
@@ -203,24 +161,24 @@ function Gate() {
                 boxShadow: "0 8px 26px -10px rgba(111,139,255,0.9)",
               }}
             >
-              Create an account
+              Log in
             </button>
 
             <button
               onClick={() => {
                 tap();
-                setMode("join");
+                setMode("create");
                 setName("");
                 setErr(null);
               }}
               className="glass press min-h-[52px] w-full rounded-full text-[15px] font-semibold"
             >
-              Join an existing one
+              Create an account
             </button>
 
             <p className="mt-6 px-2 text-center text-[11.5px] leading-relaxed text-(--color-ink-faint)">
               {SYNC_ENABLED
-                ? "Your username is how your progress finds you. No email, no password — type it on any device and everything is there."
+                ? "Your username is how your progress finds you. No email, no password — type it on any device and everything is there. This one stays logged in until you log out."
                 : "This copy runs without a server, so an account here stays on this device."}
             </p>
 
@@ -233,8 +191,8 @@ function Gate() {
                 }}
               >
                 There&apos;s progress on this device from before you had an
-                account. Creating one keeps it; joining a different account
-                leaves it behind.
+                account. Creating one keeps it; logging into a different
+                account leaves it behind.
               </p>
             )}
           </>
@@ -269,14 +227,14 @@ function Gate() {
               </label>
             )}
 
-            {(usePin || mode === "join") && (
+            {(usePin || mode === "login") && (
               <input
                 value={pin}
                 onChange={(e) =>
                   setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
                 }
                 onKeyDown={(e) => e.key === "Enter" && submit()}
-                placeholder={mode === "join" ? "PIN, if it has one" : "4-digit PIN"}
+                placeholder={mode === "login" ? "PIN, if it has one" : "4-digit PIN"}
                 inputMode="numeric"
                 className="mt-2.5 w-full rounded-[16px] bg-white/6 px-4 py-3.5 text-[16px] tracking-[0.3em] outline-none placeholder:tracking-normal placeholder:text-(--color-ink-faint)"
                 style={{ border: "1px solid rgba(255,255,255,0.12)" }}
@@ -309,7 +267,7 @@ function Gate() {
                 ? "Working…"
                 : mode === "create"
                   ? "Create and start"
-                  : "Load my progress"}
+                  : "Log in"}
             </button>
 
             <button
@@ -335,23 +293,5 @@ function Gate() {
         )}
       </div>
     </Shell>
-  );
-}
-
-function Chevron() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className="shrink-0 text-(--color-ink-faint)"
-    >
-      <path d="m9 6 6 6-6 6" />
-    </svg>
   );
 }

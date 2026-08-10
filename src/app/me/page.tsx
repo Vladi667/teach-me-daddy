@@ -9,31 +9,21 @@ import { NEW_WORDS_CAP, streak, totalMinutes } from "@/lib/plan";
 import {
   GUEST,
   SYNC_ENABLED,
-  createProfile,
   exportData,
-  forgetProfile,
   importData,
   push,
   resetCurrent,
-  signIn,
-  signOut,
+  logOut,
   update,
   useStore,
 } from "@/lib/store";
 import { tap } from "@/lib/feedback";
 
-type Mode = "menu" | "create" | "signin";
-
 export default function MePage() {
-  const { username, data, profiles, sync, ready } = useStore();
+  const { username, data, sync, ready } = useStore();
   const { cards: CARDS } = useDeck();
-  const [mode, setMode] = useState<Mode>("menu");
-  const [name, setName] = useState("");
-  const [pin, setPin] = useState("");
-  const [usePin, setUsePin] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
   const mastered = ready ? masteredCount(data.alphabet) : 0;
@@ -42,24 +32,6 @@ export default function MePage() {
   const inReview = Object.values(data.srs).filter(isReview).length;
   const hours = Math.round(totalMinutes(data.plan) / 60);
   const run = ready ? streak(data.plan) : 0;
-
-  async function run_(fn: () => Promise<void>, done?: string) {
-    setBusy(true);
-    setErr(null);
-    setNote(null);
-    try {
-      await fn();
-      setMode("menu");
-      setName("");
-      setPin("");
-      setUsePin(false);
-      if (done) setNote(done);
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : "Something went wrong.");
-    } finally {
-      setBusy(false);
-    }
-  }
 
   return (
     <>
@@ -72,7 +44,7 @@ export default function MePage() {
       </header>
 
       {/* identity --------------------------------------------------------- */}
-      {mode === "menu" && (
+      {(
         <section
           className="glass anim-rise mb-4 rounded-[26px] p-4"
           style={{ animationDelay: "40ms" }}
@@ -92,116 +64,24 @@ export default function MePage() {
             <button
               onClick={() => {
                 tap();
-                // Drops back to the gate, where another account can be chosen.
-                signOut();
+                // Back to the gate; the local copy is kept for offline safety.
+                logOut();
               }}
               className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
             >
-              Switch account
+              Log out
             </button>
           </div>
         </section>
       )}
 
-      {mode !== "menu" && (
-        <section className="glass anim-rise mb-4 rounded-[26px] p-4">
-          <h2 className="mb-3 text-[15px] font-semibold">
-            {mode === "create" ? "Create a username" : "Load a username"}
-          </h2>
-
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value.toLowerCase())}
-            placeholder="username"
-            autoCapitalize="none"
-            autoCorrect="off"
-            spellCheck={false}
-            inputMode="text"
-            className="w-full rounded-[16px] bg-white/6 px-4 py-3 text-[15px] outline-none placeholder:text-(--color-ink-faint)"
-            style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-          />
-
-          {mode === "create" && (
-            <label className="mt-3 flex items-center gap-2.5 px-1 text-[12.5px] text-(--color-ink-dim)">
-              <input
-                type="checkbox"
-                checked={usePin}
-                onChange={(e) => setUsePin(e.target.checked)}
-                className="size-4 accent-[var(--color-accent)]"
-              />
-              Lock it with a 4-digit PIN
-            </label>
-          )}
-
-          {(usePin || mode === "signin") && (
-            <input
-              value={pin}
-              onChange={(e) =>
-                setPin(e.target.value.replace(/\D/g, "").slice(0, 4))
-              }
-              placeholder={mode === "signin" ? "PIN (if it has one)" : "4-digit PIN"}
-              inputMode="numeric"
-              className="mt-2.5 w-full rounded-[16px] bg-white/6 px-4 py-3 text-[15px] tracking-[0.3em] outline-none placeholder:tracking-normal placeholder:text-(--color-ink-faint)"
-              style={{ border: "1px solid rgba(255,255,255,0.1)" }}
-            />
-          )}
-
-          {err && (
-            <p className="mt-3 rounded-[14px] px-3.5 py-2.5 text-[12px] leading-snug"
-              style={{
-                background: "rgba(255,107,122,0.12)",
-                color: "var(--color-coral)",
-              }}
-            >
-              {err}
-            </p>
-          )}
-
-          <div className="mt-3.5 flex gap-2.5">
-            <button
-              onClick={() => {
-                tap();
-                setMode("menu");
-                setErr(null);
-              }}
-              className="press flex-1 rounded-full bg-white/8 py-3 text-[13px] font-semibold"
-            >
-              Cancel
-            </button>
-            <button
-              disabled={busy || name.trim().length < 3}
-              onClick={() => {
-                tap();
-                const p = usePin || mode === "signin" ? pin || undefined : undefined;
-                if (mode === "create") {
-                  if (usePin && pin.length !== 4) {
-                    setErr("A PIN must be exactly 4 digits.");
-                    return;
-                  }
-                  void run_(() => createProfile(name, p), "Username created.");
-                } else {
-                  void run_(() => signIn(name, p), "Progress loaded.");
-                }
-              }}
-              className="press flex-1 rounded-full py-3 text-[13px] font-semibold"
-              style={{
-                background:
-                  "linear-gradient(100deg, var(--color-accent), var(--color-accent-2))",
-                opacity: busy || name.trim().length < 3 ? 0.45 : 1,
-              }}
-            >
-              {busy ? "Working…" : mode === "create" ? "Create" : "Load"}
-            </button>
-          </div>
-
-          {mode === "create" && (
-            <p className="mt-3 text-[11px] leading-relaxed text-(--color-ink-faint)">
-              A PIN is optional and only stops someone overwriting your history
-              by accident. It is not real security — don&apos;t put anything
-              private in here.
-            </p>
-          )}
-        </section>
+      {err && (
+        <p
+          className="anim-fade mb-4 rounded-[14px] px-3.5 py-2.5 text-[12px]"
+          style={{ background: "rgba(255,107,122,0.12)", color: "var(--color-coral)" }}
+        >
+          {err}
+        </p>
       )}
 
       {note && (
@@ -211,59 +91,6 @@ export default function MePage() {
         >
           {note}
         </p>
-      )}
-
-      {/* known profiles on this device ------------------------------------ */}
-      {profiles.length > 0 && mode === "menu" && (
-        <section className="anim-rise mb-4" style={{ animationDelay: "80ms" }}>
-          <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-(--color-ink-faint)">
-            On this device
-          </h2>
-          <div className="flex flex-col gap-2">
-            {profiles.map((p) => (
-              <div
-                key={p.username}
-                className="glass flex items-center gap-3 rounded-[18px] px-4 py-3"
-              >
-                <span className="flex-1 truncate text-[13.5px] font-semibold">
-                  {p.username}
-                  {p.username === username && (
-                    <span className="ml-2 text-[10px] text-(--color-mint)">
-                      active
-                    </span>
-                  )}
-                </span>
-                {p.hasPin && (
-                  <span className="text-[10px] text-(--color-ink-faint)">
-                    PIN
-                  </span>
-                )}
-                {p.username !== username && (
-                  <button
-                    onClick={() => {
-                      tap();
-                      setMode("signin");
-                      setName(p.username);
-                    }}
-                    className="press rounded-full bg-white/8 px-3 py-1.5 text-[11px] font-semibold"
-                  >
-                    Load
-                  </button>
-                )}
-                <button
-                  onClick={() => {
-                    tap();
-                    forgetProfile(p.username);
-                  }}
-                  aria-label={`Forget ${p.username} on this device`}
-                  className="press text-[11px] text-(--color-ink-faint)"
-                >
-                  Forget
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
       )}
 
       {/* stats ------------------------------------------------------------ */}
@@ -459,15 +286,22 @@ export default function MePage() {
 }
 
 function label(s: string) {
-  return s === "synced"
-    ? "Synced"
-    : s === "syncing"
-      ? "Syncing…"
-      : s === "offline"
-        ? "Offline — saved here, will sync later"
-        : s === "error"
-          ? "Sync failed — your progress is still safe on this device"
-          : "Saved on this device";
+  switch (s) {
+    case "synced":
+      return "Synced";
+    case "syncing":
+      return "Syncing…";
+    case "offline":
+      return "Offline — saved here, will sync later";
+    case "error":
+      return "Sync failed — your progress is still safe on this device";
+    case "idle":
+      // Loaded from this device's copy; nothing has been sent yet this session.
+      return "Changes sync automatically";
+    default:
+      // No server on this deployment — the GitHub Pages copy.
+      return "Saved on this device";
+  }
 }
 
 function SyncDot({ state }: { state: string }) {

@@ -67,11 +67,6 @@ function normalise(raw: Partial<ProfileData> | null): ProfileData {
   };
 }
 
-export interface ProfileRef {
-  username: string;
-  hasPin: boolean;
-}
-
 export type SyncState =
   | "off"
   | "idle"
@@ -83,7 +78,6 @@ export type SyncState =
 /* --- keys ---------------------------------------------------------------- */
 
 const K_CURRENT = "tmd:current";
-const K_PROFILES = "tmd:profiles";
 const K_DATA = (u: string) => `tmd:data:${u}`;
 /** PINs are held only for the session's convenience, never sent anywhere else. */
 const K_PIN = (u: string) => `tmd:pin:${u}`;
@@ -127,7 +121,6 @@ function writeJSON(key: string, value: unknown) {
 interface Snapshot {
   username: string;
   data: ProfileData;
-  profiles: ProfileRef[];
   sync: SyncState;
   /** Set when a sign-in or save was rejected. */
   error: string | null;
@@ -136,7 +129,6 @@ interface Snapshot {
 const SERVER_SNAPSHOT: Snapshot = {
   username: GUEST,
   data: emptyData(),
-  profiles: [],
   sync: "off",
   error: null,
 };
@@ -150,7 +142,6 @@ function emit() {
 
 function hydrate(): Snapshot {
   const username = window.localStorage.getItem(K_CURRENT) || GUEST;
-  const profiles = readJSON<ProfileRef[]>(K_PROFILES, []);
   let data = normalise(readJSON<ProfileData | null>(K_DATA(username), null));
 
   // One-time migration of the pre-profiles alphabet progress.
@@ -168,7 +159,6 @@ function hydrate(): Snapshot {
   return {
     username,
     data,
-    profiles,
     sync: SYNC_ENABLED && username !== GUEST ? "idle" : "off",
     error: null,
   };
@@ -313,21 +303,15 @@ export async function push(): Promise<void> {
   }
 }
 
-function rememberProfile(username: string, hasPin: boolean) {
-  const profiles = getSnapshot().profiles.filter(
-    (p) => p.username !== username,
-  );
-  const next = [{ username, hasPin }, ...profiles].slice(0, 12);
-  writeJSON(K_PROFILES, next);
-  set({ profiles: next });
-}
-
-/** Adopt a profile locally and make it current. */
-function adopt(username: string, data: ProfileData, hasPin: boolean) {
+/**
+ * Make a profile current. The device stays on it across visits — the only way
+ * back to the gate is logging out — and no list of accounts is kept anywhere,
+ * so a shared device never advertises who else uses it.
+ */
+function adopt(username: string, data: ProfileData) {
   dirty = false;
   writeJSON(K_DATA(username), data);
   window.localStorage.setItem(K_CURRENT, username);
-  rememberProfile(username, hasPin);
   set({ username, data, sync: SYNC_ENABLED ? "synced" : "off", error: null });
 }
 
@@ -352,7 +336,7 @@ export async function createProfile(
     await api("create", { username, pin, data: seed });
   }
   rememberPin(username, pin);
-  adopt(username, seed, !!pin);
+  adopt(username, seed);
 }
 
 export async function signIn(rawName: string, pin?: string): Promise<void> {
@@ -363,7 +347,7 @@ export async function signIn(rawName: string, pin?: string): Promise<void> {
   if (!SYNC_ENABLED) {
     // Local-only: just switch to whatever this device holds.
     const local = normalise(readJSON<ProfileData | null>(K_DATA(username), null));
-    adopt(username, local, false);
+    adopt(username, local);
     return;
   }
 
@@ -380,28 +364,20 @@ export async function signIn(rawName: string, pin?: string): Promise<void> {
       : remote;
 
   rememberPin(username, pin);
-  adopt(username, data, !!res.hasPin);
+  adopt(username, data);
   if (data !== remote) void push();
 }
 
-export function signOut() {
+/**
+ * Return to the gate. The local copy of the profile is left in place so
+ * anything not yet synced isn't lost, but it's unreachable without signing
+ * back in by name.
+ */
+export function logOut() {
   const { username } = getSnapshot();
   rememberPin(username, undefined);
   window.localStorage.setItem(K_CURRENT, GUEST);
-  const data = normalise(readJSON<ProfileData | null>(K_DATA(GUEST), null));
-  set({ username: GUEST, data, sync: "off", error: null });
-}
-
-export function forgetProfile(username: string) {
-  try {
-    window.localStorage.removeItem(K_DATA(username));
-  } catch {
-    /* ignore */
-  }
-  const next = getSnapshot().profiles.filter((p) => p.username !== username);
-  writeJSON(K_PROFILES, next);
-  set({ profiles: next });
-  if (getSnapshot().username === username) signOut();
+  set({ username: GUEST, data: emptyData(), sync: "off", error: null });
 }
 
 /* --- vocabulary you add yourself ---------------------------------------- */
