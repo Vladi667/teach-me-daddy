@@ -119,6 +119,28 @@ let done = JSON.parse(localStorage.getItem(KEY) || "{}");
 
 function esc(s){ return String(s).replace(/[&<>]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])); }
 
+const NIKUD = /[֑-ׇ]/g;
+const bare = (s) => s.normalize("NFC").replace(NIKUD, "").replace(/[^א-ת]/g, "");
+
+/**
+ * A correction may change the vowels and nothing else. Without this the apply
+ * script drops the answer on the other side of the round trip, long after the
+ * reviewer could have noticed the typo.
+ */
+function typed(k, el) {
+  const v = el.value.trim();
+  if (!v) return;
+  const form = k.split("|")[0];
+  if (bare(v) !== form) {
+    el.setCustomValidity("");
+    alert("That has different consonants (" + bare(v) + ", expected " + form +
+          "). A correction can change the vowels only.");
+    el.value = "";
+    return;
+  }
+  set(k, v.normalize("NFC"), "typed");
+}
+
 function set(k, value, kind) {
   if (value === null) delete done[k]; else done[k] = { value, kind };
   localStorage.setItem(KEY, JSON.stringify(done));
@@ -128,7 +150,7 @@ function set(k, value, kind) {
 function render() {
   const n = Object.keys(done).length;
   document.getElementById("sub").textContent =
-    n + " of " + Q.length + " forms answered · " + ${total} + " occurrences in the corpus";
+    n + " of " + Q.length + " readings answered · " + ${total} + " occurrences in the corpus";
   document.getElementById("prog").style.width = (n / Q.length * 100) + "%";
 
   document.getElementById("list").innerHTML = Q.map((e, i) => {
@@ -144,7 +166,7 @@ function render() {
       '<div class="opts">' +
         '<button class="ok" onclick="set(\\'' + e.k + '\\',\\'' + e.c + '\\',\\'ok\\')">Right</button>' +
         opts.map(o => '<button class="opt" onclick="set(\\'' + e.k + '\\',\\'' + o + '\\',\\'pick\\')">' + esc(o) + '</button>').join('') +
-        '<input placeholder="type it" onchange="if(this.value.trim())set(\\'' + e.k + '\\',this.value.trim(),\\'typed\\')">' +
+        '<input placeholder="type it" onchange="typed(\\'' + e.k + '\\',this)">' +
       '</div>' +
       (d ? '<div class="verdict' + (d.kind === 'ok' ? '' : ' bad') + '">' +
         (d.kind === 'ok' ? 'kept as is' : 'corrected to ' + esc(d.value)) +
