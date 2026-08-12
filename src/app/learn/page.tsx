@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LINES, LAST_SEEDED_DAY } from "@/lib/lines";
-import { cardId, dayNumber, intakeFor, PLANNED_INTAKE } from "@/lib/programme";
+import { cardId, dayNumber, intakeFor, PLANNED_INTAKE, hasStarted } from "@/lib/programme";
 import { penaltyActive, repairLines } from "@/lib/assessment";
 import { freshLines } from "@/lib/queue";
 import { emptyDay, weekdayIndex } from "@/lib/plan";
@@ -98,6 +98,30 @@ export default function LearnPage() {
         },
       };
     });
+  }
+
+  // A bookmark or a stale tab must not start the programme early: issuing a
+  // line here would stamp today as day 1 behind the trainee's back.
+  if (ready && today && !hasStarted(data.plan.startedOn, today)) {
+    return (
+      <div className="py-6">
+        <p className="eyebrow">Not started</p>
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
+          {data.plan.startedOn ? `Day 1 is ${data.plan.startedOn}` : "Day 1 is not set"}
+        </h1>
+        <p className="mt-3 text-base leading-snug text-ink-2">
+          Nothing is issued until the programme begins.
+        </p>
+        <Link
+          href="/"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="btn btn-primary mt-6 w-full"
+        >
+          Back to today
+        </Link>
+      </div>
+    );
   }
 
   if (!ready || !set) {

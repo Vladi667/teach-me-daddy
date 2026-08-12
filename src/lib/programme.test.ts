@@ -14,6 +14,8 @@ import {
   readiness,
   retentionRate,
   stagesFor,
+  hasStarted,
+  daysUntilStart,
 } from "./programme.ts";
 import { UNCLEARED_CAP } from "./assessment.ts";
 
@@ -219,4 +221,31 @@ test("retention is named first when both guards fire", () => {
 
 test("a rest day outranks the assessment penalty", () => {
   assert.equal(intakeFor(0, 1, true, PLANNED_INTAKE, true).count, 0);
+});
+
+/* --- starting ------------------------------------------------------------- */
+
+test("the programme has not begun until its start date arrives", () => {
+  assert.equal(hasStarted(undefined, "2026-08-12"), false, "never chosen");
+  assert.equal(hasStarted("2026-08-13", "2026-08-12"), false, "tomorrow");
+  assert.equal(hasStarted("2026-08-12", "2026-08-12"), true, "today");
+  assert.equal(hasStarted("2026-08-01", "2026-08-12"), true, "already running");
+});
+
+test("the wait is counted in whole days", () => {
+  assert.equal(daysUntilStart("2026-08-13", "2026-08-12"), 1);
+  assert.equal(daysUntilStart("2026-08-19", "2026-08-12"), 7);
+  assert.equal(daysUntilStart("2026-08-12", "2026-08-12"), 0, "today is not a wait");
+  assert.equal(daysUntilStart("2026-08-01", "2026-08-12"), 0, "nor is the past");
+  assert.equal(daysUntilStart(undefined, "2026-08-12"), 0);
+});
+
+test("a start date crossing a month or year boundary still counts right", () => {
+  assert.equal(daysUntilStart("2026-09-01", "2026-08-31"), 1);
+  assert.equal(daysUntilStart("2027-01-01", "2026-12-31"), 1);
+});
+
+test("day 1 is the start date itself, once it arrives", () => {
+  assert.equal(dayNumber("2026-08-13", "2026-08-13"), 1);
+  assert.equal(dayNumber("2026-08-13", "2026-08-14"), 2);
 });

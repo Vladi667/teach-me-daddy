@@ -6,9 +6,10 @@ import { LETTERS } from "@/lib/letters";
 import { LINES } from "@/lib/lines";
 import { isMature, isReview } from "@/lib/srs";
 import { MASTERY_TARGET, masteredCount } from "@/lib/progress";
-import { streak, totalMinutes } from "@/lib/plan";
+import { shiftDay, streak, totalMinutes } from "@/lib/plan";
 import { cardId } from "@/lib/programme";
 import { LINK_PREFETCH } from "@/lib/base-path";
+import { useToday } from "@/lib/clock";
 import {
   GUEST,
   SYNC_ENABLED,
@@ -27,6 +28,8 @@ export default function MePage() {
   const [note, setNote] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
+  const today = useToday();
+  const loggedDays = Object.keys(data.plan.days).length;
 
   const mastered = ready ? masteredCount(data.alphabet) : 0;
   // Counted over the programme's own cards. The legacy deck left its keys in
@@ -156,6 +159,55 @@ export default function MePage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* §5 — the start date fixes the deployment date and every interval
+            after it, so it is settable until a day has actually been worked.
+            After that, moving it would rewrite history rather than plan it. */}
+        <div className="panel mb-2 flex items-center justify-between gap-3 rounded-xl px-4 py-3">
+          <span className="min-w-0">
+            <span className="block text-sm text-ink-2">Day 1</span>
+            <span className="block text-xs text-ink-3">
+              {loggedDays === 0
+                ? data.plan.startedOn
+                  ? `Starts ${data.plan.startedOn}`
+                  : "Not set yet"
+                : `${data.plan.startedOn} · fixed, ${loggedDays} ${loggedDays === 1 ? "day" : "days"} logged`}
+            </span>
+          </span>
+          {loggedDays === 0 && today && (
+            <div className="flex shrink-0 gap-1.5">
+              {([["Today", today], ["Tomorrow", shiftDay(today, 1)]] as const).map(
+                ([label, date]) => (
+                  <button
+                    key={label}
+                    onClick={() => {
+                      tap();
+                      update((d) => ({
+                        ...d,
+                        plan: { ...d.plan, startedOn: date },
+                      }));
+                      setNote(`Day 1 is ${date}.`);
+                    }}
+                    aria-pressed={data.plan.startedOn === date}
+                    className="tap rounded-full px-3 py-1.5 text-sm font-semibold"
+                    style={{
+                      background:
+                        data.plan.startedOn === date
+                          ? "var(--color-surface-2)"
+                          : "var(--color-surface)",
+                      color:
+                        data.plan.startedOn === date
+                          ? "var(--color-ink)"
+                          : "var(--color-ink-3)",
+                    }}
+                  >
+                    {label}
+                  </button>
+                ),
+              )}
+            </div>
+          )}
         </div>
 
         <div className="panel mb-2 flex items-center justify-between gap-3 rounded-xl px-4 py-3">

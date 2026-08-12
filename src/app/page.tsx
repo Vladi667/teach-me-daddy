@@ -9,6 +9,8 @@ import {
   PROGRAMME_DAYS,
   cardId,
   dayNumber,
+  daysUntilStart,
+  hasStarted,
   intakeFor,
   project,
   readiness,
@@ -27,6 +29,7 @@ import {
   coverageFor,
   dayMinutes,
   emptyDay,
+  shiftDay,
   weekdayIndex,
 } from "@/lib/plan";
 import { isDue, isMature } from "@/lib/srs";
@@ -145,6 +148,101 @@ export default function TodayPage() {
         },
       };
     });
+  }
+
+  /** §5 — the start date decides everything downstream, so it is chosen. */
+  function begin(on: string) {
+    tap();
+    update((d) => ({ ...d, plan: { ...d.plan, startedOn: on } }));
+  }
+
+  const untilStart = today ? daysUntilStart(data.plan.startedOn, today) : 0;
+  const started = today ? hasStarted(data.plan.startedOn, today) : false;
+
+  // Never chosen. Day 1 used to be whichever day you first tapped something,
+  // so opening the app to look around burned it.
+  if (ready && today && !data.plan.startedOn) {
+    return (
+      <div className="py-2">
+        <p className="eyebrow">Before you begin</p>
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
+          When is day 1?
+        </h1>
+        <p className="mt-4 text-base leading-snug text-ink-2">
+          {PROGRAMME_DAYS} days from the day you start, four hours a day. The
+          date fixes your deployment date and every interval after it, so pick
+          the first day you will actually run the whole assignment.
+        </p>
+
+        <div className="mt-7 flex flex-col gap-2">
+          <button
+            onClick={() => begin(shiftDay(today, 1))}
+            className="btn btn-primary w-full"
+          >
+            Start tomorrow
+          </button>
+          <button
+            onClick={() => begin(today)}
+            className="btn btn-secondary w-full"
+          >
+            Start today
+          </button>
+        </div>
+
+        <p className="mt-4 text-center text-xs leading-relaxed text-ink-3">
+          Nothing is issued until then. You can drill the letters meanwhile.
+        </p>
+        <Link
+          href="/alphabet"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="btn btn-quiet mt-2 w-full text-sm"
+        >
+          Learn the letters
+        </Link>
+      </div>
+    );
+  }
+
+  // Chosen, but not here yet.
+  if (ready && today && !started) {
+    return (
+      <div className="py-2">
+        <p className="eyebrow">Day 1 · {data.plan.startedOn}</p>
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
+          {untilStart === 1 ? "The programme begins tomorrow" : `The programme begins in ${untilStart} days`}
+        </h1>
+        <p className="mt-4 text-base leading-snug text-ink-2">
+          Nothing is issued before then — starting early would put day 1 on the
+          wrong date and every interval with it.
+        </p>
+
+        <dl className="mt-6 mb-7 flex flex-col">
+          <Fact k="Day 1" v={data.plan.startedOn ?? ""} />
+          <Fact
+            k="Deployment"
+            v={shiftDay(data.plan.startedOn ?? today, PROGRAMME_DAYS - 1)}
+            note={`${PROGRAMME_DAYS} days`}
+          />
+          <Fact k="Letters mastered" v={`${letters} of ${LETTERS.length}`} last />
+        </dl>
+
+        <Link
+          href="/alphabet"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="btn btn-primary w-full"
+        >
+          {letters < LETTERS.length ? "Learn the letters" : "Drill the letters"}
+        </Link>
+        <button
+          onClick={() => begin(today)}
+          className="btn btn-quiet mt-2 w-full text-sm"
+        >
+          Actually, start today
+        </button>
+      </div>
+    );
   }
 
   return (

@@ -67,6 +67,33 @@ export function dayNumber(startedOn: string, today = dayKey()): number {
   return Math.max(1, Math.floor((b - a) / 86_400_000) + 1);
 }
 
+/**
+ * The programme has not begun until its start date arrives.
+ *
+ * `startedOn` used to be stamped implicitly the first time anything was
+ * logged, which made day 1 whichever day you happened to first tap something
+ * — open the app on a Tuesday to look around and Tuesday was day 1. The date
+ * is now chosen, and it may be in the future.
+ *
+ * ISO dates compare correctly as strings, so no parsing is needed.
+ */
+export function hasStarted(startedOn: string | undefined, today: string): boolean {
+  return !!startedOn && startedOn <= today;
+}
+
+/** Whole days until the programme begins. 0 once it has. */
+export function daysUntilStart(
+  startedOn: string | undefined,
+  today: string,
+): number {
+  if (!startedOn || startedOn <= today) return 0;
+  const [y1, m1, d1] = today.split("-").map(Number);
+  const [y2, m2, d2] = startedOn.split("-").map(Number);
+  return Math.round(
+    (Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 86_400_000,
+  );
+}
+
 /* --- the daily assignment ------------------------------------------------ */
 
 export interface Intake {
