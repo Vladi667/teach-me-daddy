@@ -47,32 +47,7 @@ function lineId(he) {
   return "l" + (h >>> 0).toString(36).padStart(7, "0");
 }
 
-/**
- * §4's roadmap, month by month. Themes are matched on the French pair, which
- * is far easier to key on than Hebrew morphology. A sentence that matches
- * nothing is "general" and fills gaps once the month's own themes run dry.
- */
-const THEMES = {
-  greeting: "bonjour salut merci pardon excuse plaît revoir appelle enchanté ça va",
-  self: "je suis j'ai ans habite viens origine parle langue français anglais hébreu israël france nom âge",
-  family: "famille père mère frère sœur soeur fils fille enfant mari femme parents grand-père grand-mère ami amie marié",
-  home: "maison appartement chambre cuisine porte fenêtre table chaise lit clé eau électricité voisin loyer étage salle",
-  directions: "où gauche droite tout droit près loin ici là-bas côté gare bus train taxi rue adresse carte centre coin station",
-  food: "manger boire café thé pain eau restaurant plat viande poisson légume fruit lait fromage repas déjeuner dîner faim soif",
-  shopping: "acheter magasin prix coûte cher argent payer carte monnaie euro shekel vendre client boutique marché",
-  transport: "voiture avion vol billet partir arriver voyage route conduire vélo aéroport",
-  money: "banque compte carte crédit payer facture salaire prêt",
-  weather: "pluie soleil neige vent chaud froid nuage automne hiver orage météo",
-  health: "médecin malade mal tête douleur hôpital pharmacie fatigue dormir corps main pied",
-  work: "travail travaille bureau patron collègue réunion projet entreprise emploi salaire étudier école cours",
-  admin: "papier document formulaire rendez-vous téléphone appeler bureau ministère passeport visa carte identité",
-  emotion: "content triste heureux peur colère aime déteste espère pense crois sentiment inquiet fatigué",
-  describing: "grand petit beau joli nouveau vieux jeune bon mauvais couleur rouge bleu vert noir blanc lourd léger",
-  news: "pays gouvernement guerre paix élection journal nouvelle politique monde histoire société",
-  culture: "musique film livre lire écrire art théâtre fête religion tradition",
-};
-
-/** Which themes each month is allowed to draw on, from §4. */
+/** Which themes each month draws on, from §4. */
 const MONTH_THEMES = [
   ["greeting", "self", "family", "home", "directions"],
   ["food", "shopping", "transport", "money", "weather", "health"],
@@ -81,29 +56,16 @@ const MONTH_THEMES = [
   [],
 ];
 
-const THEME_WORDS = Object.fromEntries(
-  Object.entries(THEMES).map(([k, v]) => [k, v.split(/s+/)]),
+/**
+ * Labels come from scripts/classify-themes.mjs, which embeds the French pair
+ * against a description of each theme. Keyword matching was tried twice and
+ * failed both times; see PROGRAMME.md §13b.
+ */
+const THEME_CACHE = JSON.parse(
+  readFileSync(resolve(root, "scripts/themes.json"), "utf8"),
 );
-
-function themeOf(fr) {
-  const t = fr.toLowerCase();
-  // Whole words only. Substring matching made "vent" fire on "souvent" and
-  // buried every other theme.
-  const toks = new Set(t.split(/[^a-zà-öø-ÿ'-]+/).filter(Boolean));
-  let best = "general";
-  let score = 0;
-  for (const [name, words] of Object.entries(THEME_WORDS)) {
-    let n = 0;
-    for (const w of words) {
-      if (w.includes(" ") ? t.includes(w) : toks.has(w)) n++;
-    }
-    if (n > score) {
-      score = n;
-      best = name;
-    }
-  }
-  return best;
-}
+const themeOf = (he) =>
+  THEME_CACHE[he.replace(NIKUD, "").replace(/[^א-ת]/g, "")] ?? "general";
 
 /** Nikud-stripped surface form. An approximation: Hebrew morphology means
  *  "בבית" and "בית" count as different words, so new-word yield runs a little
@@ -168,7 +130,7 @@ const target = DAYS * PER_DAY;
 // Shortest first inside each band: a simpler sentence teaches the same words
 // with less unexplained grammar wrapped around them.
 const pool = usable
-  .map((p) => ({ ...p, w: wordsOf(p.he), theme: themeOf(p.fr) }))
+  .map((p) => ({ ...p, w: wordsOf(p.he), theme: themeOf(p.he) }))
   .sort((a, b) => a.w.length - b.w.length);
 
 /** Lines are issued 12 a day, so a month is about 24 working days. */

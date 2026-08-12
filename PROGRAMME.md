@@ -272,29 +272,26 @@ lines, 3,906 distinct words**, every one vocalised and paired with
 French, no duplicates. Line ids are a hash of the consonantal skeleton, so
 regenerating keeps ids stable and the audio named after them stays valid.
 
-Audio covers **days 1-30** (620 files, 16 MB). The full corpus would be ~57 MB,
+Audio covers **days 1-30** (620 files, 15 MB). The full corpus would be ~57 MB,
 past what belongs in a git repository, so the generator takes `--maxDay` and
 LineAudio renders nothing for lines that have none. Blob storage is the fix.
 
-**Theme ordering does not work yet, and this should not be reported as done.**
-The classifier keys French translations against a keyword lexicon per §4
-theme. Two rounds of fixes were not enough:
+**Theme ordering works, via embeddings.** Keyword matching failed twice —
+substring matching fired "vent" on "souvent" and "été", the participle of
+*être*, on nearly everything; whole-word matching then let the ubiquitous
+verbs "aime", "pense" and "crois" swallow 1,075 lines into one theme. General
+sentences do not sort on keywords.
 
-- Substring matching fired "vent" on "souvent" and "été" (the participle of
-  *être*) on everything, putting 1,074 of 1,620 lines in *weather*. Fixed with
-  whole-word matching.
-- Even then, common verbs dominate: "aime", "pense", "crois" put 1,075 lines
-  in *emotion*. General-domain Tatoeba sentences simply do not sort into
-  survival themes on keywords.
+`scripts/classify-themes.mjs` embeds each French pair and each theme's
+description with a multilingual sentence model running locally, no key, and
+takes the nearest theme by cosine. Below a similarity floor the sentence stays
+*general* rather than being forced into a bucket, which is what ruined the
+keyword version. Labels are cached in `scripts/themes.json` keyed by the
+Hebrew skeleton, so reselection never re-embeds.
 
-So the corpus is ordered by sentence length and new-word yield, which is §1
-satisfied and §4 not. A trainee on day 10 may meet "I refuse to talk to you"
-before "where is the station". The material is correct and the vocabulary
-spread is good; the syllabus sequencing is not there.
-
-What would actually work: classify the 4,928 candidates once with an embedding
-or language model against the §4 theme list, cache the labels, and select
-within them. That is a bounded job and the right next piece of corpus work.
+Across 4,928 candidates that gives a real spread over all 18 themes with 45%
+honestly general. The ordering is measurable: **58% of days 6-30 carry month-1
+themes, against 0% of days 60-90.**
 
 5,860 words are flagged low-confidence by Nakdan and remain unreviewed.
 
