@@ -20,6 +20,7 @@ import {
 } from "@/lib/quiz";
 import { error, success, tap } from "@/lib/feedback";
 import { LINK_PREFETCH } from "@/lib/base-path";
+import { nowMs } from "@/lib/clock";
 
 interface Round {
   question: Question;
@@ -48,6 +49,8 @@ export default function PracticePage() {
   const [picked, setPicked] = useState<string | null>(null);
   const [verdict, setVerdict] = useState<Verdict>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** When the current question appeared. Fluency is a latency skill. */
+  const shownAt = useRef<number>(0);
 
   const begin = useCallback((m: Mode, p: ProgressMap) => {
     if (timer.current) clearTimeout(timer.current);
@@ -57,6 +60,11 @@ export default function PracticePage() {
   }, []);
 
   // The first round can only be seeded once the client has taken over from
+  // The clock starts when the question appears, not when the round does.
+  useEffect(() => {
+    shownAt.current = nowMs();
+  }, [round?.question.target.char, round?.index]);
+
   // the prerendered markup — makeQuestion uses Math.random.
   useEffect(() => {
     if (!ready) return;
@@ -89,7 +97,7 @@ export default function PracticePage() {
 
     setPicked(opt.char);
     setVerdict(right ? "correct" : "wrong");
-    record(target.char, right);
+    record(target.char, right, nowMs() - shownAt.current);
     if (right) success();
     else error();
 

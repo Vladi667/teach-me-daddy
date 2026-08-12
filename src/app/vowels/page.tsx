@@ -5,6 +5,7 @@ import Link from "next/link";
 import { POINTS, optionsFor, type Point } from "@/lib/vowels";
 import { MASTERY_TARGET, statFor, useProgress } from "@/lib/progress";
 import { LINK_PREFETCH } from "@/lib/base-path";
+import { nowMs } from "@/lib/clock";
 import { error as buzz, success, tap } from "@/lib/feedback";
 
 const ROUND = 16;
@@ -34,6 +35,7 @@ export default function VowelsPage() {
   const [n, setN] = useState(0);
   const [right, setRight] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const shownAt = useRef<number>(0);
 
   const mastered = POINTS.filter(
     (p) => statFor(progress, p.id).streak >= MASTERY_TARGET,
@@ -57,6 +59,7 @@ export default function VowelsPage() {
     setQ(pick);
     setOpts(shuffle(optionsFor(pick)));
     setPicked(null);
+    shownAt.current = nowMs();
   }
 
   useEffect(() => {
@@ -74,7 +77,7 @@ export default function VowelsPage() {
     setPicked(choice);
     if (correct) success();
     else buzz();
-    record(q.id, correct);
+    record(q.id, correct, nowMs() - shownAt.current);
     setN((v) => v + 1);
     if (correct) setRight((v) => v + 1);
     // Long enough to read the note on a miss, brief on a hit.

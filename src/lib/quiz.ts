@@ -1,5 +1,5 @@
-import { LETTERS, TRAP_LETTERS, type Letter } from "./letters";
-import { MASTERY_TARGET, statFor, type ProgressMap } from "./progress";
+import { LETTERS, TRAP_LETTERS, type Letter } from "./letters.ts";
+import { MASTERY_TARGET, statFor, type ProgressMap } from "./progress.ts";
 
 export const ROUND_LENGTH = 20;
 export const OPTION_COUNT = 4;
@@ -26,8 +26,20 @@ function shuffle<T>(arr: readonly T[]): T[] {
   return a;
 }
 
+/**
+ * Every glyph a reader has to know cold — 27, not 22.
+ *
+ * A final form is not a decoration on its letter: ך appears at the end of a
+ * word and nowhere else, and a trainee who has only ever drilled כ has to
+ * work it out. It gets its own question and its own progress, and its parent
+ * letter only counts as known once both shapes do.
+ */
+export const GLYPHS: Letter[] = LETTERS.flatMap((l) =>
+  l.final ? [l, { ...l, char: l.final, final: undefined }] : [l],
+);
+
 export function poolFor(mode: Mode): Letter[] {
-  return mode === "traps" ? TRAP_LETTERS : LETTERS;
+  return mode === "traps" ? TRAP_LETTERS : GLYPHS;
 }
 
 /** Weakest letters come up most often; mastered ones still resurface. */
@@ -50,7 +62,10 @@ function pickWeighted(pool: Letter[], progress: ProgressMap): Letter {
  */
 export function makeQuestion(mode: Mode, progress: ProgressMap): Question {
   const target = pickWeighted(poolFor(mode), progress);
-  const rest = LETTERS.filter((l) => l.char !== target.char);
+  // Distractors are drawn from the print letters and keyed by *name*: the
+  // options are names, so offering KAF against a final kaf would put the
+  // right answer on the board twice.
+  const rest = LETTERS.filter((l) => l.name !== target.name);
 
   const ranked = target.group
     ? [

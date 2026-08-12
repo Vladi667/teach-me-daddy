@@ -1,11 +1,11 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import type { SrsCard } from "./srs";
-import type { CustomItem } from "./notes";
-import { emptyPlan, type PlanState } from "./plan";
-import type { Assessment } from "./assessment";
-import { NEW_WORDS_CAP } from "./plan";
+import type { SrsCard } from "./srs.ts";
+import type { CustomItem } from "./notes.ts";
+import { emptyPlan, type PlanState } from "./plan.ts";
+import type { Assessment } from "./assessment.ts";
+import { NEW_WORDS_CAP } from "./plan.ts";
 
 /* --- shape --------------------------------------------------------------- */
 
@@ -13,6 +13,10 @@ export interface LetterStat {
   streak: number;
   seen: number;
   wrong: number;
+  /** Consecutive correct answers that were also under FAST_MS. */
+  fast?: number;
+  /** Milliseconds taken on the last answer, for the record. */
+  ms?: number;
 }
 
 export interface Settings {

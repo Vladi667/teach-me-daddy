@@ -4,11 +4,13 @@ import { useState } from "react";
 import Ring from "@/components/Ring";
 import { LETTERS } from "@/lib/letters";
 import {
+  FAST_MS,
   MASTERY_TARGET,
   masteredCount,
   statFor,
   useProgress,
 } from "@/lib/progress";
+import { GLYPHS } from "@/lib/quiz";
 import { tap } from "@/lib/feedback";
 
 export default function ProgressPage() {
@@ -22,6 +24,13 @@ export default function ProgressPage() {
     0,
   );
   const accuracy = seen ? Math.round(((seen - wrong) / seen) * 100) : 0;
+
+  // Speed is part of the standard now, so the record shows it. Counted over
+  // glyphs, which includes the five final forms the drill asks about.
+  const timedGlyphs = GLYPHS.map((g) => statFor(progress, g.char)).filter(
+    (st) => st.ms !== undefined,
+  );
+  const quick = timedGlyphs.filter((st) => (st.ms ?? Infinity) <= FAST_MS).length;
 
   const weakest = [...LETTERS]
     .map((l) => ({ l, s: statFor(progress, l.char) }))
@@ -59,6 +68,14 @@ export default function ProgressPage() {
       <div className="mb-5 grid grid-cols-2 gap-3">
         <Stat label="Answers given" value={seen} />
         <Stat label="Accuracy" value={seen ? `${accuracy}%` : "—"} />
+        <Stat
+          label={`Last answer under ${FAST_MS / 1000}s`}
+          value={
+            timedGlyphs.length
+              ? `${quick} of ${timedGlyphs.length}`
+              : "—"
+          }
+        />
       </div>
 
       {weakest.length > 0 && (

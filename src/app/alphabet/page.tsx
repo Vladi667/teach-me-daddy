@@ -6,7 +6,7 @@ import Segmented from "@/components/Segmented";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import LetterSheet from "@/components/LetterSheet";
 import { LETTERS, type Letter } from "@/lib/letters";
-import { isMastered, useProgress } from "@/lib/progress";
+import { FAST_MS, isLetterMastered, useProgress } from "@/lib/progress";
 import { tap } from "@/lib/feedback";
 
 const SCRIPTS = [
@@ -22,7 +22,7 @@ export default function AlphabetPage() {
   const { progress, ready } = useProgress();
 
   const mastered = ready
-    ? LETTERS.filter((l) => isMastered(progress, l.char)).length
+    ? LETTERS.filter((l) => isLetterMastered(progress, l)).length
     : 0;
 
   // Lock the page behind the sheet so only the sheet scrolls.
@@ -40,8 +40,14 @@ export default function AlphabetPage() {
         <h1 className="text-lg leading-tight font-semibold">
           Alphabet
         </h1>
-        <span className="text-sm text-ink-3 tnum">
-          {mastered}/{LETTERS.length} mastered
+        <span className="shrink-0 text-right">
+          <span className="block text-sm text-ink-3 tnum">
+            {mastered}/{LETTERS.length} mastered
+          </span>
+          {/* Both shapes, and quickly — otherwise the number overstates it. */}
+          <span className="block text-xs text-ink-3">
+            both forms, under {FAST_MS / 1000}s
+          </span>
         </span>
       </header>
 
@@ -52,7 +58,7 @@ export default function AlphabetPage() {
           instead of pushing the drill button off the bottom. */}
       <div className="mt-3 grid min-h-0 flex-1 grid-cols-4 grid-rows-6 gap-2">
         {LETTERS.map((l) => {
-          const done = ready && isMastered(progress, l.char);
+          const done = ready && isLetterMastered(progress, l);
           return (
             <button
               key={l.char}

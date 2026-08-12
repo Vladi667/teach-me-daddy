@@ -221,6 +221,20 @@ Progress lives in the same `alphabet` map as the letters, keyed by the sign,
 which costs no schema change and syncs for free. `masteredCount` iterates
 `LETTERS`, so the "n of 22" figure is unaffected.
 
+**27 glyphs, not 22.** Each of the five final forms is its own question with
+its own progress, and a letter counts as known only once both of its shapes
+do. ך is not a decoration on kaf — it appears at the end of a word and nowhere
+else, and counting kaf as learned while ך is not overstates what can be read.
+
+**Mastery is timed.** Three correct in a row at four seconds each is decoding,
+not reading; fluency is a latency skill. A run only counts while the answers
+come in under two seconds. That bar is deliberately not the sub-second a
+soldier would be held to, because this is four-option multiple choice and most
+of the budget goes on reading the options — it measures "answered without
+hesitating", which is the honest claim. Progress recorded before timing
+existed falls back to the plain streak, so a new metric does not delete work
+already done.
+
 **Timing.** The script is a gate, not a subject. FSI rates Hebrew Category III
 at 1,100 hours, and DLI 64 weeks, but neither spends more than the first week
 on the script. Recognition of the letters is two to four hours; the points are
