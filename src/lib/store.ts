@@ -20,6 +20,12 @@ export interface Settings {
   newPerDay: number;
   /** Which gloss to show on vocabulary cards. */
   gloss: "fr" | "en";
+  /**
+   * Romanisation under each line. On by default and meant to be switched off:
+   * §9.5 wants the trainee onto unpointed text early, and phonetics left on
+   * forever train you to read the phonetics.
+   */
+  phonetics: boolean;
 }
 
 export interface ProfileData {
@@ -50,7 +56,7 @@ export const emptyData = (): ProfileData => ({
   custom: [],
   plan: emptyPlan(),
   assessments: [],
-  settings: { newPerDay: NEW_WORDS_CAP, gloss: "fr" },
+  settings: { newPerDay: NEW_WORDS_CAP, gloss: "fr", phonetics: true },
   updatedAt: 0,
 });
 

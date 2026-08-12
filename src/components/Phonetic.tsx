@@ -1,6 +1,7 @@
 "use client";
 
 import { phonetic } from "@/lib/translit";
+import { useStore } from "@/lib/store";
 import type { Line } from "@/lib/programme";
 
 /**
@@ -12,6 +13,10 @@ import type { Line } from "@/lib/programme";
  *
  * Never rendered on the assessment passage — being able to sound out a word
  * you do not know would inflate the coverage score §6 measures.
+ *
+ * Nothing renders before the store has hydrated. The server cannot know the
+ * setting, so drawing the default and then removing it would be a hydration
+ * mismatch — the same one that produced React #418 twice on this project.
  */
 export default function Phonetic({
   line,
@@ -20,6 +25,8 @@ export default function Phonetic({
   line: Pick<Line, "he" | "tr">;
   className?: string;
 }) {
+  const { data, ready } = useStore();
+  if (!ready || !data.settings.phonetics) return null;
   const t = phonetic(line);
   if (!t) return null;
   return (

@@ -158,6 +158,43 @@ export default function MePage() {
           </div>
         </div>
 
+        <div className="panel mb-2 flex items-center justify-between gap-3 rounded-xl px-4 py-3">
+          <span className="min-w-0">
+            <span className="block text-sm text-ink-2">Phonetics under lines</span>
+            <span className="block text-xs text-ink-3">
+              A crutch worth dropping — §9.5 wants you on unpointed text early
+            </span>
+          </span>
+          <div className="flex shrink-0 gap-1.5">
+            {([true, false] as const).map((on) => (
+              <button
+                key={String(on)}
+                onClick={() => {
+                  tap();
+                  update((d) => ({
+                    ...d,
+                    settings: { ...d.settings, phonetics: on },
+                  }));
+                }}
+                aria-pressed={data.settings.phonetics === on}
+                className="tap rounded-full px-3.5 py-1.5 text-sm font-semibold"
+                style={{
+                  background:
+                    data.settings.phonetics === on
+                      ? "var(--color-surface-2)"
+                      : "var(--color-surface)",
+                  color:
+                    data.settings.phonetics === on
+                      ? "var(--color-ink)"
+                      : "var(--color-ink-3)",
+                }}
+              >
+                {on ? "Show" : "Hide"}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {/* §9 — the daily intake is not the trainee's to set. It comes from
             the backlog, the retention guard and the assessment penalty, and
             TODAY says which of those is in force. */}
