@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Teach me Daddy has moved</title>
+    <style>
+      :root { color-scheme: dark; }
+      body {
+        margin: 0; min-height: 100dvh; display: grid; place-items: center;
+        background: oklch(0.17 0.008 195); color: oklch(0.97 0.004 195);
+        font: 0.9375rem/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI",
+              system-ui, sans-serif;
+        padding: 24px;
+      }
+      main { width: 100%; max-width: 380px; }
+      h1 { font-size: 1.3125rem; letter-spacing: -0.02em; margin: 0 0 12px; }
+      p { color: oklch(0.78 0.008 195); margin: 0 0 16px; }
+      .dim { color: oklch(0.62 0.008 195); font-size: 0.8125rem; }
+      a.btn, button {
+        display: flex; align-items: center; justify-content: center;
+        width: 100%; min-height: 44px; border-radius: 999px;
+        font: inherit; font-weight: 600; text-decoration: none;
+        margin-bottom: 10px; cursor: pointer;
+      }
+      a.btn {
+        background: oklch(0.72 0.13 190); color: oklch(0.2 0.03 195);
+        border: none;
+      }
+      button {
+        background: oklch(0.215 0.009 195); color: oklch(0.97 0.004 195);
+        border: 1px solid oklch(0.32 0.01 195);
+      }
+      .warn {
+        border: 1px solid oklch(0.8 0.14 75); border-radius: 12px;
+        padding: 14px; margin-bottom: 18px;
+        background: color-mix(in oklch, oklch(0.8 0.14 75) 10%, transparent);
+      }
+      .warn p { color: oklch(0.97 0.004 195); margin: 0 0 12px; }
+      #done { color: oklch(0.78 0.17 145); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>This copy has retired</h1>
+      <p>
+        Teach me Daddy now lives at
+        <strong>teach-me-daddy.vercel.app</strong>, where accounts sync across
+        devices. This address was a second home for when that domain was
+        blocked.
+      </p>
+
+      <!--
+        Progress made here lives in this browser, under this domain, and does
+        not travel to the new address on its own — this copy never synced to
+        the server. So the door out offers to take it with you, rather than
+        redirecting past it. Shown only when there is something to lose.
+      -->
+      <div class="warn" id="rescue" hidden>
+        <p id="rescueText"></p>
+        <button id="save">Download my progress first</button>
+        <p class="dim" style="margin: 0">
+          Then sign in over there with the same username and use
+          <em>You › Import a backup</em>.
+        </p>
+      </div>
+
+      <a class="btn" href="https://teach-me-daddy.vercel.app/">Go to the app</a>
+      <p class="dim" id="note"></p>
+    </main>
+
+    <script>
+      (function () {
+        var NEW = "https://teach-me-daddy.vercel.app/";
+        var user = null;
+        var raw = null;
+        try {
+          user = localStorage.getItem("tmd:current");
+          if (user) raw = localStorage.getItem("tmd:data:" + user);
+        } catch (e) {
+          /* storage blocked; nothing to rescue */
+        }
+
+        if (raw) {
+          var el = document.getElementById("rescue");
+          el.hidden = false;
+          document.getElementById("rescueText").textContent =
+            'There is progress for "' + user + '" saved in this browser. ' +
+            "It stays here unless you take it with you.";
+          document.getElementById("save").addEventListener("click", function () {
+            var payload = JSON.stringify(
+              { username: user, exportedAt: Date.now(), data: JSON.parse(raw) },
+              null,
+              2
+            );
+            var a = document.createElement("a");
+            a.href = URL.createObjectURL(
+              new Blob([payload], { type: "application/json" })
+            );
+            a.download = "teach-me-daddy-" + user + ".json";
+            a.click();
+            document.getElementById("save").textContent = "Saved — now go across";
+            document.getElementById("save").id = "done";
+          });
+        } else {
+          // Nothing to lose here, so don't make them tap through a notice.
+          document.getElementById("note").textContent = "Taking you there…";
+          setTimeout(function () {
+            location.replace(NEW);
+          }, 1200);
+        }
+      })();
+    </script>
+  </body>
+</html>

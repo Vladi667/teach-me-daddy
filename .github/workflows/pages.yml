@@ -1,7 +1,13 @@
 name: Deploy to GitHub Pages
 
-# A second home for the app, off *.vercel.app — some networks block that
-# domain wholesale. Vercel still deploys from the same pushes, at the root.
+# Retired. This was a second home for when *.vercel.app was blocked on the
+# network the app is used from; that block has lifted, and running two copies
+# of a programme that tracks your progress means two sets of progress.
+#
+# The URL still answers, because bookmarks and an installed PWA point at it.
+# It serves a notice that hands back whatever is in this origin's localStorage
+# — the static export never synced to the server, so nothing here is on the
+# server either — and then sends you to Vercel.
 
 on:
   push:
@@ -23,25 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-
-      - name: Build static export
-        run: npm run build:pages
-        env:
-          # Switches next.config.ts to output:"export" + the /teach-me-daddy
-          # basePath. Absent everywhere else, so Vercel builds for the root.
-          PAGES_BUILD: "1"
-
       - uses: actions/configure-pages@v5
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: out
+          path: pages-retired
 
   deploy:
     needs: build

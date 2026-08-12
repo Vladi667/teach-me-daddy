@@ -368,18 +368,28 @@ implied.
   rhythm and stress, not good enough to learn a native accent from. A real
   speaker should replace it before Month 3 pushes into connected speech.
 
-  **Where it lives.** In the repository, served from the Pages origin. 2,718
-  files, 70 MB, 48 kbit/s mono — which is the number this document previously
+  **Where it lives.** In the repository, served from the app's own origin.
+  2,718 files, 70 MB, 48 kbit/s mono — which is the number this document once
   called "past what belongs in a git repository". The estimate was right and
   the conclusion was wrong.
 
-  Blob storage would put the audio on a third-party origin, and a third-party
-  origin is precisely what this network breaks: the app is on GitHub Pages
-  rather than Vercel because `*.vercel.app` fails TLS interception here. Every
-  CDN is a fresh chance to hit that again, traded for disk that is not scarce
-  — 70 MB is well inside the 1 GB Pages allows, and a clone that size is
-  unremarkable. Dropping to 32 kbit/s would save 23 MB at a real cost to the
-  block that runs 45 minutes a day. Not a trade worth making.
+  Blob storage would put the audio on a third-party origin, and this project
+  has already been burned by exactly that: `*.vercel.app` failed TLS
+  interception on the network the app is used from, which is why a GitHub
+  Pages copy existed for a while. Every CDN is a fresh chance to hit it again,
+  traded for disk that is not scarce. Same-origin means the audio cannot break
+  separately from the app. Dropping to 32 kbit/s would save 23 MB at a real
+  cost to the block that runs 45 minutes a day; not a trade worth making.
+
+  **Hosting, settled.** Vercel, at `teach-me-daddy.vercel.app`, which the
+  network no longer blocks. The Pages copy is retired: two live copies of a
+  programme that tracks your progress means two divergent sets of progress,
+  and only the Vercel build has the API route that syncs accounts across
+  devices. The Pages URL still answers — bookmarks and installed PWAs point at
+  it — with a notice that hands back whatever that origin's localStorage holds
+  before sending you across. `PAGES_BUILD` and `build:pages` are kept: they
+  are the escape hatch if the domain is ever blocked again.
+
 - **Nikud review pass — tooling built, review outstanding.** Being a native
   Hebrew speaker is the one job here no script does. Everything around it is
   now in place.
