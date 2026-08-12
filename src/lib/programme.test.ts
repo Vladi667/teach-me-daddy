@@ -15,6 +15,7 @@ import {
   retentionRate,
   stagesFor,
 } from "./programme.ts";
+import { UNCLEARED_CAP } from "./assessment.ts";
 
 /* --- where the trainee is ------------------------------------------------ */
 
@@ -179,4 +180,43 @@ test("deployment needs the bar and every assessment cleared", () => {
   assert.equal(isDeployable(DEPLOY_AT - 1, true), false);
   // Readiness alone is not clearance.
   assert.equal(isDeployable(100, false), false);
+});
+
+test("an uncleared month caps readiness without erasing the work", () => {
+  const earned = {
+    masteredLines: 1600, totalLines: 1700, coverage: 95,
+    assessmentsCleared: 4, assessmentsDue: 5,
+  };
+  assert.equal(readiness(earned), 94);
+  const capped = readiness({ ...earned, uncleared: true });
+  assert.equal(capped, UNCLEARED_CAP);
+  assert.ok(capped < DEPLOY_AT, "a capped trainee cannot deploy");
+  // Passing the retake restores the figure rather than rebuilding it.
+  assert.equal(readiness({ ...earned, uncleared: false }), 94);
+});
+
+test("the cap is a ceiling, not a floor", () => {
+  const thin = {
+    masteredLines: 0, totalLines: 1700, coverage: 0,
+    assessmentsCleared: 0, assessmentsDue: 1, uncleared: true,
+  };
+  assert.equal(readiness(thin), 0, "already below the cap, so untouched");
+});
+
+test("a failed assessment halves intake the same way retention does", () => {
+  const clean = intakeFor(0, 1, false);
+  assert.equal(clean.count, PLANNED_INTAKE);
+  const after = intakeFor(0, 1, false, PLANNED_INTAKE, true);
+  assert.equal(after.count, PLANNED_INTAKE / 2);
+  assert.equal(after.reason, "assessment");
+});
+
+test("retention is named first when both guards fire", () => {
+  const both = intakeFor(0, 0.5, false, PLANNED_INTAKE, true);
+  assert.equal(both.reason, "retention", "the live signal is the one to state");
+  assert.equal(both.count, PLANNED_INTAKE / 2, "and it cuts the same amount");
+});
+
+test("a rest day outranks the assessment penalty", () => {
+  assert.equal(intakeFor(0, 1, true, PLANNED_INTAKE, true).count, 0);
 });

@@ -5,6 +5,7 @@ import { LINES, LAST_SEEDED_DAY, linesForDay } from "@/lib/lines";
 import {
   DEPLOY_AT,
   MASTERY_DAYS,
+  PLANNED_INTAKE,
   PROGRAMME_DAYS,
   cardId,
   dayNumber,
@@ -13,6 +14,14 @@ import {
   readiness,
   retentionRate,
 } from "@/lib/programme";
+import {
+  ASSESSMENT_EVERY,
+  assessmentsDue,
+  clearedCount,
+  dueAssessment,
+  penaltyActive,
+  repairLines,
+} from "@/lib/assessment";
 import {
   BLOCKS,
   coverageFor,
@@ -60,7 +69,20 @@ export default function TodayPage() {
     .filter((c) => c.reps > 0)
     .slice(-60)
     .map((c) => ({ correct: c.lapses === 0 }));
-  const intake = intakeFor(backlog, retentionRate(recent), isRest);
+
+  // §6 — the assessment outranks the day's blocks: an outstanding month means
+  // the coverage figure everything else is measured against is unverified.
+  const taken = data.assessments ?? [];
+  const dueMonth = dueAssessment(day, taken);
+  const penalised = today ? penaltyActive(taken, today) : false;
+
+  const intake = intakeFor(
+    backlog,
+    retentionRate(recent),
+    isRest,
+    PLANNED_INTAKE,
+    penalised,
+  );
 
   const log = today ? data.plan.days[today] : undefined;
   const doneBlocks = BLOCKS.filter((b) => log?.blocks[b.id]).length;
@@ -75,12 +97,23 @@ export default function TodayPage() {
     masteredLines: mastered,
     totalLines: LINES.length,
     coverage: coverageFor(words + (data.plan.wordsElsewhere ?? 0)),
-    assessmentsCleared: 0,
-    assessmentsDue: Math.floor(day / 28),
+    assessmentsCleared: clearedCount(taken),
+    assessmentsDue: assessmentsDue(day),
+    uncleared: dueMonth !== null,
   });
 
   const beyondSeed = day > LAST_SEEDED_DAY;
-  const todaysLines = linesForDay(Math.min(day, LAST_SEEDED_DAY));
+
+  // §6 — words missed in the last assessment come back as lines carrying them,
+  // ahead of the day's own set. The repair is the assignment, not an extra.
+  const lastFailed = [...taken].reverse().find((a) => !a.cleared);
+  const repair = lastFailed
+    ? repairLines(lastFailed.missed, LINES, day, Math.ceil(intake.count / 3))
+    : [];
+  const todaysLines = [
+    ...repair,
+    ...linesForDay(Math.min(day, LAST_SEEDED_DAY)),
+  ];
 
   // The first block that isn't finished is the one being ordered.
   const currentIdx = BLOCKS.findIndex((b) => !log?.blocks[b.id]);
@@ -129,6 +162,34 @@ export default function TodayPage() {
         </div>
       </header>
 
+      {/* §6 — an outstanding month is stated before the day's work, because
+          it outranks it. Nothing is blocked: the assessment is adaptive too. */}
+      {dueMonth !== null && (
+        <Link
+          href="/assess"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="mb-6 flex items-center gap-3 rounded-xl px-4 py-3.5"
+          style={{
+            border: "1px solid var(--color-warn)",
+            background: "color-mix(in oklch, var(--color-warn) 10%, transparent)",
+          }}
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold">
+              Month {dueMonth} assessment{" "}
+              {taken.some((a) => a.month === dueMonth) ? "retake" : "due"}
+            </span>
+            <span className="block text-sm text-ink-3">
+              Unseen passage · readiness is capped until it clears
+            </span>
+          </span>
+          <span className="shrink-0 text-sm" style={{ color: "var(--color-warn)" }}>
+            Sit it
+          </span>
+        </Link>
+      )}
+
       {/* The order, in one line. */}
       <p className="mb-6 text-base leading-snug text-ink-2">
         {isRest
@@ -144,6 +205,12 @@ export default function TodayPage() {
           <span className="text-warn">
             {" "}
             Intake halved: accuracy below 85%.
+          </span>
+        )}
+        {intake.reason === "assessment" && (
+          <span className="text-warn">
+            {" "}
+            Intake halved: assessment not cleared.
           </span>
         )}
       </p>
@@ -261,6 +328,17 @@ export default function TodayPage() {
                     <span className="mt-1 block text-sm text-ink-3">
                       {data.settings.gloss === "fr" ? l.fr : l.en}
                     </span>
+                    {repair.includes(l) && (
+                      <span
+                        className="mt-1.5 inline-block rounded px-1.5 py-0.5 text-xs"
+                        style={{
+                          border: "1px solid var(--color-line-strong)",
+                          color: "var(--color-warn)",
+                        }}
+                      >
+                        Missed in month {lastFailed?.month} assessment
+                      </span>
+                    )}
                   </span>
                   <LineAudio lineId={l.id} showNatural />
                 </div>
@@ -280,6 +358,18 @@ export default function TodayPage() {
         />
         <Fact k="Words carried" v={String(words)} />
         <Fact
+          k="Assessments cleared"
+          v={`${clearedCount(taken)} of ${assessmentsDue(day)}`}
+          note={
+            dueMonth !== null
+              ? `month ${dueMonth} outstanding`
+              : assessmentsDue(day) === 0
+                ? "first at day 28"
+                : undefined
+          }
+          warn={dueMonth !== null}
+        />
+        <Fact
           k="Logged today"
           v={`${doneBlocks} of ${BLOCKS.length} blocks`}
           note={minutes ? `${Math.floor(minutes / 60)}h ${minutes % 60}m` : undefined}
@@ -298,8 +388,9 @@ export default function TodayPage() {
       </dl>
 
       <p className="text-xs leading-relaxed text-ink-3">
-        Deployment at {DEPLOY_AT}% readiness with every assessment cleared.
-        Shadowing and production are not yet issued: they need a recorded voice.
+        Deployment at {DEPLOY_AT}% readiness with every assessment cleared. An
+        assessment falls every {ASSESSMENT_EVERY} days and is marked against an
+        unseen passage, not against this deck.
       </p>
     </>
   );

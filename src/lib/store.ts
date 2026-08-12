@@ -4,6 +4,7 @@ import { useSyncExternalStore } from "react";
 import type { SrsCard } from "./srs";
 import type { CustomItem } from "./deck";
 import { emptyPlan, type PlanState } from "./plan";
+import type { Assessment } from "./assessment";
 import { NEW_WORDS_CAP } from "./plan";
 
 /* --- shape --------------------------------------------------------------- */
@@ -32,6 +33,8 @@ export interface ProfileData {
   /** Words you added yourself, scheduled alongside the curated deck. */
   custom: CustomItem[];
   plan: PlanState;
+  /** §6 — every attempt, kept in full. The record shows failures too. */
+  assessments: Assessment[];
   settings: Settings;
   /** Epoch ms of the last local change — drives last-write-wins on sync. */
   updatedAt: number;
@@ -46,6 +49,7 @@ export const emptyData = (): ProfileData => ({
   newLog: {},
   custom: [],
   plan: emptyPlan(),
+  assessments: [],
   settings: { newPerDay: NEW_WORDS_CAP, gloss: "fr" },
   updatedAt: 0,
 });
@@ -61,6 +65,7 @@ function normalise(raw: Partial<ProfileData> | null): ProfileData {
     srs: raw.srs ?? base.srs,
     newLog: raw.newLog ?? base.newLog,
     custom: raw.custom ?? base.custom,
+    assessments: raw.assessments ?? base.assessments,
     plan: { ...base.plan, ...(raw.plan ?? {}) },
     settings: { ...base.settings, ...(raw.settings ?? {}) },
     version: 1,

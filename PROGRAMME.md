@@ -140,6 +140,30 @@ malpractice. What failing does:
 
 Words missed in an assessment are injected into the queue as new lines.
 
+**Built.** `src/lib/assessment.ts` holds the rules, `/assess` runs them. The
+readiness cap is 75 — clearly under the 90 deploy line, where a cap of 89 would
+block deployment while still reading as a pass. Intake halves for seven days
+after a failure, the same cut the retention guard makes, because both say the
+same thing: the existing material isn't holding. A missed word is repaid by
+promoting a *line* that carries it, never as a bare word, and never a line
+already issued.
+
+The passages are in `src/lib/passages.gen.ts`, built by
+`scripts/build-passages.mjs` from Tatoeba sentences that appear nowhere in the
+corpus — the exclusion is the whole point, and a unit test enforces it against
+the current `LINES` rather than trusting the generator. Each is ~85 words, so
+one tapped word moves the score about 1%; at 28 words it moved 3.6 and could
+not resolve a pass line. Difficulty is graded by sentence length, which is the
+only level signal the source carries.
+
+Two honest limits. A passage is a set of sentences on a shared subject, not
+continuous prose, because Tatoeba is a sentence corpus. And matching the
+corpus by consonantal skeleton was not enough to guarantee "unseen": Nakdan
+normalises ktiv male to ktiv haser as it vocalises, so שתחזור returns as
+שֶׁתַּחֲזֹר and the skeletons differ for the same sentence. The French gloss
+identifies the source pair whatever the spelling does, and caught 1,083
+candidates the skeleton check had missed.
+
 ---
 
 ## 7. Readiness
@@ -236,9 +260,9 @@ Humour stays on the account gate, where a newcomer meets it, and nowhere past it
    before the full corpus exists.
 3. **Audio pipeline.** Two speeds per line, generated once and served as files.
 4. **The corpus.** Months 1–2 first, roughly 700 lines.
-5. **Assessment and readiness.**
+5. ~~**Assessment and readiness.**~~ Done — §6 above.
 6. **Retire what contradicts the model**: the Words screen, mode pickers, deck
-   browsing. Field notes survives, demoted.
+   browsing. Field notes survives, demoted. *Outstanding.*
 
 ## 13. Corpus pipeline — settled
 

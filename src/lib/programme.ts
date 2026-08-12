@@ -6,6 +6,7 @@
  */
 
 import { dayKey, shiftDay } from "./plan.ts";
+import { UNCLEARED_CAP } from "./assessment.ts";
 
 export const PROGRAMME_DAYS = 140;
 
@@ -72,7 +73,7 @@ export interface Intake {
   /** New lines to issue today. */
   count: number;
   /** Set when intake was cut, so the trainee is told why. */
-  reason: "planned" | "backlog" | "retention" | "rest";
+  reason: "planned" | "backlog" | "retention" | "rest" | "assessment";
 }
 
 /**
@@ -87,13 +88,18 @@ export function intakeFor(
   retention: number,
   isRestDay: boolean,
   planned = PLANNED_INTAKE,
+  /** §6 — the week after a failed assessment. */
+  failedAssessment = false,
 ): Intake {
   if (isRestDay) return { count: 0, reason: "rest" };
 
-  if (retention < RETENTION_FLOOR) {
+  // Both guards say the same thing — the existing material isn't holding — so
+  // they cut by the same amount. Retention is named first because it is the
+  // live signal; the assessment is a week old by definition.
+  if (retention < RETENTION_FLOOR || failedAssessment) {
     return {
       count: Math.max(MIN_INTAKE, Math.floor(planned / 2)),
-      reason: "retention",
+      reason: retention < RETENTION_FLOOR ? "retention" : "assessment",
     };
   }
 
@@ -150,6 +156,8 @@ export interface ReadinessInput {
   coverage: number;
   assessmentsCleared: number;
   assessmentsDue: number;
+  /** §6 — a month standing NOT CLEARED holds the number down. */
+  uncleared?: boolean;
 }
 
 /**
@@ -164,7 +172,10 @@ export function readiness(i: ReadinessInput): number {
     : 1;
   // Integer weights: 0.55 * 0.5 lands on 27.499999 in floating point and
   // rounds a percentage point low. 55 * 0.5 is exact.
-  return Math.round(55 * lines + 30 * cover + 15 * cleared);
+  const raw = Math.round(55 * lines + 30 * cover + 15 * cleared);
+  // The cap is applied last, on the honest figure, so passing the retake
+  // restores the number the work had already earned.
+  return i.uncleared ? Math.min(raw, UNCLEARED_CAP) : raw;
 }
 
 export const DEPLOY_AT = 90;
