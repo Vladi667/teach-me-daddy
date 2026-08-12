@@ -198,6 +198,40 @@ speaker button silently does nothing for most users.
 
 ---
 
+## 8b. Reading without vowels
+
+§9.5 of the plan: move to unvocalised text early, it is uncomfortable, that
+is the point. Real Hebrew — signs, menus, news, messages — carries no points
+at all, and a corpus that is 100% pointed graduates someone who reads a
+textbook and stalls at a bus stop.
+
+The points come off as a line is mastered, on the Read prompt only, because
+that is the card that asks you to read. Three rungs, chosen by the line's own
+Read interval, so there is no new state and no setting:
+
+| Rung | Interval | What is shown |
+| --- | --- | --- |
+| Full | under 7 days, or in learning | Every point |
+| Partial | 7-20 days | Shin dot, plus points on ambiguous words |
+| Bare | 21 days and over | Consonants only, like a street sign |
+
+The answer always reveals the fully pointed line, so a failed decoding can be
+checked rather than merely felt. A lapse brings the points back: a card
+knocked into learning has a stale interval, and the trainee is decoding
+again rather than recognising.
+
+**Measured, not assumed.** Of 3,834 distinct forms in the corpus, only 121 —
+3% — are pointed more than one way, so stripping is unambiguous for the other
+97% and needs no new content. Those 121 keep their points a rung longer.
+
+The shin dot is dropped at *bare* and kept at *partial*. Street signs do not
+carry it either, so keeping it forever would train reading on a text that does
+not exist — the same mistake as never removing the vowels, only smaller. It
+is also what makes partial a real middle rung rather than bare with a 3%
+exception list.
+
+---
+
 ## 9. What the trainee cannot do
 
 The interface offers no choices that a syllabus should be making.

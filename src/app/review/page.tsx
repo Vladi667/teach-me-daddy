@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LINES } from "@/lib/lines";
-import { dayNumber, hasStarted } from "@/lib/programme";
+import { cardId, dayNumber, hasStarted } from "@/lib/programme";
 import { stageCards, type StageCard } from "@/lib/queue";
+import { atRung, rungFor } from "@/lib/nikud";
 import { emptyDay } from "@/lib/plan";
 import {
   AGAIN,
@@ -146,6 +147,11 @@ export default function ReviewPage() {
 
   const { line, stage } = card;
   const srs = data.srs[card.id] ?? newCard(now);
+  // §9.5 — the points come off a line once it is known. The prompt is what
+  // the trainee has earned; the answer below always shows it fully pointed,
+  // so a failed decoding can be checked rather than just felt.
+  const rung = rungFor(data.srs[cardId(line.id, "read")]);
+  const prompt = atRung(line.he, rung);
   const gloss = data.settings.gloss === "fr" ? line.fr : line.en;
   // §4 — Produce asks for the Hebrew; the other two ask for the meaning.
   const askMeaning = stage !== "produce";
@@ -183,12 +189,19 @@ export default function ReviewPage() {
         {stage === "listen" ? (
           <LineAudio lineId={line.id} />
         ) : stage === "read" ? (
-          <p
-            className="heb text-[30px] leading-snug"
-            style={{ fontFamily: "var(--font-hebrew)" }}
-          >
-            {line.he}
-          </p>
+          <>
+            <p
+              className="heb text-[30px] leading-snug"
+              style={{ fontFamily: "var(--font-hebrew)" }}
+            >
+              {prompt}
+            </p>
+            {rung !== "full" && (
+              <p className="mt-3 text-xs text-ink-3">
+                {rung === "bare" ? "No vowels" : "Fewer vowels"}
+              </p>
+            )}
+          </>
         ) : (
           <p className="text-lg leading-snug font-semibold">
             {gloss}
@@ -210,6 +223,17 @@ export default function ReviewPage() {
             {askMeaning ? (
               <>
                 <p className="text-base leading-snug text-ink-2">{gloss}</p>
+                {stage === "read" && rung !== "full" && (
+                  <>
+                    <p
+                      className="heb mt-3 text-[26px] leading-snug"
+                      style={{ fontFamily: "var(--font-hebrew)" }}
+                    >
+                      {line.he}
+                    </p>
+                    <Phonetic line={line} className="mt-2" />
+                  </>
+                )}
                 {stage === "listen" && (
                   <>
                     <p

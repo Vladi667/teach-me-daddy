@@ -28,6 +28,7 @@ import { isMature, type SrsCard } from "@/lib/srs";
 import { LINES } from "@/lib/lines";
 import { cardId } from "@/lib/programme";
 import { MONTH_TARGET } from "@/lib/assessment";
+import { ladderCounts } from "@/lib/nikud";
 
 const isMature2 = (c: SrsCard | undefined) => !!c && isMature(c);
 import { useStore } from "@/lib/store";
@@ -63,6 +64,7 @@ export default function PlanPage() {
   const monthHours = monthMinutes / 60;
 
   const isToday = !!day && day === today;
+  const ladder = ladderCounts(data.srs, (id) => cardId(id, "read"));
 
   function patchDay(fn: (d: DayLog) => DayLog) {
     if (!day) return;
@@ -205,6 +207,28 @@ export default function PlanPage() {
             onBump={(d) => bump("speaking", d)}
           />
         </div>
+      </section>
+
+      {/* §9.5 — how much of what is known can be read without vowels. */}
+      <section className="mb-7">
+        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
+          Reading
+        </h2>
+        {ladder.full + ladder.partial + ladder.bare === 0 ? (
+          <p className="px-1 text-sm text-ink-3">
+            Lines lose their vowels as you master them. Nothing is due yet.
+          </p>
+        ) : (
+          <dl className="flex flex-col">
+            <Rung label="With vowels" n={ladder.full} />
+            <Rung label="Fewer vowels" n={ladder.partial} />
+            <Rung label="No vowels" n={ladder.bare} last />
+          </dl>
+        )}
+        <p className="mt-2 px-1 text-xs leading-relaxed text-ink-3">
+          Real Hebrew carries no points. A line you have held for three weeks
+          is read without them.
+        </p>
       </section>
 
       {/* §10 — assessment results, with dates. A failure stays on the file. */}
@@ -528,5 +552,18 @@ function Chevron({ dir }: { dir: "left" | "right" }) {
     >
       <path d="m9 6 6 6-6 6" />
     </svg>
+  );
+}
+
+/** One line of the reading ladder. */
+function Rung({ label, n, last }: { label: string; n: number; last?: boolean }) {
+  return (
+    <div
+      className="flex items-baseline justify-between gap-4 py-2.5"
+      style={{ borderBottom: last ? "none" : "1px solid var(--color-line)" }}
+    >
+      <dt className="text-sm text-ink-2">{label}</dt>
+      <dd className="text-sm font-semibold tnum">{n}</dd>
+    </div>
   );
 }
