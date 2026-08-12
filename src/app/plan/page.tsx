@@ -87,7 +87,7 @@ export default function PlanPage() {
   return (
     <>
       <header className="mb-4 flex items-baseline justify-between">
-        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="text-lg leading-tight font-semibold">
           Record
         </h1>
         <span className="text-sm text-ink-3">

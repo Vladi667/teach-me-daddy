@@ -43,7 +43,7 @@ export default function MePage() {
   return (
     <>
       <header className="mb-4">
-        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="text-lg leading-tight font-semibold">
           {username}
         </h1>
         <p className="mt-1 flex items-center gap-2 text-sm text-ink-2">

@@ -96,7 +96,7 @@ export default function ProducePage() {
     return (
       <div className="py-6">
         <p className="eyebrow">Block 3 · Production</p>
-        <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
           {nothingEligible ? "Nothing to produce yet" : "Production complete"}
         </h1>
         <p className="mt-3 text-base leading-snug text-ink-2">
@@ -126,7 +126,7 @@ export default function ProducePage() {
       <header className="mb-6 flex items-baseline justify-between">
         <div>
           <p className="eyebrow">Block 3 · Production</p>
-          <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+          <h1 className="mt-1 text-lg leading-tight font-semibold">
             Say it in Hebrew
           </h1>
         </div>
@@ -136,7 +136,7 @@ export default function ProducePage() {
       </header>
 
       <div className="panel flex flex-col items-center justify-center rounded-2xl px-5 py-9 text-center">
-        <p className="text-lg leading-snug font-semibold tracking-[-0.02em]">
+        <p className="text-lg leading-snug font-semibold">
           {line.fr}
         </p>
 

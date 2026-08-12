@@ -149,7 +149,7 @@ export default function TodayPage() {
           <p className="eyebrow">
             Day {ready ? day : "—"} of {PROGRAMME_DAYS}
           </p>
-          <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+          <h1 className="mt-1 text-lg leading-tight font-semibold">
             {isRest ? "Review and rest" : "Today's assignment"}
           </h1>
         </div>

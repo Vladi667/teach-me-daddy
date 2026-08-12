@@ -67,7 +67,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
       <button
         aria-label="Close"
         onClick={onClose}
-        className="anim-fade absolute inset-0 bg-black/60"
+        className="anim-scrim absolute inset-0 bg-black/60"
         style={{ backdropFilter: "blur(6px)" }}
       />
 
@@ -119,7 +119,7 @@ export default function LetterSheet({ letter, script, onClose }: Props) {
         {/* identity ------------------------------------------------------- */}
         <div className="mt-5 text-center">
           <div className="flex items-center justify-center gap-2">
-            <h2 className="text-lg font-bold tracking-[-0.02em]">
+            <h2 className="text-lg font-bold">
               {current.name}
             </h2>
             {voice && (

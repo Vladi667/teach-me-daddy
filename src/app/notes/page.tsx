@@ -66,7 +66,7 @@ export default function NotesPage() {
     <>
       <header className="mb-5">
         <p className="eyebrow">Field notes</p>
-        <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
           Words from outside
         </h1>
         <p className="mt-3 text-base leading-snug text-ink-2">

@@ -86,7 +86,16 @@ One exception: the sheet, which lifts off a scrim.
 150–200ms, `ease-out-quart`. State changes only: press, selection, reveal,
 progress. No entrance choreography, no staggered lists, no drifting background.
 
-`prefers-reduced-motion` collapses everything to instant.
+Three accessibility signals are honoured independently. `prefers-reduced-motion`
+keeps the opacity change and drops travel, scale and press-scale — reduced
+motion means feedback without the vestibular part, not no feedback.
+`prefers-reduced-transparency` makes the chrome solid and removes the blur.
+`prefers-contrast: more` lightens the hairlines and ink-3, and makes the chrome
+opaque with a defined edge.
+
+**Press before release.** Feedback belongs to the press: `:active` scales in
+over 90ms, and the release settles back over 260ms. Any lag on the way in and
+the sense of directness collapses.
 
 ## Components
 
@@ -100,11 +109,23 @@ never removed.
   padding, content left, value or chevron right.
 - **Stat.** Number in `--t-xl` tabular, label in `--t-xs` `--ink-3` beneath.
   Never boxed unless it sits in a group of them.
-- **Tab bar.** `--surface-2`, hairline top, active tab marked by accent icon and
-  label, not by a filled pill.
+- **Tab bar.** A translucent layer the page passes *under*, not a shelf it sits
+  on — `--canvas` at 86% over a 28px blur, no hairline. What tells you there is
+  more content below the fold is seeing it move under the bar. Its labels carry
+  a little extra weight and tracking so they hold against whatever scrolls
+  beneath. Active tab is marked by accent icon and label, not a filled pill.
+- **Disabled.** An unavailable control loses the shape of the thing you should
+  press: primary and secondary both fall back to `--surface` with a hairline
+  and `--ink-3`. Dimming a filled accent button leaves a coloured slab that
+  still reads as the primary action, with near-black ink at 40% on top of it.
 
 ## Banned in this codebase
 
-Glass and backdrop blur as a surface treatment. Gradient text. Drifting colour
+Glass and backdrop blur **on content surfaces** — panels, cards, rows. This
+rule used to be absolute; it is now scoped, because floating chrome is a
+different problem from a glass card. A translucent tab bar does work no opaque
+bar can do: it shows that content continues beneath it. A translucent panel
+just makes its own text harder to read. Blur belongs to `.chrome` and nothing
+else, and never stacks with another translucent surface. Gradient text. Drifting colour
 fog. Glow shadows. Staggered entrance animations. Cards whose only job is to
 hold one line of text.

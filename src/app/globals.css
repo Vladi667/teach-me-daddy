@@ -36,13 +36,37 @@
     -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI Variable Text",
     "Segoe UI", Inter, system-ui, sans-serif;
 
+  /* Tracking and leading are properties of the size, not decisions made at
+     each call site. Letters read further apart as type grows, so large sizes
+     tighten and small sizes open slightly; leading runs inversely to size.
+     One fixed letter-spacing across a scale is wrong at both ends. */
   --text-xs: 0.6875rem;
+  --text-xs--line-height: 1.35;
+  --text-xs--letter-spacing: 0.01em;
+
   --text-sm: 0.8125rem;
+  --text-sm--line-height: 1.4;
+  --text-sm--letter-spacing: 0.005em;
+
   --text-base: 0.9375rem;
+  --text-base--line-height: 1.45;
+  --text-base--letter-spacing: 0em;
+
   --text-md: 1.0625rem;
+  --text-md--line-height: 1.35;
+  --text-md--letter-spacing: -0.01em;
+
   --text-lg: 1.3125rem;
+  --text-lg--line-height: 1.2;
+  --text-lg--letter-spacing: -0.02em;
+
   --text-xl: 1.75rem;
+  --text-xl--line-height: 1.08;
+  --text-xl--letter-spacing: -0.025em;
+
   --text-2xl: 2.5rem;
+  --text-2xl--line-height: 1.02;
+  --text-2xl--letter-spacing: -0.03em;
 
   /* State changes only, and quickly. */
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -130,21 +154,43 @@ body {
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  /* Release is unhurried; the press is not. See .btn:active. */
   transition:
     background-color 160ms var(--ease-out-quart),
     border-color 160ms var(--ease-out-quart),
     color 160ms var(--ease-out-quart),
     opacity 160ms var(--ease-out-quart),
-    transform 160ms var(--ease-out-quart);
+    transform 260ms var(--ease-out-quart);
 }
 
+/* Feedback belongs to the press, not the release, and the moment it lags the
+   sense of directness collapses. Pressing in is near-instant; letting go
+   settles back over the longer duration above. */
 .btn:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(0.97);
+  transition-duration: 90ms;
 }
 
+/**
+ * A disabled control must not keep the shape of the thing you should press.
+ * Dimming a filled accent button leaves a coloured slab that still reads as
+ * the primary action — and its near-black ink at 40% is barely legible. An
+ * unavailable action drops to a flat surface and says so by looking inert.
+ */
 .btn:disabled {
-  opacity: 0.4;
   pointer-events: none;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  color: var(--color-ink-3);
+}
+
+.btn-quiet:disabled {
+  color: var(--color-ink-3);
+  opacity: 0.6;
 }
 
 /* White on this teal is ~2.5:1. Near-black clears 6:1. */
@@ -193,11 +239,12 @@ body {
     border-color 160ms var(--ease-out-quart),
     color 160ms var(--ease-out-quart),
     opacity 160ms var(--ease-out-quart),
-    transform 160ms var(--ease-out-quart);
+    transform 260ms var(--ease-out-quart);
 }
 
 .tap:active {
-  transform: scale(0.985);
+  transform: scale(0.975);
+  transition-duration: 90ms;
 }
 
 .field {
@@ -245,13 +292,34 @@ body {
   }
 }
 
+/**
+ * §12 — a material arriving, not a rectangle sliding. The surface scales and
+ * settles as it rises, so it reads as something that came into being rather
+ * than a pre-existing panel that was off-screen a moment ago.
+ */
 @keyframes sheet-up {
   from {
-    transform: translate3d(0, 100%, 0);
+    opacity: 0;
+    transform: translate3d(0, 100%, 0) scale(0.97);
   }
   to {
+    opacity: 1;
     transform: none;
   }
+}
+
+/* The scrim dims to focus; it arrives with the sheet, not before it. */
+@keyframes scrim-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.anim-scrim {
+  animation: scrim-in 240ms var(--ease-out-quart) both;
 }
 
 @keyframes card-in {
@@ -288,13 +356,106 @@ body {
   animation: nudge 200ms var(--ease-out-quart) both;
 }
 
+/* The reduced-motion handling is with the other accessibility signals below.
+   A blanket `animation-duration: 0.01ms !important` used to live here, which
+   also killed the colour and opacity changes that carry meaning. */
+
+/* --- chrome: a floating material, not a strip ------------------------- */
+
+/**
+ * The tab bar is a layer the page passes under, not a shelf the page sits on.
+ * Translucency is what tells you there is more content below the fold; an
+ * opaque bar with a 1px rule just looks like the page ends there.
+ */
+.chrome {
+  /* A full-width surface reads as thicker than a chip, so the blur is heavy
+     and the tint carries most of the weight. At 72% the Hebrew running under
+     the bar stayed legible enough to compete with the labels on top of it. */
+  background: color-mix(in oklch, var(--color-canvas) 86%, transparent);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+}
+
+/* §12 vibrancy: text over a moving background needs more than flat grey.
+   Slightly heavier and slightly open, so it holds against whatever scrolls
+   beneath it. */
+.chrome-label {
+  font-weight: 550;
+  letter-spacing: 0.015em;
+}
+
+/**
+ * §12 — a scroll edge, not a divider. The fade only reads where content
+ * actually runs under the chrome, so an empty screen shows nothing at all,
+ * where a border would draw a line under blank space.
+ */
+.chrome-edge::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 100%;
+  height: 20px;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    color-mix(in oklch, var(--color-canvas) 60%, transparent),
+    transparent
+  );
+}
+
+/* --- accessibility: three independent signals ------------------------- */
+
+/**
+ * Reduced motion is not "no feedback" — it is feedback without the vestibular
+ * part. Opacity still changes, so a card arriving still reads as arriving;
+ * what goes is travel, scale and overshoot.
+ */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+  .anim-sheet,
+  .anim-card,
+  .anim-nudge {
+    animation: fade-in 120ms linear both;
+  }
+
+  .btn:active:not(:disabled),
+  .tap:active {
+    transform: none;
+  }
+
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Frostier, not clearer: raise the opacity and drop the blur entirely. */
+@media (prefers-reduced-transparency: reduce) {
+  .chrome {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .chrome-edge::before {
+    display: none;
+  }
+}
+
+/* Near-solid surfaces with a defined edge. */
+@media (prefers-contrast: more) {
+  :root {
+    --color-ink-2: oklch(0.9 0.008 195);
+    --color-ink-3: oklch(0.78 0.008 195);
+    --color-line: oklch(0.5 0.012 195);
+    --color-line-strong: oklch(0.62 0.014 195);
+  }
+  .chrome {
+    background: var(--color-surface-2);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-top: 1px solid var(--color-line-strong);
+  }
+  .panel,
+  .panel-2 {
+    border-color: var(--color-line-strong);
   }
 }
 

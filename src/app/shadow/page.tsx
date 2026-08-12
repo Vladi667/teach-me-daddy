@@ -108,7 +108,7 @@ export default function ShadowPage() {
   if (!line) {
     return (
       <div className="py-6">
-        <h1 className="text-lg font-semibold tracking-[-0.02em]">
+        <h1 className="text-lg font-semibold">
           Shadowing complete
         </h1>
         <p className="mt-2 text-base text-ink-2">
@@ -136,7 +136,7 @@ export default function ShadowPage() {
       <header className="mb-6 flex items-baseline justify-between">
         <div>
           <p className="eyebrow">Block 2 · Shadowing</p>
-          <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+          <h1 className="mt-1 text-lg leading-tight font-semibold">
             Say it over the voice
           </h1>
         </div>

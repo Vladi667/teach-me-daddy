@@ -35,7 +35,9 @@ export default function TabBar() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-line bg-surface-2"
+      // §12 — a translucent layer the page passes under, with a scroll edge
+      // instead of a rule.
+      className="chrome chrome-edge fixed inset-x-0 bottom-0 z-50"
       style={{ paddingBottom: "var(--safe-b)" }}
     >
       <div
@@ -53,13 +55,13 @@ export default function TabBar() {
               aria-current={active ? "page" : undefined}
               className="tap flex flex-1 flex-col items-center justify-center gap-1"
               style={{
-                color: active ? "var(--color-accent)" : "var(--color-ink-3)",
+                color: active ? "var(--color-accent)" : "var(--color-ink-2)",
               }}
             >
               <Icon active={active} />
               <span
-                className="text-xs"
-                style={{ fontWeight: active ? 600 : 500 }}
+                className="chrome-label text-xs"
+                style={{ fontWeight: active ? 620 : 550 }}
               >
                 {label}
               </span>

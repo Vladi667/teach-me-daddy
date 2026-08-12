@@ -94,7 +94,7 @@ export default function ReviewPage() {
     return (
       <div className="py-6">
         <p className="eyebrow">Block 5 · Consolidation</p>
-        <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
           {queue.length === 0 ? "Nothing due" : "Queue clear"}
         </h1>
         <p className="mt-3 text-base leading-snug text-ink-2">
@@ -128,7 +128,7 @@ export default function ReviewPage() {
       <header className="mb-4 flex items-baseline justify-between">
         <div>
           <p className="eyebrow">Block 5 · {stage}</p>
-          <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+          <h1 className="mt-1 text-lg leading-tight font-semibold">
             {stage === "listen"
               ? "What did you hear?"
               : stage === "read"
@@ -153,7 +153,7 @@ export default function ReviewPage() {
             {line.he}
           </p>
         ) : (
-          <p className="text-lg leading-snug font-semibold tracking-[-0.02em]">
+          <p className="text-lg leading-snug font-semibold">
             {gloss}
           </p>
         )}

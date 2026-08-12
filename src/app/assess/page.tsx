@@ -51,7 +51,7 @@ export default function AssessPage() {
     return (
       <div className="py-6">
         <p className="eyebrow">Assessment</p>
-        <h1 className="mt-1 text-lg font-semibold tracking-[-0.02em]">
+        <h1 className="mt-1 text-lg font-semibold">
           No passage for month {month}
         </h1>
         <Back />
@@ -87,7 +87,7 @@ export default function AssessPage() {
     return (
       <div className="py-2">
         <p className="eyebrow">Assessment · Month {month}</p>
-        <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
           {attempts > 0 ? "Retake" : "Unseen passage"}
         </h1>
 
@@ -133,7 +133,7 @@ export default function AssessPage() {
         <header className="mb-4 flex items-baseline justify-between">
           <div>
             <p className="eyebrow">Month {month} · unseen</p>
-            <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+            <h1 className="mt-1 text-lg leading-tight font-semibold">
               Tap what you don&apos;t know
             </h1>
           </div>
@@ -213,7 +213,7 @@ export default function AssessPage() {
     <div className="py-2">
       <p className="eyebrow">Month {a.month} · {a.takenOn}</p>
       <h1
-        className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]"
+        className="mt-1 text-lg leading-tight font-semibold"
         style={{ color: a.cleared ? undefined : "var(--color-warn)" }}
       >
         {a.cleared ? `Cleared for month ${a.month}` : "Not cleared"}

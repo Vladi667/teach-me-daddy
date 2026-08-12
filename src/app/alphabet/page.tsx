@@ -37,7 +37,7 @@ export default function AlphabetPage() {
     // The whole board has to sit in one viewport: no scrolling to find a letter.
     <div className="flex min-h-0 flex-1 flex-col">
       <header className="mb-3 flex items-baseline justify-between gap-4">
-        <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="text-lg leading-tight font-semibold">
           Alphabet
         </h1>
         <span className="text-sm text-ink-3 tnum">

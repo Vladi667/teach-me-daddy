@@ -108,7 +108,7 @@ export default function LearnPage() {
     return (
       <div className="py-6">
         <p className="eyebrow">Block 1 · New lines</p>
-        <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+        <h1 className="mt-1 text-lg leading-tight font-semibold">
           {set.length === 0
             ? rest
               ? "No new lines today"
@@ -142,7 +142,7 @@ export default function LearnPage() {
       <header className="mb-6 flex items-baseline justify-between">
         <div>
           <p className="eyebrow">Block 1 · New lines</p>
-          <h1 className="mt-1 text-lg leading-tight font-semibold tracking-[-0.02em]">
+          <h1 className="mt-1 text-lg leading-tight font-semibold">
             Hear it, then read it
           </h1>
         </div>
@@ -185,7 +185,6 @@ export default function LearnPage() {
         onClick={next}
         disabled={!shown}
         className="btn btn-primary mt-4 w-full"
-        style={shown ? undefined : { opacity: 0.4 }}
       >
         {i + 1 === set.length ? "Finish block" : "Next line"}
       </button>
