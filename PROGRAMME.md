@@ -339,7 +339,18 @@ Across 4,928 candidates that gives a real spread over all 18 themes with 45%
 honestly general. The ordering is measurable: **58% of days 6-30 carry month-1
 themes, against 0% of days 60-90.**
 
-5,860 words are flagged low-confidence by Nakdan and remain unreviewed.
+**The "flagged low-confidence" number was a misreading.** This document said
+5,860 words were flagged and needed a native speaker, as though that were a
+queue. Measured properly: 4,965 of the corpus's 6,313 tokens carry
+`fconfident: false` — 79% of every word, and 89% of distinct forms. A flag
+that fires on four words in five is not a filter.
+
+Nakdan's own output says why. On `אני מדבר קצת עברית`, it is confident about
+אֲנִי and מְדַבֵּר and unsure about קְצָת and עִבְרִית — and both of the
+"unsure" readings are right. `fconfident: false` means the lexicon holds more
+than one pointing for that form and it picked the likeliest, not that the
+pointing is doubtful. The corpus is in much better shape than the number
+implied.
 
 ## 14. Open
 
@@ -369,5 +380,32 @@ themes, against 0% of days 60-90.**
   — 70 MB is well inside the 1 GB Pages allows, and a clone that size is
   unremarkable. Dropping to 32 kbit/s would save 23 MB at a real cost to the
   block that runs 45 minutes a day. Not a trade worth making.
-- **Nikud review pass.** The 73 items authored before this pipeline existed
-  were written by hand and still want the same review.
+- **Nikud review pass — tooling built, review outstanding.** Being a native
+  Hebrew speaker is the one job here no script does. Everything around it is
+  now in place.
+
+  `scripts/flag-nikud.mjs` re-vocalises the shipped corpus and keeps what the
+  vocaliser says about each token. `scripts/build-nikud-review.mjs` emits
+  `review/nikud.html` — one self-contained file, no server and no repository,
+  which a Hebrew speaker opens, works down, and exports as JSON.
+  `scripts/apply-nikud.mjs` folds that back in and deletes the audio for every
+  line it touched, because the voice reads the vowels and a corrected line is
+  now spoken wrong. Line ids hash consonants, so they survive untouched.
+
+  **The queue is keyed by reading, not by word.** את is pointed אֶת in 164
+  lines and אַתְּ in 8, and both are right where they stand. One card per word
+  would have invited a reviewer to fix all 172 and break the eight — which is
+  exactly what happened the first time the apply script was tested. 3,475
+  readings, ordered by how many lines each appears in; 152 belong to a form
+  the corpus points more than one way and are marked as such.
+
+  Two things worth knowing before reviewing. The tail is long: 84% of forms
+  occur exactly once, and the top 200 cover only 29% of occurrences, so
+  working top-down and stopping is reasonable but will not clear it. And the
+  corpus is not Unicode-normalised — it stores dagesh before sheva where NFC
+  puts sheva first. The two are visually identical, and before this was
+  handled a correction matched 2 of 8 occurrences and silently skipped the
+  rest. Every comparison in these scripts normalises now.
+
+- **The 73 items authored before this pipeline existed** were written by hand
+  and still want the same review.
