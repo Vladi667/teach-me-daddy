@@ -24,7 +24,12 @@ import {
   weekdayIndex,
   type DayLog,
 } from "@/lib/plan";
-import { isMature } from "@/lib/srs";
+import { isMature, type SrsCard } from "@/lib/srs";
+import { LINES } from "@/lib/lines";
+import { cardId } from "@/lib/programme";
+import { MONTH_TARGET } from "@/lib/assessment";
+
+const isMature2 = (c: SrsCard | undefined) => !!c && isMature(c);
 import { useStore } from "@/lib/store";
 import { tap } from "@/lib/feedback";
 import { useNow, useToday } from "@/lib/clock";
@@ -43,7 +48,12 @@ export default function PlanPage() {
   const done = dayMinutes(log);
   const run = ready && today ? streak(plan, today) : 0;
 
-  const matureInApp = Object.values(data.srs).filter(isMature).length;
+  // Only the programme's own cards. Field notes and the retired deck's leftover
+  // keys are in srs too, and counting them inflated coverage against §1.
+  const matureInApp = LINES.reduce(
+    (n, l) => n + (isMature2(data.srs[cardId(l.id, "read")]) ? 1 : 0),
+    0,
+  );
   const words = matureInApp + (plan.wordsElsewhere ?? 0);
   const coverage = coverageFor(words);
   const month = monthFor(words);
@@ -66,11 +76,9 @@ export default function PlanPage() {
     }));
   }
 
-  const toggleBlock = (id: string) => {
-    tap();
-    patchDay((l) => ({ ...l, blocks: { ...l.blocks, [id]: !l.blocks[id] } }));
-  };
-
+  // Blocks are ticked on TODAY and nowhere else. Editing a past day here was
+  // a second source of truth, and §5 states the cost of a missed day rather
+  // than letting it be rewritten.
   const bump = (field: "listening" | "speaking", delta: number) => {
     tap();
     patchDay((l) => ({ ...l, [field]: Math.max(0, l[field] + delta) }));
@@ -80,7 +88,7 @@ export default function PlanPage() {
     <>
       <header className="mb-4 flex items-baseline justify-between">
         <h1 className="text-lg leading-tight font-semibold tracking-[-0.02em]">
-          Plan
+          Record
         </h1>
         <span className="text-sm text-ink-3">
           {run} day{run === 1 ? "" : "s"} unbroken
@@ -135,10 +143,9 @@ export default function PlanPage() {
           {BLOCKS.map((b) => {
             const on = !!log.blocks[b.id];
             return (
-              <button
+              <div
                 key={b.id}
-                onClick={() => toggleBlock(b.id)}
-                className="tap flex w-full items-center gap-3 py-3 text-left"
+                className="flex w-full items-center gap-3 py-3 text-left"
                 style={{ borderBottom: "1px solid var(--color-line)" }}
               >
                 <span
@@ -166,7 +173,12 @@ export default function PlanPage() {
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-semibold">{b.label}</span>
+                  <span
+                    className="block text-sm font-semibold"
+                    style={{ color: on ? "var(--color-ink)" : "var(--color-ink-3)" }}
+                  >
+                    {b.label}
+                  </span>
                   <span className="block truncate text-xs text-ink-3">
                     {b.goal}
                   </span>
@@ -174,7 +186,7 @@ export default function PlanPage() {
                 <span className="shrink-0 text-xs tnum text-ink-3">
                   {b.minutes}m
                 </span>
-              </button>
+              </div>
             );
           })}
         </div>
@@ -193,6 +205,54 @@ export default function PlanPage() {
             onBump={(d) => bump("speaking", d)}
           />
         </div>
+      </section>
+
+      {/* §10 — assessment results, with dates. A failure stays on the file. */}
+      <section className="mb-7">
+        <h2 className="mb-2.5 px-1 text-sm font-semibold text-ink-3">
+          Assessments
+        </h2>
+        {(data.assessments ?? []).length === 0 ? (
+          <p className="px-1 text-sm text-ink-3">
+            None sat yet. One falls at the end of every month.
+          </p>
+        ) : (
+          <dl className="flex flex-col">
+            {[...(data.assessments ?? [])].reverse().map((a, i, arr) => (
+              <div
+                key={`${a.month}-${a.takenOn}-${i}`}
+                className="flex items-baseline justify-between gap-4 py-2.5"
+                style={{
+                  borderBottom:
+                    i === arr.length - 1
+                      ? "none"
+                      : "1px solid var(--color-line)",
+                }}
+              >
+                <dt className="text-sm text-ink-2">
+                  Month {a.month}
+                  <span className="ml-2 text-xs text-ink-3">{a.takenOn}</span>
+                </dt>
+                <dd className="text-right">
+                  <span className="text-sm font-semibold tnum">
+                    {a.coverage}%
+                  </span>
+                  <span
+                    className="ml-2 text-xs"
+                    style={{
+                      color: a.cleared
+                        ? "var(--color-ink-3)"
+                        : "var(--color-warn)",
+                    }}
+                  >
+                    {a.cleared ? "cleared" : "not cleared"} · target{" "}
+                    {MONTH_TARGET[a.month]}%
+                  </span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </section>
 
       {/* coverage --------------------------------------------------------- */}

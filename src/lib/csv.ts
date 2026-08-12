@@ -1,4 +1,4 @@
-import { customId, type CustomItem } from "./deck.ts";
+import { customId, type CustomItem } from "./notes.ts";
 
 /**
  * CSV / TSV import for vocabulary.

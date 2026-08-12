@@ -1,11 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { LETTERS } from "@/lib/letters";
-import { useDeck } from "@/lib/use-deck";
+import { LINES } from "@/lib/lines";
 import { isMature, isReview } from "@/lib/srs";
 import { MASTERY_TARGET, masteredCount } from "@/lib/progress";
-import { NEW_WORDS_CAP, streak, totalMinutes } from "@/lib/plan";
+import { streak, totalMinutes } from "@/lib/plan";
+import { cardId } from "@/lib/programme";
+import { LINK_PREFETCH } from "@/lib/base-path";
 import {
   GUEST,
   SYNC_ENABLED,
@@ -21,15 +24,19 @@ import { tap } from "@/lib/feedback";
 
 export default function MePage() {
   const { username, data, sync, ready } = useStore();
-  const { cards: CARDS } = useDeck();
   const [note, setNote] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
   const mastered = ready ? masteredCount(data.alphabet) : 0;
-  const seen = Object.values(data.srs).length;
-  const mature = Object.values(data.srs).filter(isMature).length;
-  const inReview = Object.values(data.srs).filter(isReview).length;
+  // Counted over the programme's own cards. The legacy deck left its keys in
+  // srs and they used to be counted here, which quietly inflated every figure.
+  const lineCards = LINES.flatMap((l) =>
+    (["listen", "read", "produce"] as const).map((st) => data.srs[cardId(l.id, st)]),
+  ).filter(Boolean);
+  const seen = lineCards.length;
+  const mature = lineCards.filter((c) => isMature(c!)).length;
+  const inReview = lineCards.filter((c) => isReview(c!)).length;
   const hours = Math.round(totalMinutes(data.plan) / 60);
   const run = ready ? streak(data.plan) : 0;
 
@@ -105,7 +112,7 @@ export default function MePage() {
         <dl className="flex flex-col">
           <Fact k="Letters mastered" v={`${mastered} of ${LETTERS.length}`} />
           <Fact k="Mature cards" v={String(mature)} />
-          <Fact k="Cards in review" v={`${inReview} of ${CARDS.length}`} />
+          <Fact k="Cards in review" v={String(inReview)} />
           <Fact k="Logged study time" v={`${hours}h`} last />
         </dl>
       </section>
@@ -113,7 +120,7 @@ export default function MePage() {
       <p className="mb-4 px-1 text-xs leading-relaxed text-ink-3">
         A letter counts as mastered after {MASTERY_TARGET} correct in a row. A
         card is mature once its interval passes 21 days — that&apos;s the §8
-        metric. {seen} of {CARDS.length} cards have been seen; {run}-day streak.
+        metric. {seen} line cards have been started; {run}-day streak.
       </p>
 
       {/* settings ---------------------------------------------------------- */}
@@ -151,45 +158,29 @@ export default function MePage() {
           </div>
         </div>
 
-        <div className="panel rounded-xl px-4 py-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-ink-2">New cards per day</span>
-            <div className="flex items-center gap-2">
-              {[-10, 10].map((d) => (
-                <button
-                  key={d}
-                  onClick={() => {
-                    tap();
-                    update((s) => ({
-                      ...s,
-                      settings: {
-                        ...s.settings,
-                        newPerDay: Math.max(
-                          5,
-                          Math.min(120, s.settings.newPerDay + d),
-                        ),
-                      },
-                    }));
-                  }}
-                  className="tap rounded-full bg-surface-2 px-2.5 py-1 text-xs font-semibold tnum"
-                >
-                  {d > 0 ? `+${d}` : d}
-                </button>
-              ))}
-              <span className="w-8 text-right text-sm font-bold tnum">
-                {data.settings.newPerDay}
-              </span>
-            </div>
-          </div>
-          {data.settings.newPerDay > NEW_WORDS_CAP && (
-            <p
-              className="mt-2 text-xs leading-snug"
-              style={{ color: "var(--color-warn)" }}
-            >
-              Above the {NEW_WORDS_CAP}/day the plan sets. §5: past that,
-              retention collapses because review can&apos;t keep up.
-            </p>
-          )}
+        {/* §9 — the daily intake is not the trainee's to set. It comes from
+            the backlog, the retention guard and the assessment penalty, and
+            TODAY says which of those is in force. */}
+      </section>
+
+      {/* §9/§12 — neither of these is issued by the programme, so neither is
+          a peer of TODAY. They are tools you may reach for, filed as such. */}
+      <section className="mb-4">
+        <h2 className="eyebrow mb-2">Tools</h2>
+        <div className="flex flex-col">
+          <ToolLink
+            href="/notes"
+            label="Field notes"
+            note={`${(data.custom ?? []).length} noted`}
+            hint="Words from your tutor. Never enters the assignment."
+          />
+          <ToolLink
+            href="/alphabet"
+            label="Letters"
+            note={`${mastered} of ${LETTERS.length}`}
+            hint="The alphabet drill. A prerequisite, not part of the 140 days."
+            last
+          />
         </div>
       </section>
 
@@ -330,5 +321,35 @@ function Fact({ k, v, last }: { k: string; v: string; last?: boolean }) {
       <dt className="text-base text-ink-2">{k}</dt>
       <dd className="text-base font-semibold tnum">{v}</dd>
     </div>
+  );
+}
+
+function ToolLink({
+  href,
+  label,
+  note,
+  hint,
+  last,
+}: {
+  href: string;
+  label: string;
+  note: string;
+  hint: string;
+  last?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      prefetch={LINK_PREFETCH}
+      onClick={tap}
+      className="tap flex items-center gap-3 py-3"
+      style={{ borderBottom: last ? "none" : "1px solid var(--color-line)" }}
+    >
+      <span className="min-w-0 flex-1">
+        <span className="block text-base">{label}</span>
+        <span className="block truncate text-sm text-ink-3">{hint}</span>
+      </span>
+      <span className="shrink-0 text-sm text-ink-3 tnum">{note}</span>
+    </Link>
   );
 }

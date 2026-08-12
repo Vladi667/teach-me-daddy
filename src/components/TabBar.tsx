@@ -5,18 +5,21 @@ import { usePathname } from "next/navigation";
 import { tap } from "@/lib/feedback";
 import { LINK_PREFETCH } from "@/lib/base-path";
 
+/**
+ * §10 — two screens and a settings page. Study, Letters and the deck browser
+ * were peers of TODAY, which made the programme one option among several;
+ * everything the syllabus issues now runs from TODAY and returns there.
+ */
 const TABS = [
   { href: "/", label: "Today", icon: TodayIcon },
-  { href: "/alphabet", label: "Letters", icon: LettersIcon },
-  { href: "/study", label: "Study", icon: StudyIcon },
-  { href: "/plan", label: "Plan", icon: PlanIcon },
+  { href: "/plan", label: "Record", icon: PlanIcon },
   { href: "/me", label: "You", icon: YouIcon },
 ] as const;
 
 /** Routes that belong under a tab but aren't the tab's own href. */
 const OWNED: Record<string, string[]> = {
-  "/alphabet": ["/practice", "/progress"],
-  "/study": ["/words"],
+  "/": ["/learn", "/review", "/shadow", "/produce", "/assess"],
+  "/me": ["/notes", "/alphabet", "/practice", "/progress"],
 };
 
 export default function TabBar() {
@@ -91,25 +94,7 @@ function TodayIcon({ active }: IconProps) {
   );
 }
 
-function LettersIcon({ active }: IconProps) {
-  return (
-    <svg {...S} strokeWidth={w(active)}>
-      <rect x="3.5" y="3.5" width="7" height="7" rx="1.8" />
-      <rect x="13.5" y="3.5" width="7" height="7" rx="1.8" />
-      <rect x="3.5" y="13.5" width="7" height="7" rx="1.8" />
-      <rect x="13.5" y="13.5" width="7" height="7" rx="1.8" />
-    </svg>
-  );
-}
 
-function StudyIcon({ active }: IconProps) {
-  return (
-    <svg {...S} strokeWidth={w(active)}>
-      <rect x="3" y="6" width="18" height="13" rx="2.5" />
-      <path d="M7 3.5h10" />
-    </svg>
-  );
-}
 
 function PlanIcon({ active }: IconProps) {
   return (

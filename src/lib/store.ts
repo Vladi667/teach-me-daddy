@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import type { SrsCard } from "./srs";
-import type { CustomItem } from "./deck";
+import type { CustomItem } from "./notes";
 import { emptyPlan, type PlanState } from "./plan";
 import type { Assessment } from "./assessment";
 import { NEW_WORDS_CAP } from "./plan";

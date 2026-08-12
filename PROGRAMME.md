@@ -261,8 +261,29 @@ Humour stays on the account gate, where a newcomer meets it, and nowhere past it
 3. **Audio pipeline.** Two speeds per line, generated once and served as files.
 4. **The corpus.** Months 1–2 first, roughly 700 lines.
 5. ~~**Assessment and readiness.**~~ Done — §6 above.
-6. **Retire what contradicts the model**: the Words screen, mode pickers, deck
-   browsing. Field notes survives, demoted. *Outstanding.*
+6. ~~**Retire what contradicts the model**~~ Done.
+
+   The deepest contradiction was not a screen: TODAY issued *lines* and then
+   block 1 drilled a different corpus entirely, the 1,617-line curated deck
+   from before the programme existed. Blocks 1 and 5 now run `/learn` and
+   `/review` over the programme's own lines, staged by §4 — Listen the day a
+   line is issued, Read once Listen graduates, Produce after 21 days. Those
+   gates were spread across three screens and applied inconsistently; they
+   live in `src/lib/queue.ts` now, so the scheduler and every runner agree.
+
+   Gone: `/study` and its mode picker, `/words` and its deck browser, the
+   "new cards per day" setting (§9 — intake is not the trainee's to set), the
+   block toggles on the record (§10 — read-only; TODAY owns logging), and
+   `deck.ts` itself, whose hand-checked days 1-5 had already been promoted
+   into `lines.seed.ts` (§13b). Its `customId` helper survives in `notes.ts`.
+
+   Demoted, not deleted: field notes at `/notes`, and the alphabet drill.
+   Neither is issued by the programme, so neither is a peer of TODAY — both
+   are filed under Tools in settings. The tab bar is TODAY, RECORD, You.
+
+   One quiet bug fell out of it. Coverage and the mature-card counts read
+   every key in `srs`, which after the retirement still held the old deck's
+   cards and field notes. Both now count the programme's own lines only.
 
 ## 13. Corpus pipeline — settled
 

@@ -38,11 +38,11 @@ import LineAudio from "@/components/LineAudio";
 
 /** Blocks the app runs itself, in order. Immersion is logged, not run. */
 const RUNNABLE: Record<string, string | null> = {
-  vocab: "/study",
+  vocab: "/learn",
   shadow: "/shadow",
   speak: "/produce",
   immerse: null,
-  consolidate: "/study",
+  consolidate: "/review",
 };
 
 export default function TodayPage() {
