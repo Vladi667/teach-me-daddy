@@ -5,6 +5,7 @@ import type { SrsCard } from "./srs.ts";
 import type { CustomItem } from "./notes.ts";
 import { emptyPlan, type PlanState } from "./plan.ts";
 import type { Assessment } from "./assessment.ts";
+import type { ReadLog } from "./reading.ts";
 import { NEW_WORDS_CAP } from "./plan.ts";
 
 /* --- shape --------------------------------------------------------------- */
@@ -45,6 +46,8 @@ export interface ProfileData {
   plan: PlanState;
   /** §6 — every attempt, kept in full. The record shows failures too. */
   assessments: Assessment[];
+  /** §8c — one entry per passage read, keyed by passage id. */
+  reading: Record<string, ReadLog>;
   settings: Settings;
   /** Epoch ms of the last local change — drives last-write-wins on sync. */
   updatedAt: number;
@@ -60,6 +63,7 @@ export const emptyData = (): ProfileData => ({
   custom: [],
   plan: emptyPlan(),
   assessments: [],
+  reading: {},
   settings: { newPerDay: NEW_WORDS_CAP, gloss: "fr", phonetics: true },
   updatedAt: 0,
 });
@@ -76,6 +80,7 @@ function normalise(raw: Partial<ProfileData> | null): ProfileData {
     newLog: raw.newLog ?? base.newLog,
     custom: raw.custom ?? base.custom,
     assessments: raw.assessments ?? base.assessments,
+    reading: raw.reading ?? base.reading,
     plan: { ...base.plan, ...(raw.plan ?? {}) },
     settings: { ...base.settings, ...(raw.settings ?? {}) },
     version: 1,

@@ -29,6 +29,7 @@ import { LINES } from "@/lib/lines";
 import { cardId } from "@/lib/programme";
 import { MONTH_TARGET } from "@/lib/assessment";
 import { ladderCounts } from "@/lib/nikud";
+import { bestWpm } from "@/lib/reading";
 
 const isMature2 = (c: SrsCard | undefined) => !!c && isMature(c);
 import { useStore } from "@/lib/store";
@@ -65,6 +66,9 @@ export default function PlanPage() {
 
   const isToday = !!day && day === today;
   const ladder = ladderCounts(data.srs, (id) => cardId(id, "read"));
+  const passagesRead = Object.values(data.reading ?? {}).filter(
+    (r) => r.understood,
+  ).length;
 
   function patchDay(fn: (d: DayLog) => DayLog) {
     if (!day) return;
@@ -229,6 +233,14 @@ export default function PlanPage() {
           Real Hebrew carries no points. A line you have held for three weeks
           is read without them.
         </p>
+
+        {/* §8c is independent of the lines, so it must not be hidden behind
+            them: with no line learned yet the ladder above is empty, and the
+            reading figures were disappearing with it. */}
+        <dl className="mt-4 flex flex-col">
+          <Rung label="Passages read" n={passagesRead} />
+          <Rung label="Best speed (wpm)" n={bestWpm(data.reading ?? {})} last />
+        </dl>
       </section>
 
       {/* §10 — assessment results, with dates. A failure stays on the file. */}

@@ -9,6 +9,7 @@ import { MASTERY_TARGET, masteredCount } from "@/lib/progress";
 import { shiftDay, streak, totalMinutes } from "@/lib/plan";
 import { cardId } from "@/lib/programme";
 import { LINK_PREFETCH } from "@/lib/base-path";
+import { LIBRARY } from "@/lib/reading";
 import { useToday } from "@/lib/clock";
 import {
   GUEST,
@@ -262,6 +263,12 @@ export default function MePage() {
             label="Field notes"
             note={`${(data.custom ?? []).length} noted`}
             hint="Words from your tutor. Never enters the assignment."
+          />
+          <ToolLink
+            href="/read"
+            label="Reading"
+            note={`${Object.values(data.reading ?? {}).filter((r) => r.understood).length} of ${LIBRARY.length}`}
+            hint="Passages on a clock. Separate from the daily lines."
           />
           <ToolLink
             href="/alphabet"
