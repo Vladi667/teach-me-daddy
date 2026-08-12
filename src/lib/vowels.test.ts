@@ -79,6 +79,27 @@ test("distractors keep the carrier where one exists", () => {
   );
 });
 
+/**
+ * The dagesh questions exist to test one dot. Without the partner among the
+ * options the letter answers the question and the dot is never read — which
+ * is what shipped: כַ was offered against ma, kho and me, with no "ka".
+ */
+test("a dagesh question always offers its partner", () => {
+  for (const p of POINTS.filter((x) => x.pair)) {
+    assert.ok(optionsFor(p).includes(p.pair!), `${p.id} lacks ${p.pair}`);
+  }
+});
+
+test("every dagesh point declares a partner, in both directions", () => {
+  const pairs = POINTS.filter((p) => /dagesh/.test(p.id));
+  assert.equal(pairs.length, 6);
+  for (const p of pairs) {
+    assert.ok(p.pair, `${p.id} has no partner`);
+    const other = POINTS.find((x) => x.sound === p.pair)!;
+    assert.equal(other.pair, p.sound, "the pairing must be mutual");
+  }
+});
+
 test("sounds are deduplicated, so options never repeat an answer", () => {
   assert.equal(new Set(SOUNDS).size, SOUNDS.length);
 });

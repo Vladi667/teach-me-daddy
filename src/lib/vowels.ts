@@ -27,6 +27,13 @@ export interface Point {
   name: string;
   /** Why it is not simply another spelling of the same thing. */
   note: string;
+  /**
+   * The sound this one is confused with, forced into the options.
+   *
+   * For the dagesh pairs the contrast *is* the question — asking whether כַ
+   * says "kha" without offering "ka" tests nothing at all.
+   */
+  pair?: string;
 }
 
 /** Mem carries the vowels: no dagesh alternation, no final form in the middle. */
@@ -59,12 +66,12 @@ export const POINTS: Point[] = [
   { id: "ְ", show: M + "ְ", sound: "me", name: "Sheva", note: "A very short e, or nothing at all. Position decides." },
 
   // --- dagesh: not a vowel, but you cannot read without it ---
-  { id: "dagesh-b", show: "בַּ", sound: "ba", name: "Dagesh in bet", note: "With the dot b, without it v." },
-  { id: "no-dagesh-v", show: "בַ", sound: "va", name: "Bet, no dagesh", note: "The same letter, said v." },
-  { id: "dagesh-k", show: "כַּ", sound: "ka", name: "Dagesh in kaf", note: "With the dot k, without it kh." },
-  { id: "no-dagesh-kh", show: "כַ", sound: "kha", name: "Kaf, no dagesh", note: "The same letter, said kh." },
-  { id: "dagesh-p", show: "פַּ", sound: "pa", name: "Dagesh in pe", note: "With the dot p, without it f." },
-  { id: "no-dagesh-f", show: "פַ", sound: "fa", name: "Pe, no dagesh", note: "The same letter, said f." },
+  { id: "dagesh-b", pair: "va", show: "בַּ", sound: "ba", name: "Dagesh in bet", note: "With the dot b, without it v." },
+  { id: "no-dagesh-v", pair: "ba", show: "בַ", sound: "va", name: "Bet, no dagesh", note: "The same letter, said v." },
+  { id: "dagesh-k", pair: "kha", show: "כַּ", sound: "ka", name: "Dagesh in kaf", note: "With the dot k, without it kh." },
+  { id: "no-dagesh-kh", pair: "ka", show: "כַ", sound: "kha", name: "Kaf, no dagesh", note: "The same letter, said kh." },
+  { id: "dagesh-p", pair: "fa", show: "פַּ", sound: "pa", name: "Dagesh in pe", note: "With the dot p, without it f." },
+  { id: "no-dagesh-f", pair: "pa", show: "פַ", sound: "fa", name: "Pe, no dagesh", note: "The same letter, said f." },
 ];
 
 /** Every distinct answer, which is also the set the options are drawn from. */
@@ -80,12 +87,14 @@ export const SOUNDS = [...new Set(POINTS.map((p) => p.sound))];
 export function optionsFor(p: Point, count = 4): string[] {
   const carrier = p.sound.replace(/[aeiou]+$/, "");
   const sameCarrier = SOUNDS.filter(
-    (s) => s !== p.sound && s.replace(/[aeiou]+$/, "") === carrier,
+    (s) => s !== p.sound && s !== p.pair && s.replace(/[aeiou]+$/, "") === carrier,
   );
   const rest = SOUNDS.filter(
-    (s) => s !== p.sound && !sameCarrier.includes(s),
+    (s) => s !== p.sound && s !== p.pair && !sameCarrier.includes(s),
   );
-  return [p.sound, ...sameCarrier, ...rest].slice(0, count);
+  // The pair comes first among the distractors, so it survives the slice.
+  const distractors = [...(p.pair ? [p.pair] : []), ...sameCarrier, ...rest];
+  return [p.sound, ...distractors].slice(0, count);
 }
 
 export const POINT_BY_ID = Object.fromEntries(POINTS.map((p) => [p.id, p]));
