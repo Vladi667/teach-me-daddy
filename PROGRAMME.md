@@ -317,9 +317,10 @@ lines, 3,906 distinct words**, every one vocalised and paired with
 French, no duplicates. Line ids are a hash of the consonantal skeleton, so
 regenerating keeps ids stable and the audio named after them stays valid.
 
-Audio covers **days 1-30** (620 files, 15 MB). The full corpus would be ~57 MB,
-past what belongs in a git repository, so the generator takes `--maxDay` and
-LineAudio renders nothing for lines that have none. Blob storage is the fix.
+**Audio covers every line**, both speeds, served from `public/audio` on the
+same origin as the app. `src/lib/audio.test.ts` is the guard: it fails if any
+line lacks a rendering, if a file is a truncated stub, or if the slow and
+natural takes are byte-identical, which would mean one render written twice.
 
 **Theme ordering works, via embeddings.** Keyword matching failed twice —
 substring matching fired "vent" on "souvent" and "été", the participle of
@@ -349,13 +350,24 @@ themes, against 0% of days 60-90.**
   regenerates them; files live in `public/audio` as `<line>-slow.mp3` and
   `<line>-natural.mp3`.
 
-  Three things to keep honest about it. The endpoint is undocumented and meant
+  Two things to keep honest about it. The endpoint is undocumented and meant
   for Edge's own read-aloud, so it could change or rate-limit without notice —
-  the generator is idempotent and resumable for that reason. A synthetic voice
-  is still second best for Block 2: it is good enough to shadow rhythm and
-  stress, not good enough to learn a native accent from, and a real speaker
-  should replace it before Month 3 pushes into connected speech. And at ~40 KB
-  a line, 1,700 lines is roughly 70 MB, which is past what belongs in a git
-  repository — the full corpus needs blob storage, not `public/`.
+  the generator runs on a small pool, is idempotent and resumes. And a
+  synthetic voice is still second best for Block 2: good enough to shadow
+  rhythm and stress, not good enough to learn a native accent from. A real
+  speaker should replace it before Month 3 pushes into connected speech.
+
+  **Where it lives.** In the repository, served from the Pages origin. 2,718
+  files, 70 MB, 48 kbit/s mono — which is the number this document previously
+  called "past what belongs in a git repository". The estimate was right and
+  the conclusion was wrong.
+
+  Blob storage would put the audio on a third-party origin, and a third-party
+  origin is precisely what this network breaks: the app is on GitHub Pages
+  rather than Vercel because `*.vercel.app` fails TLS interception here. Every
+  CDN is a fresh chance to hit that again, traded for disk that is not scarce
+  — 70 MB is well inside the 1 GB Pages allows, and a clone that size is
+  unremarkable. Dropping to 32 kbit/s would save 23 MB at a real cost to the
+  block that runs 45 minutes a day. Not a trade worth making.
 - **Nikud review pass.** The 73 items authored before this pipeline existed
   were written by hand and still want the same review.

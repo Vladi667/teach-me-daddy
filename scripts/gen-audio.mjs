@@ -12,6 +12,12 @@
  * Idempotent: existing files are skipped, so a partial run resumes.
  *
  *   node scripts/gen-audio.mjs [--force] [--maxDay 30] [--voice he-IL-HilaNeural]
+ *                              [--jobs 4]
+ *
+ * Renders run on a small pool of connections. Serial, the full corpus takes
+ * about ninety minutes; four at a time takes twenty-five. The endpoint is
+ * undocumented and could rate-limit, so the pool stays small and a failed
+ * render is retried once before it is reported.
  */
 import { MsEdgeTTS, OUTPUT_FORMAT } from "msedge-tts";
 import { existsSync, mkdirSync, renameSync, rmSync, statSync } from "node:fs";
@@ -32,51 +38,81 @@ const voice =
 const SPEEDS = { slow: "-35%", natural: "default" };
 
 const maxDay = Number(args[args.indexOf("--maxDay") + 1]) || Infinity;
+const jobs = Math.max(1, Math.min(8, Number(args[args.indexOf("--jobs") + 1]) || 4));
 const { LINES: ALL } = await import("../src/lib/lines.ts");
-// The full corpus is ~57 MB of audio, past what belongs in git. Bound it and
-// let LineAudio render nothing for the days that have none yet.
 const LINES = ALL.filter((l) => l.day <= maxDay);
 
 mkdirSync(outDir, { recursive: true });
 
-const tts = new MsEdgeTTS();
-await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+/** One connection per worker: the library holds a socket per instance. */
+async function connect() {
+  const tts = new MsEdgeTTS();
+  await tts.setMetadata(voice, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
+  return tts;
+}
 
-let made = 0;
-let skipped = 0;
-let failed = 0;
-
+const work = [];
 for (const line of LINES) {
   for (const [speed, rate] of Object.entries(SPEEDS)) {
     const target = resolve(outDir, `${line.id}-${speed}.mp3`);
-    if (!force && existsSync(target) && statSync(target).size > 1000) {
-      skipped++;
-      continue;
-    }
+    if (!force && existsSync(target) && statSync(target).size > 1000) continue;
+    work.push({ line, speed, rate, target });
+  }
+}
 
-    // The library writes <dir>/audio.mp3, so render into a scratch dir and move.
-    const scratch = resolve(outDir, `.tmp-${line.id}-${speed}`);
+let made = 0;
+let failed = 0;
+const skipped = LINES.length * 2 - work.length;
+let cursor = 0;
+
+async function render(tts, job) {
+  // The library writes <dir>/audio.mp3, so render into a scratch dir and move.
+  const scratch = resolve(outDir, `.tmp-${job.line.id}-${job.speed}`);
+  try {
+    mkdirSync(scratch, { recursive: true });
+    const res = await tts.toFile(scratch, job.line.he, {
+      rate: job.rate,
+      pitch: "default",
+      volume: "default",
+    });
+    const written = res?.audioFilePath ?? resolve(scratch, "audio.mp3");
+    if (!existsSync(written) || statSync(written).size < 1000) {
+      throw new Error("empty render");
+    }
+    renameSync(written, job.target);
+    return true;
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+}
+
+async function worker() {
+  let tts = await connect();
+  while (cursor < work.length) {
+    const job = work[cursor++];
     try {
-      mkdirSync(scratch, { recursive: true });
-      const res = await tts.toFile(scratch, line.he, {
-        rate,
-        pitch: "default",
-        volume: "default",
-      });
-      const written = res?.audioFilePath ?? resolve(scratch, "audio.mp3");
-      if (!existsSync(written) || statSync(written).size < 1000) {
-        throw new Error("empty render");
-      }
-      renameSync(written, target);
+      await render(tts, job);
       made++;
-    } catch (e) {
-      failed++;
-      console.error(`FAIL ${line.id} ${speed}: ${e.message}`);
-    } finally {
-      rmSync(scratch, { recursive: true, force: true });
+    } catch {
+      // One retry on a fresh connection: most failures are the socket, not
+      // the sentence, and losing a line to a dropped connection is silent rot.
+      try {
+        tts = await connect();
+        await render(tts, job);
+        made++;
+      } catch (e) {
+        failed++;
+        console.error(`FAIL ${job.line.id} ${job.speed}: ${e.message}`);
+      }
+    }
+    if ((made + failed) % 50 === 0) {
+      process.stdout.write(`\r${made + failed}/${work.length}`);
     }
   }
 }
+
+await Promise.all(Array.from({ length: jobs }, () => worker()));
+process.stdout.write("\n");
 
 console.log(
   `voice ${voice} · made ${made} · skipped ${skipped} · failed ${failed}`,
