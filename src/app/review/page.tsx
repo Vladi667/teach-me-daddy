@@ -8,6 +8,7 @@ import { stageCards, type StageCard } from "@/lib/queue";
 import { emptyDay } from "@/lib/plan";
 import {
   AGAIN,
+  GOOD,
   GRADES,
   buildQueue,
   newCard,
@@ -21,6 +22,7 @@ import { LINK_PREFETCH } from "@/lib/base-path";
 import { error as buzz, success, tap } from "@/lib/feedback";
 import LineAudio from "@/components/LineAudio";
 import Phonetic from "@/components/Phonetic";
+import SwipeCard from "@/components/SwipeCard";
 
 /**
  * §3 block 5. Everything due, across all three stages of §4.
@@ -166,7 +168,17 @@ export default function ReviewPage() {
         </span>
       </header>
 
-      <div className="panel flex flex-col items-center justify-center rounded-2xl px-5 py-9 text-center">
+      {/* Once the answer is up, the two answers that account for most cards
+          are a throw away; Hard and Easy stay on the buttons below. */}
+      <SwipeCard
+        key={card.id}
+        active={shown}
+        onLeft={() => grade(AGAIN)}
+        onRight={() => grade(GOOD)}
+        leftLabel="Again"
+        rightLabel="Good"
+        className="panel flex flex-col items-center justify-center rounded-2xl px-5 py-9 text-center"
+      >
         {/* The prompt. Listening never shows the text until the answer. */}
         {stage === "listen" ? (
           <LineAudio lineId={line.id} />
@@ -228,7 +240,13 @@ export default function ReviewPage() {
             )}
           </div>
         )}
-      </div>
+      </SwipeCard>
+
+      {shown && (
+        <p className="mt-3 text-center text-xs text-ink-3">
+          Swipe the card: left again, right good.
+        </p>
+      )}
 
       {shown && (
         <div className="anim-fade mt-3 grid grid-cols-4 gap-2">

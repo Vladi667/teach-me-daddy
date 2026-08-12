@@ -119,6 +119,31 @@ never removed.
   and `--ink-3`. Dimming a filled accent button leaves a coloured slab that
   still reads as the primary action, with near-black ink at 40% on top of it.
 
+## Direct manipulation
+
+The review card can be thrown. `src/lib/motion.ts` holds the physics as pure
+functions so the feel is testable rather than a matter of taste: Apple's
+exponential-decay projection (`(v/1000)·d/(1−d)`, not the textbook
+`v²/2a`), progressive rubber-banding past the commit threshold, and a spring
+in damping/response rather than mass/stiffness. Critically damped by default;
+bounce is only earned by a gesture that carried momentum.
+
+Rules the card follows, all of them load-bearing:
+
+- **1:1 to the threshold**, from the point it was grabbed. 60px of finger is
+  60px of card. Past the threshold it resists rather than stopping — a hard
+  stop reads as a crash.
+- **The landing point decides, not the release point.** A 40px flick commits;
+  a 150px drag being pulled back does not.
+- **Pulling back cancels.** A projection that lands on the far side of centre
+  from where the card actually is returns to zero rather than grading the
+  opposite way. The gesture people use for "no, not that" must not be the
+  destructive one.
+- **Interruptible.** The spring animates from the live on-screen value, so a
+  card still flying can be caught and reversed.
+- **Never the only way.** The grade buttons are unchanged, Hard and Easy are
+  buttons only, and `prefers-reduced-motion` drops the animation to a jump.
+
 ## Banned in this codebase
 
 Glass and backdrop blur **on content surfaces** — panels, cards, rows. This
