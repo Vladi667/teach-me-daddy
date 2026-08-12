@@ -10,6 +10,7 @@ import { update, useStore } from "@/lib/store";
 import { useToday } from "@/lib/clock";
 import { asset, LINK_PREFETCH } from "@/lib/base-path";
 import { tap } from "@/lib/feedback";
+import Phonetic from "@/components/Phonetic";
 
 /** §3 block 2. Not graded — shadowing is repetitions, not recall. */
 const SAMPLE_MATURE = 6;
@@ -152,7 +153,8 @@ export default function ShadowPage() {
         >
           {line.he}
         </p>
-        <p className="mt-4 text-sm text-ink-3">{line.fr}</p>
+        <Phonetic line={line} className="mt-3" />
+        <p className="mt-2 text-sm text-ink-3">{line.fr}</p>
         {/* Reserved so the panel doesn't jump the first time you press Play. */}
         <p className="mt-5 h-4 text-xs text-ink-3 tnum">
           {reps > 0 ? `${reps} plays` : ""}

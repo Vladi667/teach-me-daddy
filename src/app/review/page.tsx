@@ -20,6 +20,7 @@ import { nowMs, useNow, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { error as buzz, success, tap } from "@/lib/feedback";
 import LineAudio from "@/components/LineAudio";
+import Phonetic from "@/components/Phonetic";
 
 /**
  * §3 block 5. Everything due, across all three stages of §4.
@@ -174,21 +175,27 @@ export default function ReviewPage() {
               <>
                 <p className="text-base leading-snug text-ink-2">{gloss}</p>
                 {stage === "listen" && (
-                  <p
-                    className="heb mt-3 text-[26px] leading-snug"
-                    style={{ fontFamily: "var(--font-hebrew)" }}
-                  >
-                    {line.he}
-                  </p>
+                  <>
+                    <p
+                      className="heb mt-3 text-[26px] leading-snug"
+                      style={{ fontFamily: "var(--font-hebrew)" }}
+                    >
+                      {line.he}
+                    </p>
+                    <Phonetic line={line} className="mt-2" />
+                  </>
                 )}
               </>
             ) : (
-              <p
-                className="heb text-[30px] leading-snug"
-                style={{ fontFamily: "var(--font-hebrew)" }}
-              >
-                {line.he}
-              </p>
+              <>
+                <p
+                  className="heb text-[30px] leading-snug"
+                  style={{ fontFamily: "var(--font-hebrew)" }}
+                >
+                  {line.he}
+                </p>
+                <Phonetic line={line} className="mt-2" />
+              </>
             )}
             {stage !== "listen" && (
               <div className="mt-5 flex justify-center">

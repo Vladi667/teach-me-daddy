@@ -13,6 +13,7 @@ import { nowMs, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { success, tap } from "@/lib/feedback";
 import LineAudio from "@/components/LineAudio";
+import Phonetic from "@/components/Phonetic";
 
 /**
  * §3 block 1. Today's lines, introduced one at a time.
@@ -158,6 +159,7 @@ export default function LearnPage() {
         >
           {line.he}
         </p>
+        <Phonetic line={line} className="mt-3" />
         <div className="mt-5 flex justify-center">
           <LineAudio lineId={line.id} showNatural />
         </div>

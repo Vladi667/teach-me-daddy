@@ -18,6 +18,7 @@ import { update, useStore } from "@/lib/store";
 import { nowMs, useNow, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import LineAudio from "@/components/LineAudio";
+import Phonetic from "@/components/Phonetic";
 import { error as buzz, success, tap } from "@/lib/feedback";
 import { AGAIN } from "@/lib/srs";
 
@@ -158,6 +159,7 @@ export default function ProducePage() {
             >
               {line.he}
             </p>
+            <Phonetic line={line} className="mt-3" />
             <div className="mt-5 flex justify-center">
               <LineAudio lineId={line.id} showNatural />
             </div>

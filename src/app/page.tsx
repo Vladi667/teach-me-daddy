@@ -35,6 +35,7 @@ import { useNow, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { tap } from "@/lib/feedback";
 import LineAudio from "@/components/LineAudio";
+import Phonetic from "@/components/Phonetic";
 import { LETTERS } from "@/lib/letters";
 import { masteredCount } from "@/lib/progress";
 
@@ -361,7 +362,8 @@ export default function TodayPage() {
                     <span className="heb block text-md leading-snug">
                       {l.he}
                     </span>
-                    <span className="mt-1 block text-sm text-ink-3">
+                    <Phonetic line={l} className="mt-1" />
+                    <span className="mt-0.5 block text-sm text-ink-3">
                       {data.settings.gloss === "fr" ? l.fr : l.en}
                     </span>
                     {repair.includes(l) && (
