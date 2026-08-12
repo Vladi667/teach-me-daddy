@@ -35,6 +35,8 @@ import { useNow, useToday } from "@/lib/clock";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { tap } from "@/lib/feedback";
 import LineAudio from "@/components/LineAudio";
+import { LETTERS } from "@/lib/letters";
+import { masteredCount } from "@/lib/progress";
 
 /** Blocks the app runs itself, in order. Immersion is logged, not run. */
 const RUNNABLE: Record<string, string | null> = {
@@ -91,6 +93,8 @@ export default function TodayPage() {
   const loggedDays = Object.keys(data.plan.days).length;
   const proj =
     today && startedOn ? project(startedOn, loggedDays, today) : null;
+
+  const letters = masteredCount(data.alphabet);
 
   const words = new Set(issued.flatMap((l) => l.words)).size;
   const score = readiness({
@@ -189,6 +193,38 @@ export default function TodayPage() {
           </span>
         </Link>
       )}
+
+      {/* The alphabet is a prerequisite, not an extra: block 1 asks you to read
+          vocalised Hebrew on day one. It sits here until it is finished, then
+          becomes a quiet line rather than disappearing — filing it under
+          settings made it unfindable, which is how it got lost. */}
+      {ready && letters < LETTERS.length ? (
+        <Link
+          href="/alphabet"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="tap mb-6 flex items-center gap-3 rounded-xl px-4 py-3.5"
+          style={{
+            border: "1px solid var(--color-line-strong)",
+            background: "var(--color-surface)",
+          }}
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold">
+              Learn the letters
+            </span>
+            <span className="block truncate text-sm text-ink-3">
+              {letters} of {LETTERS.length} mastered
+            </span>
+          </span>
+          <span
+            className="shrink-0 text-sm font-semibold"
+            style={{ color: "var(--color-accent)" }}
+          >
+            Drill
+          </span>
+        </Link>
+      ) : null}
 
       {/* The order, in one line. */}
       <p className="mb-6 text-base leading-snug text-ink-2">
@@ -357,6 +393,15 @@ export default function TodayPage() {
           note={`${MASTERY_DAYS}-day interval`}
         />
         <Fact k="Words carried" v={String(words)} />
+        {/* Once the board is clear the prompt above goes, but the way in
+            stays: the drill is still worth returning to. */}
+        {letters >= LETTERS.length && (
+          <Fact
+            k="Letters"
+            v={`${letters} of ${LETTERS.length}`}
+            note="drill in You › Tools"
+          />
+        )}
         <Fact
           k="Assessments cleared"
           v={`${clearedCount(taken)} of ${assessmentsDue(day)}`}
