@@ -115,6 +115,14 @@ export default function AlphabetPage() {
           </svg>
         </Link>
         <Link
+          href="/vowels"
+          prefetch={LINK_PREFETCH}
+          onClick={tap}
+          className="btn btn-secondary flex-1 text-sm"
+        >
+          Points
+        </Link>
+        <Link
           href="/progress"
           prefetch={LINK_PREFETCH}
           onClick={tap}

@@ -198,6 +198,38 @@ speaker button silently does nothing for most users.
 
 ---
 
+## 8a. Reading the vowels
+
+The alphabet drill taught 22 letters and stopped. A trainee could reach 22 of
+22 and still not read אֲנִי, because nothing had said what the marks under the
+letters do — while every line in the corpus is pointed and the Read card
+assumes they can be decoded. `/vowels` closes that.
+
+Nineteen items: eleven vowel signs, sheva, and the dagesh pairs. The drill
+asks for the *sound*, never the name — a name you can recite is not a word you
+can read. Distractors keep the carrier letter, so the mark is the only thing
+that answers the question; offering "ba" against "ma" would let the letter
+give it away.
+
+The lesson underneath it is that **Modern Hebrew has five vowel sounds and
+eleven signs for them.** Patah and qamats are both *a*; segol and tsere are
+both *e*. The distinctions the signs preserve are historical and an Israeli
+does not pronounce them, so the drill deliberately teaches the merge rather
+than hiding it.
+
+Progress lives in the same `alphabet` map as the letters, keyed by the sign,
+which costs no schema change and syncs for free. `masteredCount` iterates
+`LETTERS`, so the "n of 22" figure is unaffected.
+
+**Timing.** The script is a gate, not a subject. FSI rates Hebrew Category III
+at 1,100 hours, and DLI 64 weeks, but neither spends more than the first week
+on the script. Recognition of the letters is two to four hours; the points are
+another two or three; decoding a pointed word reliably is about a week. Fluent
+reading is months and does not come from letter drills at all — it comes from
+volume, which is what the five daily blocks are for.
+
+---
+
 ## 8b. Reading without vowels
 
 §9.5 of the plan: move to unvocalised text early, it is uncomfortable, that

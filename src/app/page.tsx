@@ -40,7 +40,8 @@ import { tap } from "@/lib/feedback";
 import LineAudio from "@/components/LineAudio";
 import Phonetic from "@/components/Phonetic";
 import { LETTERS } from "@/lib/letters";
-import { masteredCount } from "@/lib/progress";
+import { MASTERY_TARGET, masteredCount, statFor } from "@/lib/progress";
+import { POINTS } from "@/lib/vowels";
 
 /** Blocks the app runs itself, in order. Immersion is logged, not run. */
 const RUNNABLE: Record<string, string | null> = {
@@ -99,6 +100,12 @@ export default function TodayPage() {
     today && startedOn ? project(startedOn, loggedDays, today) : null;
 
   const letters = masteredCount(data.alphabet);
+  // Reading is letters *and* the marks under them: mastering 22 glyphs and
+  // never learning what a qamats does still leaves every line undecodable.
+  const points = POINTS.filter(
+    (p) => statFor(data.alphabet, p.id).streak >= MASTERY_TARGET,
+  ).length;
+  const readingDone = letters >= LETTERS.length && points >= POINTS.length;
 
   const words = new Set(issued.flatMap((l) => l.words)).size;
   const score = readiness({
@@ -297,9 +304,9 @@ export default function TodayPage() {
           vocalised Hebrew on day one. It sits here until it is finished, then
           becomes a quiet line rather than disappearing — filing it under
           settings made it unfindable, which is how it got lost. */}
-      {ready && letters < LETTERS.length ? (
+      {ready && !readingDone ? (
         <Link
-          href="/alphabet"
+          href={letters < LETTERS.length ? "/alphabet" : "/vowels"}
           prefetch={LINK_PREFETCH}
           onClick={tap}
           className="tap mb-6 flex items-center gap-3 rounded-xl px-4 py-3.5"
@@ -310,10 +317,12 @@ export default function TodayPage() {
         >
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">
-              Learn the letters
+              {letters < LETTERS.length ? "Learn the letters" : "Learn the points"}
             </span>
             <span className="block truncate text-sm text-ink-3">
-              {letters} of {LETTERS.length} mastered
+              {letters < LETTERS.length
+                ? `${letters} of ${LETTERS.length} letters`
+                : `${points} of ${POINTS.length} vowel marks`}
             </span>
           </span>
           <span
@@ -495,7 +504,7 @@ export default function TodayPage() {
         <Fact k="Words carried" v={String(words)} />
         {/* Once the board is clear the prompt above goes, but the way in
             stays: the drill is still worth returning to. */}
-        {letters >= LETTERS.length && (
+        {readingDone && (
           <Fact
             k="Letters"
             v={`${letters} of ${LETTERS.length}`}
