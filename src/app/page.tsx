@@ -30,8 +30,8 @@ import LineAudio from "@/components/LineAudio";
 /** Blocks the app runs itself, in order. Immersion is logged, not run. */
 const RUNNABLE: Record<string, string | null> = {
   vocab: "/study",
-  shadow: null, // no voice yet — PROGRAMME.md §14
-  speak: null,
+  shadow: "/shadow",
+  speak: "/produce",
   immerse: null,
   consolidate: "/study",
 };
