@@ -10,6 +10,7 @@ import { shiftDay, streak, totalMinutes } from "@/lib/plan";
 import { cardId } from "@/lib/programme";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { LIBRARY } from "@/lib/reading";
+import { ALL_ITEMS } from "@/lib/blend";
 import { useToday } from "@/lib/clock";
 import {
   GUEST,
@@ -31,6 +32,9 @@ export default function MePage() {
   const [confirmReset, setConfirmReset] = useState(false);
   const today = useToday();
   const loggedDays = Object.keys(data.plan.days).length;
+  const lessonsDone = ALL_ITEMS.filter(
+    (i) => (data.alphabet[i.id]?.streak ?? 0) >= MASTERY_TARGET,
+  ).length;
 
   const mastered = ready ? masteredCount(data.alphabet) : 0;
   // Counted over the programme's own cards. The legacy deck left its keys in
@@ -265,10 +269,16 @@ export default function MePage() {
             hint="Words from your tutor. Never enters the assignment."
           />
           <ToolLink
+            href="/lessons"
+            label="Reading lessons"
+            note={`${lessonsDone} of ${ALL_ITEMS.length}`}
+            hint="Letters into syllables into words. Start here."
+          />
+          <ToolLink
             href="/read"
-            label="Reading"
+            label="Timed reading"
             note={`${Object.values(data.reading ?? {}).filter((r) => r.understood).length} of ${LIBRARY.length}`}
-            hint="Passages on a clock. Separate from the daily lines."
+            hint="Whole passages, against the clock. Do the lessons first."
           />
           <ToolLink
             href="/alphabet"

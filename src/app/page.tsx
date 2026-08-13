@@ -42,6 +42,7 @@ import Phonetic from "@/components/Phonetic";
 import { LETTERS } from "@/lib/letters";
 import { MASTERY_TARGET, masteredCount, statFor } from "@/lib/progress";
 import { POINTS } from "@/lib/vowels";
+import { ALL_ITEMS } from "@/lib/blend";
 
 /** Blocks the app runs itself, in order. Immersion is logged, not run. */
 const RUNNABLE: Record<string, string | null> = {
@@ -105,7 +106,15 @@ export default function TodayPage() {
   const points = POINTS.filter(
     (p) => statFor(data.alphabet, p.id).streak >= MASTERY_TARGET,
   ).length;
-  const readingDone = letters >= LETTERS.length && points >= POINTS.length;
+  const lessons = ALL_ITEMS.filter(
+    (i) => statFor(data.alphabet, i.id).streak >= MASTERY_TARGET,
+  ).length;
+  // Reading is three things, in order: the shapes, the marks, and putting
+  // them together. The prompt walks the chain rather than stopping at 22.
+  const readingDone =
+    letters >= LETTERS.length &&
+    points >= POINTS.length &&
+    lessons >= ALL_ITEMS.length;
 
   const words = new Set(issued.flatMap((l) => l.words)).size;
   const score = readiness({
@@ -306,7 +315,13 @@ export default function TodayPage() {
           settings made it unfindable, which is how it got lost. */}
       {ready && !readingDone ? (
         <Link
-          href={letters < LETTERS.length ? "/alphabet" : "/vowels"}
+          href={
+            letters < LETTERS.length
+              ? "/alphabet"
+              : points < POINTS.length
+                ? "/vowels"
+                : "/lessons"
+          }
           prefetch={LINK_PREFETCH}
           onClick={tap}
           className="tap mb-6 flex items-center gap-3 rounded-xl px-4 py-3.5"
@@ -317,12 +332,18 @@ export default function TodayPage() {
         >
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">
-              {letters < LETTERS.length ? "Learn the letters" : "Learn the points"}
+              {letters < LETTERS.length
+                ? "Learn the letters"
+                : points < POINTS.length
+                  ? "Learn the points"
+                  : "Reading lessons"}
             </span>
             <span className="block truncate text-sm text-ink-3">
               {letters < LETTERS.length
                 ? `${letters} of ${LETTERS.length} letters`
-                : `${points} of ${POINTS.length} vowel marks`}
+                : points < POINTS.length
+                  ? `${points} of ${POINTS.length} vowel marks`
+                  : `${lessons} of ${ALL_ITEMS.length} — letters into words`}
             </span>
           </span>
           <span

@@ -104,7 +104,7 @@ export default function ReadPage() {
     const rung = rungForLevel(upNext.level);
     return (
       <div className="py-2">
-        <p className="eyebrow">Reading · level {upNext.level} of {LEVELS.length}</p>
+        <p className="eyebrow">Timed reading · level {upNext.level} of {LEVELS.length}</p>
         <h1 className="mt-1 text-lg leading-tight font-semibold">
           Read it once, at speed
         </h1>
