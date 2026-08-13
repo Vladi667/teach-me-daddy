@@ -9,7 +9,7 @@ import {
   type Item,
   type Stage,
 } from "@/lib/blend";
-import { FAST_MS, MASTERY_TARGET, statFor, useProgress } from "@/lib/progress";
+import { FAST_MS, MASTERY_TARGET, isBanked, statFor, useProgress } from "@/lib/progress";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { nowMs } from "@/lib/clock";
 import { error as buzz, success, tap } from "@/lib/feedback";
@@ -34,12 +34,20 @@ export default function LessonsPage() {
   const [right, setRight] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shownAt = useRef(0);
+  /**
+   * The next question is drawn inside a setTimeout, which closes over the
+   * progress captured *before* the answer was recorded. Without this, an item
+   * just banked would still be in the draw for one more question.
+   */
+  const live = useRef(progress);
+  useEffect(() => {
+    live.current = progress;
+  }, [progress]);
 
   useEffect(() => () => clearTimeout(timer.current ?? undefined), []);
 
   const cleared = (s: Stage) =>
-    s.items.filter((i) => statFor(progress, i.id).streak >= MASTERY_TARGET)
-      .length;
+    s.items.filter((i) => isBanked(progress, i.id)).length;
   /** A stage opens when the one below is mostly in hand — 80%, not all of it. */
   const open = (s: Stage) => {
     const prev = STAGES.find((x) => x.n === s.n - 1);
@@ -48,10 +56,12 @@ export default function LessonsPage() {
   };
 
   function ask(s: Stage) {
+    const p0 = live.current;
     const { item, options } = nextQuestion(
       s,
-      (id) => statFor(progress, id).streak,
+      (id) => statFor(p0, id).streak,
       MASTERY_TARGET,
+      (id) => isBanked(p0, id),
     );
     setQ(item);
     setOpts(options);

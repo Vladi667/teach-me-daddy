@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { POINTS, optionsFor, type Point } from "@/lib/vowels";
-import { MASTERY_TARGET, statFor, useProgress } from "@/lib/progress";
+import { MASTERY_TARGET, isBanked, statFor, useProgress } from "@/lib/progress";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { nowMs } from "@/lib/clock";
 import { error as buzz, success, tap } from "@/lib/feedback";
@@ -36,23 +36,33 @@ export default function VowelsPage() {
   const [right, setRight] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shownAt = useRef<number>(0);
+  /**
+   * The next question is drawn inside a setTimeout, which closes over the
+   * progress captured *before* the answer was recorded. Without this, an item
+   * just banked would still be in the draw for one more question.
+   */
+  const live = useRef(progress);
+  useEffect(() => {
+    live.current = progress;
+  }, [progress]);
 
-  const mastered = POINTS.filter(
-    (p) => statFor(progress, p.id).streak >= MASTERY_TARGET,
-  ).length;
+  const mastered = POINTS.filter((p) => isBanked(progress, p.id)).length;
 
-  /** Weakest first, but a mastered point still resurfaces. */
+  /** Weakest first; banked points leave the draw until everything is banked. */
   function next() {
-    const weights = POINTS.map((p) =>
-      Math.max(1, MASTERY_TARGET + 2 - statFor(progress, p.id).streak),
+    const p0 = live.current;
+    const active = POINTS.filter((p) => !isBanked(p0, p.id));
+    const pool = active.length ? active : POINTS;
+    const weights = pool.map((p) =>
+      Math.max(1, MASTERY_TARGET + 2 - statFor(p0, p.id).streak),
     );
     const total = weights.reduce((a, b) => a + b, 0);
     let r = Math.random() * total;
-    let pick = POINTS[POINTS.length - 1];
-    for (let i = 0; i < POINTS.length; i++) {
+    let pick = pool[pool.length - 1];
+    for (let i = 0; i < pool.length; i++) {
       r -= weights[i];
       if (r <= 0) {
-        pick = POINTS[i];
+        pick = pool[i];
         break;
       }
     }
@@ -64,7 +74,6 @@ export default function VowelsPage() {
 
   useEffect(() => {
     if (!ready || q) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     next();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);

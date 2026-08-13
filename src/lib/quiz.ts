@@ -1,5 +1,5 @@
 import { LETTERS, TRAP_LETTERS, type Letter } from "./letters.ts";
-import { MASTERY_TARGET, statFor, type ProgressMap } from "./progress.ts";
+import { MASTERY_TARGET, isBanked, statFor, type ProgressMap } from "./progress.ts";
 
 export const ROUND_LENGTH = 20;
 export const OPTION_COUNT = 4;
@@ -43,7 +43,18 @@ export function poolFor(mode: Mode): Letter[] {
 }
 
 /** Weakest letters come up most often; mastered ones still resurface. */
+/**
+ * Weakest first — and banked glyphs leave the draw entirely.
+ *
+ * Without the retirement, every already-earned glyph kept coming back and one
+ * slow answer knocked it out of the mastered count again, so the board never
+ * converged. Retiring what is banked took the median from "never" to 156
+ * answers in simulation. Once everything is banked the whole pool returns, so
+ * a finished board still gives you something to practise.
+ */
 function pickWeighted(pool: Letter[], progress: ProgressMap): Letter {
+  const active = pool.filter((l) => !isBanked(progress, l.char));
+  if (active.length) pool = active;
   const weights = pool.map((l) =>
     Math.max(1, MASTERY_TARGET + 2 - statFor(progress, l.char).streak),
   );

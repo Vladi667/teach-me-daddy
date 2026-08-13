@@ -235,6 +235,33 @@ hesitating", which is the honest claim. Progress recorded before timing
 existed falls back to the plain streak, so a new metric does not delete work
 already done.
 
+**The best run is banked.** A run used to be the *current* streak, so the
+board asked for three-in-a-row and then took them away again on the next miss.
+Simulated against the real picker, that target was not merely hard but
+unreachable: none of sixty players cleared all 27 glyphs, and the best of them
+peaked around 20 before sliding back, settling near 12. `record` now keeps
+`best` and `bestFast` as running maxima, and `isMastered` reads the maximum
+rather than the live run — a miss still breaks the streak, it just cannot
+repossess ground already taken. The same sixty players all clear the board,
+at a median of 425 answers.
+
+**What is locked leaves the draw.** Banking alone still wastes most of a
+session re-asking glyphs already known. The alphabet picker, the lessons
+picker and the points drill each filter the pool to unbanked items, falling
+back to the full pool once everything is banked so the board stays usable as
+free practice. Median answers to clear all 27 drops from 425 to 156 — roughly
+three sittings rather than nine. The next question is drawn inside a
+`setTimeout` that would otherwise close over the progress captured *before*
+the answer was recorded, so a live ref carries the post-answer state in and a
+glyph banked by the last answer is gone from the very next question.
+
+**The points boards were leaking the answer.** `optionsFor` sliced its
+distractors off the front of a fixed list, which made only eight distinct
+boards across all nineteen points — `mu` and `e` never appeared as a wrong
+answer at all, so several items could be answered by elimination without
+reading the sign. It now samples: near misses that share the carrier first,
+then the rest, for 515 distinct boards.
+
 **Timing.** The script is a gate, not a subject. FSI rates Hebrew Category III
 at 1,100 hours, and DLI 64 weeks, but neither spends more than the first week
 on the script. Recognition of the letters is two to four hours; the points are

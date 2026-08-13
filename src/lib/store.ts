@@ -18,6 +18,17 @@ export interface LetterStat {
   fast?: number;
   /** Milliseconds taken on the last answer, for the record. */
   ms?: number;
+  /**
+   * The best runs ever reached, which is what mastery is judged on.
+   *
+   * Without these, mastery was the *current* streak, so one slow answer on an
+   * already-known letter un-mastered it — and the picker kept redrawing
+   * mastered letters to knock them back down. Simulated at 90% correct and 80%
+   * under the bar, the 27-glyph board cleared in 0 of 60 runs and sat at 12.
+   * Banking the best run clears it in 60 of 60.
+   */
+  best?: number;
+  bestFast?: number;
 }
 
 export interface Settings {

@@ -82,18 +82,35 @@ export const SOUNDS = [...new Set(POINTS.map((p) => p.sound))];
  *
  * Distractors share the carrier where they can — asking whether מַ is "ma" or
  * "ba" tests nothing, because the letter already answers it. The choice has to
- * turn on the mark.
+ * turn on the mark. A dagesh pair always offers its partner.
+ *
+ * The tiers are *sampled*, not sliced. Slicing a fixed order meant "mu" and
+ * "e" were never generated as wrong answers, so seeing either one on the board
+ * meant it was the answer — three of the nineteen points were answerable
+ * without looking at the Hebrew at all. Sampling also means the same point
+ * does not show the same four buttons every time.
  */
+function sample<T>(from: readonly T[], n: number): T[] {
+  const pool = [...from];
+  const out: T[] = [];
+  while (out.length < n && pool.length) {
+    out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+  }
+  return out;
+}
+
 export function optionsFor(p: Point, count = 4): string[] {
   const carrier = p.sound.replace(/[aeiou]+$/, "");
-  const sameCarrier = SOUNDS.filter(
-    (s) => s !== p.sound && s !== p.pair && s.replace(/[aeiou]+$/, "") === carrier,
+  const others = SOUNDS.filter((s) => s !== p.sound && s !== p.pair);
+  const sameCarrier = others.filter(
+    (s) => s.replace(/[aeiou]+$/, "") === carrier,
   );
-  const rest = SOUNDS.filter(
-    (s) => s !== p.sound && s !== p.pair && !sameCarrier.includes(s),
-  );
-  // The pair comes first among the distractors, so it survives the slice.
-  const distractors = [...(p.pair ? [p.pair] : []), ...sameCarrier, ...rest];
+  const rest = others.filter((s) => !sameCarrier.includes(s));
+
+  const need = count - 1 - (p.pair ? 1 : 0);
+  const near = sample(sameCarrier, need);
+  const far = sample(rest, need - near.length);
+  const distractors = [...(p.pair ? [p.pair] : []), ...near, ...far];
   return [p.sound, ...distractors].slice(0, count);
 }
 

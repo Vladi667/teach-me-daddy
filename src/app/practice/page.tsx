@@ -51,6 +51,16 @@ export default function PracticePage() {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   /** When the current question appeared. Fluency is a latency skill. */
   const shownAt = useRef<number>(0);
+  /**
+   * The next question is drawn inside a setTimeout, which closes over the
+   * progress captured *before* the answer was recorded. Without this, an item
+   * just banked would still be in the draw for one more question.
+   */
+  const live = useRef(progress);
+  useEffect(() => {
+    live.current = progress;
+  }, [progress]);
+
 
   const begin = useCallback((m: Mode, p: ProgressMap) => {
     if (timer.current) clearTimeout(timer.current);
@@ -111,7 +121,7 @@ export default function PracticePage() {
             return { ...prev, score, missed, over: true };
           }
           return {
-            question: makeQuestion(mode, progress),
+            question: makeQuestion(mode, live.current),
             index: prev.index + 1,
             score,
             missed,

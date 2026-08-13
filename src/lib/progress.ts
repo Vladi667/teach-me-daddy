@@ -42,8 +42,15 @@ export function statFor(progress: ProgressMap, char: string): LetterStat {
  */
 export function isMastered(progress: ProgressMap, char: string): boolean {
   const st = statFor(progress, char);
-  return st.streak >= MASTERY_TARGET && (st.fast ?? st.streak) >= MASTERY_TARGET;
+  // Banked: the best run ever reached, not the run in progress. A later miss
+  // costs the current streak but never takes back a glyph already earned.
+  const streak = Math.max(st.streak, st.best ?? 0);
+  const fast = Math.max(st.fast ?? st.streak, st.bestFast ?? st.fast ?? st.streak);
+  return streak >= MASTERY_TARGET && fast >= MASTERY_TARGET;
 }
+
+/** Banked items leave the active draw, so the drill converges. */
+export const isBanked = isMastered;
 
 /**
  * A letter counts once both of its shapes do.
@@ -68,23 +75,27 @@ export function useProgress() {
       update((d) => {
         const cur = d.alphabet[char] ?? EMPTY;
         const quick = correct && ms !== undefined && ms <= FAST_MS;
+        const streak = correct ? cur.streak + 1 : 0;
+        const fast = correct
+          ? ms === undefined
+            ? (cur.fast ?? 0)
+            : quick
+              ? (cur.fast ?? 0) + 1
+              : 0
+          : 0;
         return {
           ...d,
           alphabet: {
             ...d.alphabet,
             [char]: {
-              streak: correct ? cur.streak + 1 : 0,
+              streak,
               seen: cur.seen + 1,
               wrong: cur.wrong + (correct ? 0 : 1),
+              best: Math.max(cur.best ?? 0, streak),
+              bestFast: Math.max(cur.bestFast ?? 0, fast),
               // An untimed correct answer holds the run rather than breaking
               // it; only a slow one resets it, and a wrong one resets both.
-              fast: correct
-                ? ms === undefined
-                  ? (cur.fast ?? 0)
-                  : quick
-                    ? (cur.fast ?? 0) + 1
-                    : 0
-                : 0,
+              fast,
               ms,
             },
           },

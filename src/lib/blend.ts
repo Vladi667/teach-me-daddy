@@ -320,15 +320,19 @@ export function nextQuestion(
   stage: Stage,
   streakOf: (id: string) => number,
   target = 3,
+  /** Banked items leave the draw, so a stage converges instead of circling. */
+  banked: (id: string) => boolean = () => false,
 ): { item: Item; options: string[] } {
-  const weights = stage.items.map((i) => Math.max(1, target + 2 - streakOf(i.id)));
+  const active = stage.items.filter((i) => !banked(i.id));
+  const items = active.length ? active : stage.items;
+  const weights = items.map((i) => Math.max(1, target + 2 - streakOf(i.id)));
   const total = weights.reduce((a, b) => a + b, 0);
   let r = Math.random() * total;
-  let pick = stage.items[stage.items.length - 1];
-  for (let k = 0; k < stage.items.length; k++) {
+  let pick = items[items.length - 1];
+  for (let k = 0; k < items.length; k++) {
     r -= weights[k];
     if (r <= 0) {
-      pick = stage.items[k];
+      pick = items[k];
       break;
     }
   }
