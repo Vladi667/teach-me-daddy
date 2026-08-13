@@ -178,9 +178,7 @@ export default function LessonsPage() {
         </p>
 
         {/* Worked example, broken into the parts the rule is about. */}
-        {(
-
-          <div className="panel mt-6 rounded-2xl px-5 py-6 text-center">
+        <div className="panel mt-6 rounded-2xl px-5 py-6 text-center">
             <div className="flex items-baseline justify-center gap-2">
               {breakdown(stage.example).map((b, i, arr) => (
                 <span key={i} className="flex items-baseline gap-2">
@@ -196,11 +194,10 @@ export default function LessonsPage() {
                 </span>
               ))}
             </div>
-            <p className="mt-3 text-sm text-ink-3 italic">
-              {breakdown(stage.example).map((b) => b.sound).join(" · ")}
-            </p>
-          </div>
-        )}
+          <p className="mt-3 text-sm text-ink-3 italic">
+            {breakdown(stage.example).map((b) => b.sound).join(" · ")}
+          </p>
+        </div>
 
         <button
           onClick={() => {
