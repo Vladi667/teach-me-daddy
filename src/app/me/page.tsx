@@ -11,6 +11,7 @@ import { cardId } from "@/lib/programme";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { LIBRARY } from "@/lib/reading";
 import { ALL_ITEMS } from "@/lib/blend";
+import { WEEKS, readiness } from "@/lib/exams";
 import { useToday } from "@/lib/clock";
 import {
   GUEST,
@@ -47,6 +48,8 @@ export default function MePage() {
   const inReview = lineCards.filter((c) => isReview(c!)).length;
   const hours = Math.round(totalMinutes(data.plan) / 60);
   const run = ready ? streak(data.plan) : 0;
+  // §8d — the newest week is the one being trained for.
+  const readyPct = readiness(data.exams ?? [], WEEKS[WEEKS.length - 1]);
 
   return (
     <>
@@ -262,6 +265,12 @@ export default function MePage() {
       <section className="mb-4">
         <h2 className="eyebrow mb-2">Tools</h2>
         <div className="flex flex-col">
+          <ToolLink
+            href="/tests"
+            label="Weekly test"
+            note={`${readyPct}%`}
+            hint="The ulpan's own test. Drill it, sit it, watch the trail."
+          />
           <ToolLink
             href="/notes"
             label="Field notes"

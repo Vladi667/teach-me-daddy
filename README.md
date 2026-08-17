@@ -50,6 +50,14 @@ the §8 metrics (listening and speaking minutes against 45/day, hours against
 120/month), the coverage curve from §1, the month-by-month roadmap from §4, and
 the golden rules from §9. Plus a zero-missed-days streak.
 
+**The Weekly Test** — the ulpan's own test, which is the one deadline the
+programme didn't invent, so it sits outside the scheduler. Week 1 is the aleph
+paper: 109 questions across four sections, the personal-details form, and four
+gap-fill passages. Drill a section with corrections, or sit the mixed 40-question
+mock cold. Every sitting is kept, so the screen can show your best, your last,
+and the distance between your first run and this one. A new week is one file
+(`src/lib/exams.w<n>.ts`) plus one line in `WEEKS`.
+
 ## The scheduler
 
 `src/lib/srs.ts` is SM-2 with learning steps, the same shape Anki uses — this

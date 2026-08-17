@@ -369,6 +369,55 @@ levels 1-2 fully pointed, 3-4 reduced, 5-6 bare.
 
 ---
 
+## 8d. The weekly test
+
+The ulpan sets a test every week. It is the only deadline in this app that the
+programme did not invent, and it does not go through the scheduler: a card due
+in four days is no use on Thursday. `/tests` is filed under Tools as **Weekly
+test**.
+
+Each week is a fixed bank in its own file — `src/lib/exams.w1.ts` — because the
+material is the classroom's, not the corpus's. It is whatever the teacher said
+would be on it. Adding next week is one file plus one line in `WEEKS`, and
+nothing else in the app changes.
+
+Week 1 is the aleph test: 109 multiple-choice questions across the four
+sections the teacher named (present tense 30, זה/זאת/אלה 22, singular into
+plural 24, personal details and professions 33), the personal-details form, and
+four gap-fill passages. Everything is unpointed, because the paper is, and a
+vocalised drill would train a reading the test never shows.
+
+**Two modes, and the difference is the point.** A section drill corrects you
+where you stand and makes a miss wait until the margin note has been read. The
+mock says nothing until the end: 40 questions drawn proportionally across the
+four sections, then a breakdown of where it went and every miss with its rule.
+Correcting during a mock measures a different skill from the one the ulpan
+measures on Thursday.
+
+**A section drill is the whole section, not a sample of it.** A random 15 of 30
+would make two runs incomparable, and comparing runs is what the screen exists
+for. Options are reshuffled every time, or the fourth run stops testing Hebrew
+and starts testing which position the answer sat in.
+
+**Every sitting is kept and nothing is averaged away.** One score says nothing;
+the third run against the first is the number that answers whether the evening
+worked. So `series` returns runs in order, `delta` reports latest against first
+including when it is negative, and a bad run stays in the trail — which is the
+only thing that makes the good ones mean anything.
+
+Readiness is the average of your best in each marked section, counting a
+section never opened as zero. Averaging only what has been attempted would read
+100% after one good section, which is precisely the reassurance a test week
+cannot afford.
+
+**The form is practice and is never stored.** It is a real identity sheet —
+name, date of birth, ת.ז. — and §10's accounts are a username with an optional
+four-digit PIN, which is not authentication. The exercise is writing the
+Hebrew, not keeping the record, so its state lives in the component and dies
+with it.
+
+---
+
 ## 9. What the trainee cannot do
 
 The interface offers no choices that a syllabus should be making.

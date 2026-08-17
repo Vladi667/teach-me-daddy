@@ -19,7 +19,7 @@ const TABS = [
 /** Routes that belong under a tab but aren't the tab's own href. */
 const OWNED: Record<string, string[]> = {
   "/": ["/learn", "/review", "/shadow", "/produce", "/assess"],
-  "/me": ["/notes", "/alphabet", "/practice", "/progress"],
+  "/me": ["/notes", "/alphabet", "/practice", "/progress", "/tests"],
 };
 
 export default function TabBar() {
