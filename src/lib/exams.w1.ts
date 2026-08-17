@@ -159,7 +159,7 @@ const DETAILS = bank("details", [
 const FORM: FormField[] = [
   { key: "first", he: "שם פרטי", en: "First name", hint: "ולאד", kind: "text" },
   { key: "last", he: "שם משפחה", en: "Last name / surname", kind: "text" },
-  { key: "land", he: "ארץ לידה", en: "Country of birth", hint: "רומניה", kind: "text" },
+  { key: "land", he: "ארץ לידה", en: "Country of birth", hint: "שווייץ", kind: "text" },
   { key: "born", he: "תאריך לידה", en: "Date of birth — day / month / year", hint: "12.05.2000", kind: "text" },
   { key: "tz", he: "מספר ת.ז.", en: "ID number (תעודת זהות) — 9 digits, one per box", kind: "boxes" },
   {
@@ -179,7 +179,7 @@ const FORM: FormField[] = [
     ],
   },
   { key: "kids", he: "מספר ילדים", en: "Number of children", hint: "0", kind: "text" },
-  { key: "job", he: "מקצוע", en: "Profession", hint: "יזם", kind: "text" },
+  { key: "job", he: "מקצוע", en: "Profession", hint: "פיננסים", kind: "text" },
   { key: "addr", he: "כתובת", en: "Address — street, number, city", hint: "רחוב יפו 5, ירושלים", kind: "text" },
   { key: "tel", he: "מספר טלפון", en: "Phone number", hint: "05…", kind: "text" },
 ];
