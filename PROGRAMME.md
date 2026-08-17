@@ -373,8 +373,8 @@ levels 1-2 fully pointed, 3-4 reduced, 5-6 bare.
 
 The ulpan sets a test every week. It is the only deadline in this app that the
 programme did not invent, and it does not go through the scheduler: a card due
-in four days is no use on Thursday. `/tests` is filed under Tools as **Weekly
-test**.
+in four days is no use on Thursday. `/tests` is its own tab, **TEST** — see
+§10 for why it is a peer of TODAY rather than a tool filed under You.
 
 Each week is a fixed bank in its own file — `src/lib/exams.w1.ts` — because the
 material is the classroom's, not the corpus's. It is whatever the teacher said
@@ -437,11 +437,17 @@ assignment.
 
 ## 10. Surface
 
-Two screens.
+Three screens.
 
 **TODAY.** The assignment and the run. Day counter, the five blocks in order,
 current block highlighted, everything else inert. Starting a block enters a
 full-screen run that exits when the block is done.
+
+**TEST.** The ulpan's paper, §8d. The one tab that is not the programme's, and
+the reason it is a tab rather than a tool: it is set by someone else, it lands
+on a fixed day, and it does not wait for an interval to come due. Filed under
+Tools it read as something the syllabus was offering, which is exactly what it
+is not. Everything else the app offers you can be done tomorrow instead.
 
 **RECORD.** The file. Day X of 140, readiness, coverage curve, days logged and
 missed, assessment results with dates, projected deployment. Read-only.

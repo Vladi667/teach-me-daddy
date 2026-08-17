@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import {
   MOCK,
   MOCK_SIZE,
@@ -21,7 +20,6 @@ import {
 } from "@/lib/exams";
 import { update, useStore } from "@/lib/store";
 import { nowMs, useToday } from "@/lib/clock";
-import { LINK_PREFETCH } from "@/lib/base-path";
 import { tap } from "@/lib/feedback";
 import Ring from "@/components/Ring";
 import ScoreTrail from "@/components/ScoreTrail";
@@ -399,15 +397,6 @@ export default function TestsPage() {
           </p>
         </section>
       )}
-
-      <Link
-        href="/me"
-        prefetch={LINK_PREFETCH}
-        onClick={tap}
-        className="btn btn-quiet mt-2 w-full text-sm"
-      >
-        Done for now
-      </Link>
     </>
   );
 }

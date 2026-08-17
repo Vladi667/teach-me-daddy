@@ -6,12 +6,18 @@ import { tap } from "@/lib/feedback";
 import { LINK_PREFETCH } from "@/lib/base-path";
 
 /**
- * §10 — two screens and a settings page. Study, Letters and the deck browser
+ * §10 — three screens and a settings page. Study, Letters and the deck browser
  * were peers of TODAY, which made the programme one option among several;
  * everything the syllabus issues now runs from TODAY and returns there.
+ *
+ * TEST is the one exception, and it earns the place by not being the
+ * programme's at all (§8d). The ulpan sets it, it lands on a fixed day, and
+ * filing it under Tools made it look like something the syllabus offers you.
+ * It is the only obligation here that arrives from outside.
  */
 const TABS = [
   { href: "/", label: "Today", icon: TodayIcon },
+  { href: "/tests", label: "Test", icon: TestIcon },
   { href: "/plan", label: "Record", icon: PlanIcon },
   { href: "/me", label: "You", icon: YouIcon },
 ] as const;
@@ -19,7 +25,7 @@ const TABS = [
 /** Routes that belong under a tab but aren't the tab's own href. */
 const OWNED: Record<string, string[]> = {
   "/": ["/learn", "/review", "/shadow", "/produce", "/assess"],
-  "/me": ["/notes", "/alphabet", "/practice", "/progress", "/tests"],
+  "/me": ["/notes", "/alphabet", "/practice", "/progress"],
 };
 
 export default function TabBar() {
@@ -97,6 +103,17 @@ function TodayIcon({ active }: IconProps) {
 }
 
 
+
+/** A sheet of paper. The calendar is RECORD's; this one is the ulpan's. */
+function TestIcon({ active }: IconProps) {
+  return (
+    <svg {...S} strokeWidth={w(active)}>
+      <path d="M6.5 3.5H13l6 6v10.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 20V5a1.5 1.5 0 0 1 1.5-1.5Z" />
+      <path d="M12.8 3.6V9a.5.5 0 0 0 .5.5h5.4" />
+      <path d="M8.5 13.5h7M8.5 17h4.5" />
+    </svg>
+  );
+}
 
 function PlanIcon({ active }: IconProps) {
   return (
