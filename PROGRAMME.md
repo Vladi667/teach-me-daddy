@@ -523,6 +523,76 @@ where known vocabulary helps rather than cheats. The overlap is small in any
 case: the ladder is week-one work and the corpus runs to day 132.
 ---
 
+## 8f. Stripping the prefix
+
+Seven letters attach to the front of a Hebrew word and change its meaning
+without being part of it: ה the, ו and, ב in, כ like, ל to, מ from, ש that —
+מש״ה וכל״ב. A reader who cannot see past them reads six characters where a
+fluent reader sees one letter plus a word already known. After the glyphs
+themselves this is the largest lever there is.
+
+**How big, honestly.** Three counts on this corpus, because the easy one is
+wrong:
+
+| Measure | Share of running words |
+| --- | --- |
+| Starts with one of the seven letters | 56.1% |
+| ...and that letter carries a vowel a prefix can take | **40.1%** |
+| ...and stripping it leaves a word this corpus attests | 6.6% |
+
+The first figure is the one to distrust, and it was quoted here before it was
+checked: it counts מַיִם and שָׁלוֹם, which wear no prefix at all. **40.1% is
+the honest estimate.** The 6.6% is not a measurement of Hebrew but of what can
+be *verified end to end* against this corpus, and it is a floor — the base of a
+genuinely prefixed word often never appears bare in 1,359 sentences.
+
+**Nothing is parsed.** Automatic morphological analysis of unvocalised-adjacent
+Hebrew gets things wrong, and a wrong analysis on screen teaches a wrong
+reading. So the material is verified from both ends instead: a family survives
+only when the prefixed form and the bare base are both attested, the prefix
+vowel is one that prefix can actually carry, and the remainder matches the
+base's *pointing* rather than merely its consonants. That last rule is
+load-bearing — matching consonants alone read מִלֵּא ("filled") as mem + לֹא
+and מִסְפַּר ("number") as mem + סֵפֶר. Prefixing may add a dagesh
+(יוֹם → הַיּוֹם) and nothing else, so that is the only difference tolerated.
+
+Two rules are lexical rather than derivable, so they are simply listed. שֶׁל is
+a word of its own, "of", so שֶׁלִּי is שֶׁל plus a pronoun suffix meaning
+"mine" — not shin + לִי, "that to me"; the whole possessive set is excluded.
+And מִלָּה ("word") and לְכִי (the imperative "go!") pass every filter while
+carrying no prefix, so they are named and dropped. These were found by reading
+all 269 surviving candidates, not by trusting the filters: eight were wrong, an
+error rate of about 3%, and they are gone.
+
+Result: **177 families, 261 prefixed forms**, every one of the seven prefixes
+represented. A unit test asserts that stripping each form's prefix really does
+leave its base, and that the eight known impostors stay out.
+
+**Two stages, because stripping is two skills.** Knowing what בְּ means is not
+knowing where בְּ ends, and the second is the half that makes reading faster.
+
+- **Stage 1 — what the little letter says.** The prefix is tinted, and the
+  question is what it means. Options are drawn from the seven meanings only.
+- **Stage 2 — find the word underneath.** Nothing is marked, and the question
+  is which word is left. Options are Hebrew bases of similar length to the
+  answer, because offering wildly different words would let the question be
+  answered on shape alone without stripping anything.
+
+Stage 2 opens when 60% of stage 1 is banked. Both use the same criterion as
+every other drill — three correct in a row, each under two seconds — with
+banking and retirement from §8a, and a miss shows the word coming apart at the
+prefix with the base named. The teaching screen shows one word wearing every
+prefix it is attested with (זֶה → הַזֶּה, לָזֶה, מִזֶּה, בָּזֶה, כָּזֶה,
+שֶׁזֶּה), because the contrast is the lesson.
+
+**A note on the shin dot.** The prefix ש is שֶׁ, and the first attempt found no
+shin families at all. The vowel test was reading the shin dot as though it were
+a vowel, so segol never matched. Dagesh, shin dot and sin dot are all letter
+diacritics rather than vowels; excluding all three took shin from zero forms to
+forty-five. This is the third time NFC combining marks have caused a silent
+wrong answer in this project.
+---
+
 ## 9. What the trainee cannot do
 
 The interface offers no choices that a syllabus should be making.

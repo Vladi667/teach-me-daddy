@@ -5,13 +5,14 @@ import Link from "next/link";
 import { LETTERS } from "@/lib/letters";
 import { LINES } from "@/lib/lines";
 import { isMature, isReview } from "@/lib/srs";
-import { MASTERY_TARGET, masteredCount } from "@/lib/progress";
+import { MASTERY_TARGET, isBanked, masteredCount } from "@/lib/progress";
 import { shiftDay, streak, totalMinutes } from "@/lib/plan";
 import { cardId } from "@/lib/programme";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { LIBRARY } from "@/lib/reading";
 import { ALL_ITEMS } from "@/lib/blend";
 import { RUNGS } from "@/lib/ladder";
+import { ALL_ITEMS as AFFIX_ITEMS } from "@/lib/affix";
 import { useToday } from "@/lib/clock";
 import {
   GUEST,
@@ -40,6 +41,7 @@ export default function MePage() {
   ).length;
 
   const ladderClean = Object.values(data.ladder ?? {}).filter((l) => l.clean).length;
+  const affixDone = AFFIX_ITEMS.filter((i) => isBanked(data.alphabet, i.id)).length;
 
   const mastered = ready ? masteredCount(data.alphabet) : 0;
   // Counted over the programme's own cards. The legacy deck left its keys in
@@ -278,6 +280,12 @@ export default function MePage() {
             label="Reading lessons"
             note={`${lessonsDone} of ${ALL_ITEMS.length}`}
             hint="Letters into syllables into words. Start here."
+          />
+          <ToolLink
+            href="/affix"
+            label="Prefixes"
+            note={`${affixDone} of ${AFFIX_ITEMS.length}`}
+            hint="The seven letters that hide the word. Two words in five."
           />
           <ToolLink
             href="/ladder"
