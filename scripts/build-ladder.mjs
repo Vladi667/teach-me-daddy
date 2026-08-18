@@ -45,9 +45,13 @@ const src =
   readFileSync(resolve(root, "src/lib/lines.seed.ts"), "utf8") +
   readFileSync(resolve(root, "src/lib/lines.gen.ts"), "utf8");
 
-/** Every { he, fr } in the corpus, in file order. */
-const CORPUS = [...src.matchAll(/he:\s*"((?:[^"\\]|\\.)*)"[\s\S]{0,120}?fr:\s*"((?:[^"\\]|\\.)*)"/g)]
-  .map((m) => ({ he: m[1].normalize("NFC"), fr: m[2] }))
+/** Every { id, he, fr } in the corpus, in file order. */
+const CORPUS = [
+  ...src.matchAll(
+    /id:\s*"([^"]+)",[\s\S]{0,80}?he:\s*"((?:[^"\\]|\\.)*)"[\s\S]{0,120}?fr:\s*"((?:[^"\\]|\\.)*)"/g,
+  ),
+]
+  .map((m) => ({ id: m[1], he: m[2].normalize("NFC"), fr: m[3] }))
   // Pattern lines carry a ___ blank: not readable text.
   .filter((l) => !l.he.includes("_") && !/[A-Za-z]/.test(l.he));
 
@@ -186,7 +190,9 @@ for (const p of PLAN) {
       .sort((a, b) => a.n - b.n || b.score - a.score);
     for (const l of cand.slice(0, p.per * p.max)) {
       usedSentence.add(l.he);
-      lines.push({ he: l.he, fr: l.fr });
+      // The source id carries the audio. A whole sentence has a recording;
+      // a fragment cut out of one does not, and must not claim it.
+      lines.push({ he: l.he, fr: l.fr, src: l.id });
     }
   }
 
@@ -238,7 +244,12 @@ ${r.passages
         kind: ${j(p.kind)},
         words: ${p.words},
         lines: [
-${p.lines.map((l) => `          { he: ${j(l.he)}${l.fr ? `, fr: ${j(l.fr)}` : ""} },`).join("\n")}
+${p.lines
+  .map(
+    (l) =>
+      `          { he: ${j(l.he)}${l.fr ? `, fr: ${j(l.fr)}` : ""}${l.src ? `, src: ${j(l.src)}` : ""} },`,
+  )
+  .join("\n")}
         ],
       },`,
   )

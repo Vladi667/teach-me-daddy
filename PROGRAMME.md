@@ -486,6 +486,36 @@ that no line anywhere needs a letter it has not been taught. Both are
 meaningfully constraining rather than vacuous: every rung holds forty to sixty
 words that would fail at the rung below.
 
+**Help costs something.** Every word in a passage can be tapped, and a free
+reveal would be actively harmful: you would tap each word in turn, understand
+the line, and learn nothing, because nothing was retrieved. So help comes in
+two tiers and both are counted. A tap splits the word into its syllables —
+help with *chunking*, which still leaves the sounding-out to the reader. A
+second, deliberate press spells it out in Latin letters. Either one costs the
+clean mark.
+
+**Only a clean read retires a passage.** A passage read with any help at all
+stays in the queue and comes back. This is the whole progression rule, and it
+is not punitive: the review names the words that stopped you and shows each
+one broken into syllables with its sounds, so the next attempt is a re-read
+with the answers already given. The loop converges in two or three passes
+rather than grinding.
+
+**A helped sitting records no speed.** Words per minute is only written on a
+clean read, because a time that includes four stops to look words up is not a
+reading speed and putting a number on it would flatter the trainee.
+
+**The gloss and the recording come after, never during.** French on screen
+while reading is French being read. Rungs 5-7 are whole corpus sentences, so
+their recordings exist and play on the review screen; rungs 1-4 are fragments
+cut from sentences, whose recording would play the rest of the sentence too,
+so they have none and claim none.
+
+**A rung opens only when every one of its glyphs is banked** in the alphabet
+drill, final forms included, with no partial credit. Until six letters are
+banked there is nothing to read and the screen says so, and points at the
+drill rather than pretending otherwise.
+
 **Why this draws on the programme corpus when §8c refuses to.** The reading
 library measures reading *speed*, so re-reading a drilled line would measure
 recall instead. The ladder measures *decoding* — turning marks into sounds —

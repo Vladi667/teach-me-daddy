@@ -11,6 +11,7 @@ import { cardId } from "@/lib/programme";
 import { LINK_PREFETCH } from "@/lib/base-path";
 import { LIBRARY } from "@/lib/reading";
 import { ALL_ITEMS } from "@/lib/blend";
+import { RUNGS } from "@/lib/ladder";
 import { useToday } from "@/lib/clock";
 import {
   GUEST,
@@ -25,6 +26,8 @@ import {
 } from "@/lib/store";
 import { tap } from "@/lib/feedback";
 
+const LADDER_TOTAL = RUNGS.reduce((n, r) => n + r.passages.length, 0);
+
 export default function MePage() {
   const { username, data, sync, ready } = useStore();
   const [note, setNote] = useState<string | null>(null);
@@ -35,6 +38,8 @@ export default function MePage() {
   const lessonsDone = ALL_ITEMS.filter(
     (i) => (data.alphabet[i.id]?.streak ?? 0) >= MASTERY_TARGET,
   ).length;
+
+  const ladderClean = Object.values(data.ladder ?? {}).filter((l) => l.clean).length;
 
   const mastered = ready ? masteredCount(data.alphabet) : 0;
   // Counted over the programme's own cards. The legacy deck left its keys in
@@ -273,6 +278,12 @@ export default function MePage() {
             label="Reading lessons"
             note={`${lessonsDone} of ${ALL_ITEMS.length}`}
             hint="Letters into syllables into words. Start here."
+          />
+          <ToolLink
+            href="/ladder"
+            label="Decoding ladder"
+            note={`${ladderClean} of ${LADDER_TOTAL}`}
+            hint="Real Hebrew in the letters you have banked. Seven rungs."
           />
           <ToolLink
             href="/read"

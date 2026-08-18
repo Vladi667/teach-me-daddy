@@ -7,6 +7,7 @@ import { emptyPlan, type PlanState } from "./plan.ts";
 import type { Assessment } from "./assessment.ts";
 import type { ReadLog } from "./reading.ts";
 import type { ExamRun } from "./exams.ts";
+import type { LadderLog } from "./ladder.ts";
 import { NEW_WORDS_CAP } from "./plan.ts";
 
 /* --- shape --------------------------------------------------------------- */
@@ -62,6 +63,8 @@ export interface ProfileData {
   reading: Record<string, ReadLog>;
   /** §8d — every sitting of a weekly test, appended and never rewritten. */
   exams: ExamRun[];
+  /** §8e — one entry per decoding-ladder passage, keyed by passage id. */
+  ladder: Record<string, LadderLog>;
   settings: Settings;
   /** Epoch ms of the last local change — drives last-write-wins on sync. */
   updatedAt: number;
@@ -79,6 +82,7 @@ export const emptyData = (): ProfileData => ({
   assessments: [],
   reading: {},
   exams: [],
+  ladder: {},
   settings: { newPerDay: NEW_WORDS_CAP, gloss: "fr", phonetics: true },
   updatedAt: 0,
 });
@@ -97,6 +101,7 @@ function normalise(raw: Partial<ProfileData> | null): ProfileData {
     assessments: raw.assessments ?? base.assessments,
     reading: raw.reading ?? base.reading,
     exams: raw.exams ?? base.exams,
+    ladder: raw.ladder ?? base.ladder,
     plan: { ...base.plan, ...(raw.plan ?? {}) },
     settings: { ...base.settings, ...(raw.settings ?? {}) },
     version: 1,

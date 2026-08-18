@@ -9,6 +9,7 @@ import {
   readableAt,
   rungAt,
   skeleton,
+  tokens,
   wordsOf,
 } from "./ladder.ts";
 
@@ -93,6 +94,15 @@ test("the early rungs read fragments, the later ones whole sentences", () => {
   for (const l of ALL_LINES) {
     if (l.rung >= 5) assert.ok(l.fr, `${l.id}: sentence without a gloss`);
     else assert.equal(l.fr, undefined, `${l.id}: fragment with a gloss`);
+  }
+});
+
+test("a fragment never claims a recording", () => {
+  // The audio covers a whole corpus line. A fragment cut out of one would
+  // play the rest of the sentence too, which is worse than silence.
+  for (const l of ALL_LINES) {
+    if (l.rung >= 5) assert.ok(l.src, `${l.id}: sentence with no source line`);
+    else assert.equal(l.src, undefined, `${l.id}: fragment claiming audio`);
   }
 });
 
@@ -190,6 +200,30 @@ test("skeleton strips points and folds the final forms", () => {
   assert.equal(skeleton("שָׁלוֹם"), "שלומ");
   assert.equal(skeleton("לָךְ"), "לכ");
   assert.equal(skeleton("אֶרֶץ"), "ארצ");
+});
+
+test("tokens keep punctuation so nothing is lost on screen", () => {
+  // Some corpus lines store the question mark at the head of the string, an
+  // artefact of the source writing right-to-left. Rendering must not drop it.
+  const line = "?מָה נִשְׁמָע";
+  const tk = tokens(line);
+  assert.equal(tk.map((x) => x.t).join(""), line, "the line did not survive");
+  assert.deepEqual(
+    tk.filter((x) => x.word).map((x) => x.t),
+    ["מָה", "נִשְׁמָע"],
+  );
+  assert.deepEqual(tk.filter((x) => !x.word).map((x) => x.t), ["?", " "]);
+});
+
+test("every line in the ladder survives being tokenised", () => {
+  for (const l of ALL_LINES) {
+    assert.equal(
+      tokens(l.he).map((x) => x.t).join(""),
+      l.he,
+      `${l.id}: "${l.he}" changed when split`,
+    );
+    assert.ok(tokens(l.he).some((x) => x.word), `${l.id}: no tappable word`);
+  }
 });
 
 test("wordsOf reads the passage in order, punctuation aside", () => {

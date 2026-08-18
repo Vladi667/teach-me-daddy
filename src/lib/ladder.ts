@@ -21,6 +21,29 @@ export interface LadderLine {
   he: string;
   /** Present only on whole sentences; fragments have no gloss of their own. */
   fr?: string;
+  /** Corpus line this came from, where one recording covers the whole line. */
+  src?: string;
+}
+
+/**
+ * One sitting with a passage.
+ *
+ * Hints and reveals are counted separately because they are different
+ * admissions: a hint says "I could not chunk it", a reveal says "I could not
+ * read it". Both cost the clean mark, which is what makes them cost anything
+ * at all — a free reveal is a button that turns reading into looking.
+ */
+export interface LadderLog {
+  /** Words per minute, best clean sitting if there has been one. */
+  wpm: number;
+  /** Read start to finish with no hint and no reveal. */
+  clean: boolean;
+  hints: number;
+  reveals: number;
+  /** Words revealed last time, so the review can show them. */
+  missed: string[];
+  /** "YYYY-MM-DD". */
+  on: string;
 }
 
 export interface LadderPassage {
@@ -130,9 +153,24 @@ export function clearedIn(
   };
 }
 
+const SEP = /([\s.,!?;:"'()־׳״-]+)/;
+
+/**
+ * A line split for rendering: every word is tappable, every separator is not.
+ *
+ * Punctuation has to survive the split rather than be stripped, because some
+ * corpus lines store their question mark at the head of the string — an
+ * artefact of how the source writes right-to-left text — and dropping it would
+ * silently change the line.
+ */
+export function tokens(he: string): { t: string; word: boolean }[] {
+  return he
+    .split(SEP)
+    .filter(Boolean)
+    .map((t) => ({ t, word: /^[א-ת]+$/.test(skeleton(t)) }));
+}
+
 /** Every word on screen, in reading order, for the tap-to-reveal layer. */
 export function wordsOf(p: LadderPassage): string[] {
-  return p.lines.flatMap((l) =>
-    l.he.split(/[\s.,!?;:"'()־׳״-]+/).filter((w) => /^[א-ת]+$/.test(skeleton(w))),
-  );
+  return p.lines.flatMap((l) => tokens(l.he).filter((x) => x.word).map((x) => x.t));
 }
