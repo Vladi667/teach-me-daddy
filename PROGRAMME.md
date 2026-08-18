@@ -416,6 +416,81 @@ four-digit PIN, which is not authentication. The exercise is writing the
 Hebrew, not keeping the record, so its state lives in the component and dies
 with it.
 
+
+---
+
+## 8e. The decoding ladder
+
+Between knowing the glyphs and reading a page there is a gap the alphabet
+drill cannot cross. §8bb teaches blending on constructed syllables; §8c
+measures speed on text you can already decode. This is the part in between:
+seven rungs, from six letters to twenty-two, reading real Hebrew at every
+step.
+
+**The shape is forced by the corpus, not chosen.** The obvious design is to
+filter the corpus to the letters known so far. Measured, that does not work.
+Gating the 1,359 sentences by a six-letter set leaves *nothing* — nor at seven
+letters, nor eight. Whole sentences appear in useful numbers only at fourteen.
+
+| Letters known | Whole sentences readable |
+| --- | --- |
+| 6 | 0 of 1,359 |
+| 10 | 18 |
+| 14 | 133 |
+| 19 | 658 |
+
+Frequency does not rescue it either. The hundred commonest words cover 26.6%
+of running text but yield fourteen whole sentences, median length two words —
+and between them those hundred words already need twenty of the twenty-two
+letters. There is no ordering of the alphabet that unlocks sentences early,
+because Hebrew words are short and dense with distinct letters.
+
+**Gate on words instead and it opens at once.** The same six letters spell 79
+real corpus words, and 26 attested multi-word fragments; ten letters spell 602
+words and 475 fragments. So rungs 1-4 read *fragments cut from real sentences*
+— `הִיא לֹא`, `יֵשׁ לִי`, `אֵין לִי` — and the ladder crosses over to whole
+sentences at rung 5, which is exactly where the corpus starts supplying them.
+
+| Rung | Letters | Adds | Words | Reads |
+| --- | --- | --- | --- | --- |
+| 1 | 6 | א ת ל כ י ה | 79 | fragments |
+| 2 | 8 | ו מ | 241 | fragments |
+| 3 | 10 | ש נ | 602 | fragments |
+| 4 | 12 | ב ר | 1,111 | fragments |
+| 5 | 14 | ח ע | 1,672 | sentences |
+| 6 | 18 | ד ק פ צ | 2,825 | sentences |
+| 7 | 22 | ז ס ג ט | 3,833 | sentences |
+
+**Nothing is invented.** Every word and every fragment is attested in the
+corpus with its original pointing; the generator only selects and cuts. A
+fragment is scored by the commonness of its rarest word, so `יֵשׁ לִי` outranks
+`לְהַאֲכִיל אֶת`, and no fragment is kept that is contained in one already taken.
+
+**Aleph is pinned first**, then each letter is whichever unlocks the most
+running text next, computed greedily against this corpus. Pinning aleph costs
+a little coverage and is worth it: the alphabet is learned in its own order
+and starting elsewhere is a needless argument to have on day one. The order
+that falls out separates every confusable pair by seven positions or more
+except ד and ר, which land three apart and need contrastive drilling when ד
+arrives.
+
+**A final form follows its own letter rather than waiting.** ך is a rung-1
+glyph because כ is, and rung-1 words use it — `לָךְ`, `אֵיךְ`, `כָּךְ`. A rung opens
+only when every one of its glyphs, finals included, is banked in the alphabet
+drill; there is no partial credit.
+
+**Each rung must teach what it adds.** Every line at a rung contains at least
+one of the letters that rung introduces, so a rung is never a re-read of the
+one below. The test suite asserts this, along with the load-bearing promise —
+that no line anywhere needs a letter it has not been taught. Both are
+meaningfully constraining rather than vacuous: every rung holds forty to sixty
+words that would fail at the rung below.
+
+**Why this draws on the programme corpus when §8c refuses to.** The reading
+library measures reading *speed*, so re-reading a drilled line would measure
+recall instead. The ladder measures *decoding* — turning marks into sounds —
+where known vocabulary helps rather than cheats. The overlap is small in any
+case: the ladder is week-one work and the corpus runs to day 132.
 ---
 
 ## 9. What the trainee cannot do
